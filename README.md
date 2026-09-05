@@ -37,9 +37,15 @@ so `make run-task2` is the whole system.
 
 `src/task3_stream_guard`. `POST /v1/generate` streams the response back with emails, US social security
 numbers and Luhn cards replaced by `[REDACTED]`. The hard case is a value split across chunk boundaries. The
-redactor emits only text that can no longer change, cutting outside the nearest token, so prose holds a few
-characters. Bounded patterns give the hold a ceiling independent of response size. `make bench` prints the
-numbers.
+redactor emits only text that can no longer change, cutting outside the nearest token, so a reply opening in
+prose holds a few characters and starts as fast as the upstream does. A reply that opens mid pattern waits for
+that pattern to resolve instead, and what it costs tracks how long the leading value is rather than which
+kind of value it is. A 15 character address, a 19 character card or an 11 character social security number
+costs one extra chunk. The longest legal address, at 320 characters, costs 26. The worst case costs 53, that
+same address buried inside a longer token so no safe cut turns up for another 320 characters, which is about
+582 ms at the bench's 10 ms per chunk. Bounded patterns give both the held text and that wait a ceiling
+independent of response size. `make bench` prints a first token row for every one of those shapes and names
+the worst.
 
 ## Task 4, rate limiting and model failover
 
