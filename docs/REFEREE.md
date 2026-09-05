@@ -1,8 +1,8 @@
 # Referee cards
 
-One card per number a reviewer sees, written from the code and from live runs rather than from the README. Audited on `master` at `0308589`, working tree clean, no remote. Two exceptions are the time to first token card and the held text by content shape card below, both of which describe a fix to `scripts/bench_stream.py` landing in this same change, not the script as it stood at `0308589`, and are audited against that fixed worktree instead. `make bench` at `0308589` alone still prints the old total time line and has no content shape table.
+One card per number a reviewer sees, written from the code and from live runs rather than from the README. Audited on `master` at `0308589`, working tree clean, no remote. Two exceptions are the time to first token card and the held text by content shape card below, both of which describe a fix to `scripts/bench_stream.py` landing after `0308589` rather than the script as it stood there, and are audited against that fixed worktree instead. `make bench` at `0308589` alone still prints the old total time line and has no content shape table. The time to first token card has since been audited a second time, against the multi shape first token bench landing in this change, because through `0592102` that bench measured only the safe prose shape and reported its near zero result as if it were the whole story. That same change is what finally builds an input that nearly reaches the 640 character ceiling, so the hard ceiling card's Sibling and Bound lines are audited here too.
 
-This repo quotes almost nothing. The whole reader-facing surface is `README.md`, the ten Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench` and `make run-task4` print. The claim harvester finds three number-shaped claims in the README, two of which are specifications lifted from the brief. Beyond those the README carries only JSON-RPC error codes and the three port numbers, all of which sit in the table below. Every measurement a reviewer sees is printed by a command they run themselves.
+This repo quotes almost nothing. The whole reader-facing surface is `README.md`, the ten Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench` and `make run-task4` print. The claim harvester finds three number-shaped claims in the README, two of which are specifications lifted from the brief. The Task 3 paragraph adds the first token costs, and every one of those is a cell `make bench` prints, the chunk counts in its waits column and the fixture lengths in its row labels. Beyond those the README carries only JSON-RPC error codes and the three port numbers, all of which sit in the table below. Every measurement a reviewer sees is printed by a command they run themselves.
 
 ## Untraceable numbers
 
@@ -10,7 +10,7 @@ None. Every number on every surface traces to a constant in `src/`, a line in th
 
 ## What produced the live numbers
 
-Mac17,8, Apple M5 Pro, 18 cores, 64 GB, macOS 26.6 build 25G72. CPython 3.13.11 in the uv-managed `.venv`. One minute load average was between 5.3 and 12.9 on 18 cores across the session, which is a shared box under other work, so every timing here is an upper-ish reading rather than a quiet-box best case. Five `make test` runs, ten `make bench` runs, one `make lint`, one `make run-task4`.
+Mac17,8, Apple M5 Pro, 18 cores, 64 GB, macOS 26.6 build 25G72. CPython 3.13.11 in the uv-managed `.venv`. One minute load average was between 5.3 and 12.9 on 18 cores across the session, which is a shared box under other work, so every timing here is an upper-ish reading rather than a quiet-box best case. Five `make test` runs, ten `make bench` runs, one `make lint`, one `make run-task4`. The time to first token re-audit added five more `make bench` runs on the same box, 14.10 to 14.17 seconds of wall clock each now that the bench times seven leading shapes, one minute load average 5.8 as they finished, and those five are the ones its Sibling line quotes.
 
 ## Specifications from the brief, not measurements
 
@@ -86,7 +86,7 @@ Knob      the two threaded sqlite tests and the task 1 subprocess dominate, so a
 ```
 Claim     "held 15 chars" on all four rows of make bench, from a 3,900 character response to a 3,900,000 character one
 Unit      peak_buffered_chars, the largest number of characters the redactor was ever holding back at one time, over one whole response
-Match     the instrument is the redactor's own counter, updated on every emit at redactor.py line 111, read after flush by _peak_for_length in scripts/bench_stream.py lines 58 to 73
+Match     the instrument is the redactor's own counter, updated on every emit at redactor.py line 111, read after flush by _peak_for_length in scripts/bench_stream.py lines 120 to 135
 Set       a synthetic response built by repeating one 39 character prose chunk, then appending the same 16 character tail " ada@example.com" at the end of every one of the four sizes
 Command   make bench, which runs uv run python scripts/bench_stream.py
 Sibling   make bench now prints a second table beside this one, at a fixed response size near 100,000 characters. Pure prose with no partial pattern peaks at 5, this same mid email ending peaks at 15, and one unbroken 100,000 character token peaks at exactly 320. Two more points measured outside the script and not printed by it, the 428 character DEMO_RESPONSE peaks at 36 and a 316 character legal email split into 7 character chunks peaks at 314
@@ -104,22 +104,22 @@ Unit      characters, the most the redactor can ever hold back, for any input, a
 Match     this is derived, not measured. 640 is 2 times MAX_MATCH_LENGTH 320, and 320 is the longest match any pattern can produce: an email at the RFC 5321 limits, a 64 character local part plus "@" plus a 255 character domain. The cut is never further back than 320, and a match straddling that cut can pull it back 320 more, which is the doubling
 Set       the three patterns in patterns.py, all written with bounded quantifiers so the worst case length is computable: email 320, card 37 (19 digits with 18 separators), SSN 11
 Command   make bench prints it, the derivation is patterns.py line 61 and redactor.py line 22, and the tests that hold it are test_buffer_never_grows_with_response_length, test_held_text_is_bounded_even_by_one_enormous_token and test_one_enormous_chunk_is_still_scanned_in_bounded_slices
-Sibling   the highest value ever observed on any input tried here is 320, exactly half the ceiling, reached by a 100,000 character unbroken run of one character
-Bound     640 is an analytic bound with no witness. Nothing in the suite or the bench constructs an input that reaches it, so the guarantee rests on reading the code rather than on seeing it happen
+Sibling   the highest value observed here is 636, four short of the ceiling, held while the first token bench streams its last shape, a 320 character address followed by "_" and 320 more token characters in 12 character chunks. That 636 is measured out of band and not printed, because the first token table reports timings only. The highest figure the bench does print is 320, from the 100,000 character unbroken run in the content shape table
+Bound     640 is still an analytic bound with no exact witness, but the gap is four characters rather than half the number. The bench now builds the straddling case that reaches 636, so the doubling is seen happening and only the last four characters rest on reading the code
 Knob      _EMAIL_DOMAIN_MAX at 255 and _EMAIL_LOCAL_MAX at 64. Tighten either and the ceiling drops, at the cost of silently missing a legal address, which is the trade the boundary test records
 ```
 
-### Guardrail adds about 0 ms to time to first token
+### Guardrail adds about 0 ms to first token on safe prose, about 582 ms worst case
 
 ```
-Claim     "guardrail adds 0.00 ms to first token, range -0.07 to 0.72 ms over 10 trials" and "the range straddles zero, so the added cost sits below this instrument's resolution"
-Unit      milliseconds from starting the stream to receiving the first non-empty chunk, the median of ten paired differences, each pair a back to back reading of the raw upstream and the guarded one
-Match     the instrument is time.perf_counter, wrapped by _first_token_seconds and run in pairs by _paired_trials in scripts/bench_stream.py lines 28 to 55, against a scripted upstream with a 10 ms per chunk delay and 12 character chunks, so no network is involved and the figure is the guardrail's own overhead. Each reading stops at the first chunk rather than draining the whole response, which is what makes ten pairs cheap enough for make bench
-Set       the 428 character DEMO_RESPONSE, chunked into 36 pieces, one prompt, ten paired trials, no warm up iteration
-Command   make bench, scripts/bench_stream.py lines 28 to 55 and 101 to 115
-Sibling   ten separate make bench runs read medians of 0.00, 0.02, -0.01, 0.03, 0.01, 0.01, 0.01, 0.00, 0.02 and 0.02 ms, every one within three hundredths of a millisecond of zero, and nine of the ten ranges straddled zero, the tenth read 0.01 to 0.64 ms
-Bound     this is now a paired measurement with a real interval, not the difference of two single readings, but ten trials on a shared, non-idle box is still a small sample, and the range kept including zero on all but one run, so the honest statement is still that the guardrail's cost does not resolve above the noise of this instrument, not that it is any one figure such as 0.01 ms
-Knob      UPSTREAM_DELAY_SECONDS at 0.01, which sets the roughly 11 ms both arms share and therefore how much noise the subtraction has to survive, and TRIAL_COUNT at 10, where more trials narrow the range at the cost of a slower bench
+Claim     the seven row first token table from make bench, headlined by "worst case, the guardrail adds 582.32 ms to first token, on a response opening with a 320 char email inside a token". The old single figure, the 0.02 ms safe prose row with its "the range straddles zero" note, is now the best row of that table rather than the whole claim
+Unit      milliseconds from starting the stream to receiving the first non-empty chunk, the median of ten paired differences per leading content shape, each pair a back to back reading of the raw upstream and the guarded one, beside the same cost counted in upstream chunks held
+Match     the instrument is time.perf_counter, wrapped by _first_token_seconds and run in pairs by _paired_trials in scripts/bench_stream.py lines 41 to 70, against a scripted upstream with a 10 ms per chunk delay and 12 character chunks, so no network is involved and the figure is the guardrail's own overhead. Each reading stops at the first chunk rather than draining the whole response, which is what keeps seventy pairs inside a fourteen second bench. The cost is always whole chunk delays, because nothing can be emitted while the opening of the response could still be part of a pattern, so the waits column counts them directly at lines 104 to 117 and reads 0 for safe prose, 1 for each of the three short values, 26 for the 320 character address and again for the 1,000 character token, since each runs past the window and then ends at a space, and 53 for the buried one
+Set       seven responses differing only in their opening, built by _leading_shapes at lines 72 to 101. The 428 character DEMO_RESPONSE for safe prose, then the same prose tail behind "ada@example.com", behind "4111 1111 1111 1111", behind "123-45-6789", behind the longest legal address the pattern matches at 320 characters, behind 1,000 "x" characters, and behind that same address followed by "_" and 320 "z" characters. Ten paired trials each, one prompt, no warm up iteration
+Command   make bench, scripts/bench_stream.py lines 41 to 70 for the instrument and 163 to 199 for the table
+Sibling   five make bench runs read safe prose at 0.02, 0.01, 0.02, 0.06 and 0.03 ms with every range straddling zero, and read the worst shape at 582.32, 582.69, 582.29, 583.84 and 583.45 ms with no range near zero. Between them the three short values cost 11.02 to 11.17 ms, and the 320 character address and the 1,000 character token, the two that wait 26, cost 284.84 to 286.44 ms. The waits column read the same seven integers in all five runs. A sixth run read safe prose at 0.00 to 0.99 ms and printed no straddling note at all, so that note is a property of the run rather than a guarantee. The best row and the worst row of the same bench differ by four orders of magnitude, which is why quoting only the prose row was the defect this card records
+Bound     one chunk size and one upstream cadence on one loaded laptop. The wait is whole chunk delays, so a provider sending larger chunks clears the same window in fewer of them and a slower provider pays more, and no real provider is measured here. The last shape is the worst this design allows rather than a shape drawn from real traffic, since a match can only pull the cut back to its own start while fewer than 640 characters have arrived, and nothing here says how often any of the seven shapes occurs
+Knob      UPSTREAM_DELAY_SECONDS at 0.01 and CHUNK_SIZE at 12, which together set what one chunk of waiting costs, MAX_MATCH_LENGTH at 320, which sets how many chunks the last three shapes wait, and TRIAL_COUNT at 10, where more trials narrow the ranges at the cost of a bench that already takes fourteen seconds
 ```
 
 ### Traced peak stays in kilobytes on a 3.9 million character response
@@ -127,7 +127,7 @@ Knob      UPSTREAM_DELAY_SECONDS at 0.01, which sets the roughly 11 ms both arms
 ```
 Claim     "traced peak 2.0 KiB" on the largest bench row, beside a 3,900,000 character response
 Unit      kibibytes, tracemalloc's peak traced allocation across feeding the whole response, Python heap only
-Match     the instrument is tracemalloc.start, feed the response, read get_traced_memory()[1], in _peak_for_length at scripts/bench_stream.py lines 58 to 73, with the redactor's output dropped as a forwarding proxy would drop it
+Match     the instrument is tracemalloc.start, feed the response, read get_traced_memory()[1], in _peak_for_length at scripts/bench_stream.py lines 120 to 135, with the redactor's output dropped as a forwarding proxy would drop it
 Set       the same synthetic response as the held-text card, four sizes from 3,900 to 3,900,000 characters
 Command   make bench
 Sibling   the permanent test is test_peak_memory_does_not_track_response_length, which streams 7.8 million characters and asserts the peak is under 64 KiB and under one hundredth of the streamed size
@@ -137,7 +137,7 @@ Knob      tracemalloc measures Python allocations, so it never sees interpreter 
 
 ## What a reviewer could check that this repo does not prove
 
-- No witness for the 640 character ceiling. The highest held value ever produced is 320, and nothing constructs the straddling case that would need the other half.
+- No exact witness for the 640 character ceiling. The first token bench's last shape does construct the straddling case and holds 636 of the 640 at 12 character chunks, so what is unproven is the last four characters rather than the whole second half, and that 636 is measured out of band rather than printed.
 - No throughput or CPU number anywhere. The bench reports latency and held state, never characters per second, and its total time of about 394 ms is 36 chunks times the scripted 10 ms delay, so it measures the fixture.
 - No memory number outside tracemalloc. Resident set size is never read, so a claim about real process memory has no support here.
 - No recall or precision for the redactor. There is no labeled PII corpus and no denominator, so every redaction result is example based and the suite cannot say what fraction of real PII would be caught.
