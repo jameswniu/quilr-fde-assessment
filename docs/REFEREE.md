@@ -138,7 +138,7 @@ Knob      tracemalloc measures Python allocations, so it never sees interpreter 
 ## What a reviewer could check that this repo does not prove
 
 - No exact witness for the 640 character ceiling. The first token bench's last shape does construct the straddling case and holds 636 of the 640 at 12 character chunks, so what is unproven is the last four characters rather than the whole second half, and that 636 is measured out of band rather than printed.
-- No throughput or CPU number anywhere. The bench reports latency and held state, never characters per second, and its total time of about 394 ms is 36 chunks times the scripted 10 ms delay, so it measures the fixture.
+- No throughput or CPU number anywhere. The bench reports latency and held state, never characters per second, and every timing it prints is the scripted 10 ms chunk delay multiplied by how many chunks were held, so nothing here measures how fast the redactor itself runs.
 - No memory number outside tracemalloc. Resident set size is never read, so a claim about real process memory has no support here.
 - No recall or precision for the redactor. There is no labeled PII corpus and no denominator, so every redaction result is example based and the suite cannot say what fraction of real PII would be caught.
 - The 3000 ms timeout is never raced live. Every timing test runs at 60 ms and the demo at 300 ms.
@@ -146,4 +146,4 @@ Knob      tracemalloc measures Python allocations, so it never sees interpreter 
 - Task 1 is proven against this repo's own stdio client, not against a real MCP client such as the Inspector or a desktop host, so protocol compliance is asserted rather than demonstrated against a third party.
 - No coverage measurement exists, so the 199 has no complement.
 - Nothing is measured on a second machine or in CI, so every timing here is one loaded 18-core laptop.
-- Two counts in `make lint` output look inconsistent and are not. Ruff says 34 files formatted because it counts `pyproject.toml`, mypy says 33 source files because it counts only the 33 Python files.
+- Two counts in `make lint` output look inconsistent and are not. Ruff says 35 files formatted because ruff 0.16 formats Markdown as well, so it counts README.md and docs/REFEREE.md on top of the 33 Python files. Mypy says 33 source files because it counts only the Python.
