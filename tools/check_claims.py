@@ -21,7 +21,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
@@ -117,6 +117,29 @@ def hero_alt() -> str:
     return found.group(1)
 
 
+def chunk_table_rows() -> list[str]:
+    """The rows docs/TASKS.md has to carry for the chunks held table.
+
+    That table is the one grid on the page typed by hand rather than drawn, so it is pinned here
+    against the same report the figures read. The counts are deterministic, unlike the timings
+    beside them, which is why the doc quotes these and points at the report for the rest.
+    """
+    bench = bench_report()
+    rows = []
+    for row in bench["first_token"]:
+        label = str(row["label"])
+        rows.append(f"| {label[:1].upper()}{label[1:]} | {row['waits']} |")
+    return rows
+
+
+def bench_report() -> dict[str, Any]:
+    """The bench's own record of the last run."""
+    if not BENCH_PATH.exists():
+        raise SystemExit("reports/bench_report.json is missing. Run `make bench` before checking claims.")
+    data: dict[str, Any] = json.loads(BENCH_PATH.read_text())
+    return data
+
+
 def measured_witness() -> int:
     """How much held text the bench actually witnessed, which the page quotes beside the ceiling.
 
@@ -124,10 +147,7 @@ def measured_witness() -> int:
     if the fixture or the chunk size changes, and quoting a stale one beside a derived bound
     would make the gap between them look smaller than it is.
     """
-    if not BENCH_PATH.exists():
-        raise SystemExit("reports/bench_report.json is missing. Run `make bench` before checking claims.")
-    bench: dict[str, int] = json.loads(BENCH_PATH.read_text())
-    return int(bench["straddling_worst_case_held_chars"])
+    return int(bench_report()["straddling_worst_case_held_chars"])
 
 
 def hero_text() -> str:
@@ -181,6 +201,10 @@ def main() -> int:
     seen = measured_witness()
     if str(seen) not in alt:
         failures.append(f"the hero alt text in README.md does not say {seen}, the held text the bench witnessed")
+    tasks = (ROOT / "docs" / "TASKS.md").read_text()
+    for row in chunk_table_rows():
+        if row not in tasks:
+            failures.append(f'docs/TASKS.md is missing the chunks held row "{row}"')
 
     for failure in failures:
         print(failure)
