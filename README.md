@@ -2,7 +2,7 @@
   <img src="assets/hero.svg" alt="Four tasks from the Forward Deployed Engineer brief, an MCP server, a security gateway, a streaming PII guardrail and a model router. 199 tests, 0 skips, no coverage measured, and a 640 char hold ceiling with 636 of it seen." width="100%">
 </p>
 
-*Every number on this page comes from a command here, and `make check` fails when a badge or a committed figure drifts from its report.*
+*`make check` exits nonzero when a badge or a committed figure stops matching the report behind it.*
 
 # Quilr FDE assessment
 
@@ -33,13 +33,52 @@ make run-task4   # model router demo, prints every routing outcome
   <img src="assets/system-map.svg" alt="System map of the four tasks. Task 1 puts two tools on stdio, task 2 is a gateway on 8080 in front of a mock downstream on 8081, task 3 is a streaming guardrail on 8082 with a 640 character hold ceiling, and task 4 is a sqlite token limiter in front of a primary and a secondary provider" width="100%">
 </p>
 
-`src/task1_mcp_server` puts two tools on stdio behind one Pydantic model that is both the advertised schema and the runtime check.
+Where a request stops, and the one place it is only held.
 
-`src/task2_mcp_gateway` is a JSON-RPC reverse proxy that decides before it forwards, so a viewer asking for an `admin_` tool never reaches the downstream.
+```mermaid
+%%{init: {"flowchart": {"rankSpacing": 30, "nodeSpacing": 22, "curve": "linear", "padding": 8}}}%%
+flowchart TD
+  classDef entry fill:#0a0a0a,stroke:#0a0a0a,color:#ffffff
+  classDef gate fill:#fafafa,stroke:#3f3f46,color:#111111
+  classDef pass fill:#ffffff,stroke:#a1a1aa,color:#111111
+  classDef stop fill:#18181b,stroke:#18181b,color:#ffffff
+  classDef hold fill:#1b5e3f,stroke:#1b5e3f,color:#ffffff
 
-`src/task3_stream_guard` redacts emails, social security numbers and card numbers while the response is still streaming, including a value split across two chunks.
+  A["a tools/call arrives"] --> B["Token resolves to a role"]
+  B -->|"viewer wants admin_"| B1["Refused, -32001, downstream never called"]
+  B -->|"otherwise"| C["Arguments checked against the tool schema"]
+  C -->|"they do not match"| C1["Refused, -32602"]
+  C -->|"they match"| C2["Handler runs"]
 
-`src/task4_model_router` admits a request against a sliding token budget kept in sqlite, then fails over to a second provider on a 429 or a 3000 ms timeout.
+  C2 ~~~ D
+  D["a completion arrives"] --> E["Room left in the 60 second window"]
+  E -->|"no"| E1["Refused, 429 with retry_after_seconds"]
+  E -->|"yes"| F["Primary answers inside 3000 ms"]
+  F -->|"429 or timeout"| G["Secondary tries"]
+  F -->|"yes"| H["Reply returns"]
+  G --> H
+  G -->|"it fails too"| G1["One error shape, charge released"]
+
+  H ~~~ J
+  J["a response chunk arrives"] --> K["Could still be part of a pattern"]
+  K -->|"yes"| K1["Held, not refused, 640 chars at most"]
+  K1 --> K
+  K -->|"no"| K2["Emitted, redacted"]
+
+  class A,D,J entry
+  class B,C,E,F,K gate
+  class C2,G,H,K2 pass
+  class B1,C1,E1,G1 stop
+  class K1 hold
+```
+
+`src/task1_mcp_server` puts two tools on stdio. One Pydantic model per tool does double duty as the advertised schema and the runtime check.
+
+`src/task2_mcp_gateway` decides before it forwards. Ask it for an `admin_` tool as a viewer and the downstream never hears about it.
+
+`src/task3_stream_guard` redacts emails, social security numbers and card numbers mid stream, including a value that arrives in two pieces.
+
+`src/task4_model_router` is admission control plus failover, with the token budget in sqlite.
 
 [The four tasks](docs/TASKS.md) has the decision inside each one that is worth arguing about.
 
@@ -49,8 +88,9 @@ make run-task4   # model router demo, prints every routing outcome
   <img src="assets/first-token.svg" alt="Bar chart of the time to first token the guardrail adds, by what the response opens with. Under 1 ms on safe prose, about 11 ms on a short email, card or social security number, about a third of a second on a 320 character email or a 1,000 character token, and about 0.6 s on a 320 character email buried inside a token" width="100%">
 </p>
 
-A reply opening mid pattern waits for that pattern to resolve, and the wait is bounded by the 320 character
-longest match. A longer response never costs more.
+A reply opening mid pattern waits for that pattern to finish arriving. The worst case doubles that. A whole
+320 character match at the front, with no safe cut behind it, holds close to 640 characters before anything
+leaves. That is the 53 chunks on the last bar. A longer response never costs more than that.
 
 ## What this does not prove
 
@@ -67,7 +107,7 @@ it does not support.
 
 ## Figures and claims
 
-No figure on this page carries a number that was typed by hand.
+No number in a figure here can go stale without a command failing.
 
 | Command | What it does |
 | --- | --- |
@@ -76,5 +116,5 @@ No figure on this page carries a number that was typed by hand.
 | `make figures` | Redraws the three SVGs from those two reports and from the constants in `src/` |
 | `make figures-check` | Redraws and compares against what is committed |
 
-Neither check pins the prose in this file, which repeats several of the same numbers, so those live in the
+Neither one reads the prose here, which repeats some of the same numbers. Those get their accounting in the
 referee cards. Re-running `make bench` re-measures, so redraw the figures after it.
