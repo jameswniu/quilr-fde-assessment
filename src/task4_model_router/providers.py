@@ -1,7 +1,8 @@
 """Model providers and the failures the router has to route around.
 
 ``ScriptedProvider`` stands in for a real vendor client so the whole router runs with no
-network and no API key. A real provider implements the same two attributes and one method.
+network and no API key. A real provider implements the same two attributes and one method,
+and ``http_provider.HttpProvider`` is one, off by default.
 """
 
 from __future__ import annotations
