@@ -1,138 +1,51 @@
-# Referee cards
+# Where every number comes from
 
-One card per number a reviewer sees, written from the code and from live runs rather than from the README.
-
-Audited on `master` at `0308589`, working tree clean, no remote. Two cards are exceptions, the time to first token card and the held text by content shape card. Both describe a fix to `scripts/bench_stream.py` that landed after `0308589`, and both are audited against that fixed worktree instead. `make bench` at `0308589` still prints the old total time line and has no content shape table.
-
-The time to first token card has since been audited a second time, against the seven shape bench. Through `0592102` that bench measured only the safe prose shape and reported its near zero result as if it were the whole story. The same change finally builds an input that nearly reaches the 640 character ceiling, so the hard ceiling card's Sibling and Bound lines are audited here too. The landing page figures, `tools/draw_figures.py`, `tools/check_claims.py` and the two reports they read all landed after `17d269d`. So did the live provider path, `src/task3_stream_guard/http_upstream.py`, `src/task4_model_router/http_provider.py`, `scripts/live_stream.py` and the two test files beside them, which moved the suite from 199 cases to 263. Cards that mention any of that are audited against this working tree.
-
-This branch, `lean`, drops the hero, the badges, the system map, the refusal map and the first token panel from the README. The three SVGs are still drawn under `assets/` and still compared by `make figures-check`, and each card below says where its number appears here.
-
-The reader-facing surface is `README.md`, which carries no figure and points at `assets/first-token.svg` by path, `docs/TASKS.md`, the fourteen Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print.
-
-The three SVGs carry no number that was typed by hand. `tools/draw_figures.py` reads every value it draws from `reports/bench_report.json`, from `reports/test_report.json`, or from the constant in `src/` that defines it. That last route is where the system map gets the ports, the error codes, the 50,000 token budget and the 3000 ms timeout. `make figures-check` redraws and compares against what is committed, so a figure cannot drift from its generator.
-
-There is no hand written figure on this branch. The refusal map that sat under the system map on `master`, mermaid that `figures-check` could not see, went with the rest, and the constants it carried now sit in the README prose.
-
-The prose is the part typed by hand, so `make claims` checks it. It collects the suite for the case and function counts, then runs it for the outcome counts. It rereads `MAX_BUFFERED_CHARS`, `MAX_MATCH_LENGTH`, `DEFAULT_TIMEOUT_MS`, the two JSON-RPC codes the README quotes, the 429 that `ProviderRateLimited` names, the three ports in the run block, `.python-version`, the `FAST_TIMEOUT_MS` the timing tests run at, and the worst and best first token rows and the trial count in `reports/bench_report.json`, then fails when the README stops carrying any of them. It reads the two card headings here that carry the test count and the hold bound the same way. It runs the suite rather than only collecting it, because collection cannot see a skipped test. `make check` puts it before `figures-check` so the figures get compared against a report from this run, which is also what keeps the skip count in the hero tile measured.
-
-What it does not read is the rest of this file, whose timing cards quote the runs they were audited against, or `docs/TASKS.md` beyond its chunk table. A stale number in either is caught by reading rather than by a command. Every measurement a reviewer sees is printed by a command they run themselves.
-
-## Untraceable numbers
-
-None. Every number on every surface traces to a constant in `src/`, a line in the brief, or a command in the Makefile.
-
-## What produced the live numbers
-
-Mac17,8, Apple M5 Pro, 18 cores, 64 GB, macOS 26.6 build 25G72. CPython 3.13.11 in the uv-managed `.venv`.
-
-One minute load average ran between 5.3 and 12.9 on 18 cores across the session. That is a shared box under other work, so every timing here is an upper-ish reading rather than a quiet-box best case. Five `make test` runs, ten `make bench` runs, one `make lint`, one `make run-task4`.
-
-The first token re-audit added five more `make bench` runs on the same box, 14.10 to 14.17 seconds of wall clock each now that the bench times seven shapes. Load average was 5.8 as they finished. Those five are the runs its Sibling line quotes.
-
-The live provider pass added roughly twenty more `make test` runs on the same box, under a one minute load average that ran between 10 and 128 on those 18 cores, plus three `make check` runs and four `make run-live` runs against a local server standing in for a provider. No `make bench` run was repeated, so every timing in the first token and held text cards is still the earlier one.
-
-## Specifications from the brief, not measurements
-
-These need a citation, not a confidence interval. Each row is the brief's own wording, the constant that holds it, and the test that pins the constant.
-
-| Value | Brief line | Code | Test |
-| --- | --- | --- | --- |
-| `CUST-XXXXX` | Task 1, "customer_id string formatted as CUST-XXXXX" | `models.py:16` `CUSTOMER_ID_PATTERN` | `test_task1_mcp_server.py`, invalid-id cases |
-| Reason length 10 | Task 1, "reason string with minimum length of 10" | `models.py:18` `REASON_MIN_LENGTH` | `test_task1_mcp_server.py`, short-reason cases |
-| `-32602` | Task 1, "standard MCP JSON-RPC error codes" | `server.py:125`, `server.py:166` | `test_task1_mcp_server.py`, invalid-params cases |
-| `-32001` | Task 2, "return a JSON-RPC Error (-32001: Unauthorized Tool Call)" | `jsonrpc.py:16` | `test_viewer_is_blocked_from_admin_tools` |
-| `429` failover | Task 4, "returns a 429 Too Many Requests status" | `router.py`, `ProviderRateLimited` branch | `test_failover_on_a_429` |
-| Five tasks | Overview, "consists of 5 practical technical tasks" | `docs/TASKS.md`, "What is not covered", says four are written | None, and the brief body stops at Task 4 |
-
-Several other numbers are ours, not the brief's. `-32002` for unusable credentials, `-32700` and `-32600` for malformed payloads, ports 8080, 8081 and 8082, `CHARS_PER_TOKEN` 4, `BUSY_TIMEOUT_MS` 5000 and `CHUNK_SLICE_CHARS` 4096 are all this repo's own design choices. No line of the brief asks for any of them.
+Every number on a page here, or in what a command prints, has a card below, taken from the code and from live runs. The heading is the number, each row answers one question about it, and the line under the table says where it appears.
 
 ## Cards
 
-### 50,000 tokens per minute per tenant key
+### 50,000 tokens a minute for each tenant key
 
-```
-Claim     50,000 tokens a minute per tenant API key. It shows up in docs/TASKS.md under Task
-          4, and in the limiter card of assets/system-map.svg, which reads DEFAULT_LIMIT_TOKENS
-          out of rate_limiter.py line 31 at draw time. The README on this branch does not
-          quote it.
-Unit      Estimated tokens, summed over the charges written for one key digest inside the
-          half open interval from 60 seconds ago to now. These are our own estimates, and no
-          provider reported them.
-Match     Admission adds the new charge to that running sum and compares it to 50,000. A
-          request landing exactly on the limit is admitted, and one token more is refused. A
-          charge made at t still counts at t plus 59.999 and is gone at t plus 60.0.
-Set       The brief's own example figure, "e.g., maximum 50,000 tokens/minute per tenant API
-          key". So it is a default argument rather than a capacity anyone measured, and
-          callers pass their own.
-Command   make run-task4 exercises it. The constant is asserted by
-          test_the_brief_default_is_fifty_thousand_tokens_a_minute, and the boundary by
-          test_the_window_boundary_is_exact.
-Sibling   The same limiter under contention. Twenty threads race for ten 5,000 token slots,
-          exactly ten get in, and tokens_in_window lands on 50,000. Twelve concurrent router
-          calls against a 280 token budget serve four and refuse eight.
-Bound     It bounds estimated tokens at four characters per token. Nothing reconciles that
-          against what a provider actually bills. The eviction test shows rows leaving the
-          table, which is a different thing from the estimate being right.
-Knob      The limit_tokens argument, and under it CHARS_PER_TOKEN. Lower that divisor and
-          each prompt charges more, so the same 50,000 admits fewer requests.
-```
+| Question | Answer |
+| --- | --- |
+| What is claimed | 50,000 estimated tokens a minute for one tenant API key. |
+| What is counted | Our token estimates for one key digest over the trailing 60 seconds, a charge counting through 59.999 s and gone at 60.0. |
+| How a match is decided | The new charge joins that sum, exactly 50,000 is admitted, one token more is refused. |
+| Where the data came from | The brief's example, "e.g., maximum 50,000 tokens/minute per tenant API key", a default argument callers replace, never a measured capacity. |
+| How to regenerate it | `make run-task4`, `test_the_brief_default_is_fifty_thousand_tokens_a_minute` for the constant, `test_the_window_boundary_is_exact` for the boundary. |
+| The number that makes it look worse | Twenty threads win exactly ten of ten 5,000 token slots, reading 50,000, and twelve router calls on a 280 token budget serve four, refuse eight. |
+| What this sample can and cannot say | Four characters count as one token, nothing checks that against a provider's bill, and eviction only shows rows leaving. |
+| What moves it | `limit_tokens`, and under it `CHARS_PER_TOKEN`, where a smaller divisor charges more per prompt and admits fewer requests. |
 
-### 3000 ms primary timeout
+Appears at `docs/TASKS.md:63` and `assets/system-map.svg` (from `src/task4_model_router/rate_limiter.py:31` at draw time), not in the README.
 
-```
-Claim     3000 ms. It appears in the README under What is not proven, where make claims reads
-          it back against DEFAULT_TIMEOUT_MS, and in docs/TASKS.md under Task 4. The router
-          card of assets/system-map.svg reads the same constant out of router.py line 38 at
-          draw time.
-Unit      Milliseconds from dispatching the primary provider call to giving up on it and
-          starting the secondary, counted per request.
-Match     The timeout races the primary instead of always firing. A primary that answers
-          inside the window is used and the secondary is never called. A timed out call is
-          cancelled, which the test asserts through primary.completed_calls == 0.
-Set       The brief's own figure, "times out after 3000ms". A default argument, and not a
-          latency budget anyone here measured.
-Command   make run-task4 for the demo, tests in test_task4_router.py, the constant pinned by
-          test_the_brief_default_timeout_is_three_seconds.
-Sibling   Nothing in this repo ever runs a live race at 3000 ms. Every timing test uses
-          FAST_TIMEOUT_MS 60 and the demo in __main__.py uses 300, both shortened so the
-          suite does not sit and wait.
-Bound     One test asserts the integer equals 3000. No test asserts behaviour at 3000, so
-          the number is pinned as a value and exercised only as a shape.
-Knob      The timeout_ms argument. Lower it and a slow but healthy primary gets abandoned.
-          Raise it and a hung primary holds the request longer before failover.
-```
+### 3000 ms before the router gives up on the primary
+
+| Question | Answer |
+| --- | --- |
+| What is claimed | 3000 ms from sending the primary call to starting the secondary. |
+| What is counted | Milliseconds per request, from dispatching the primary call to giving up on it. |
+| How a match is decided | The timeout races the primary, an answer inside the window is used and the secondary never called, and a timed out call is cancelled (`primary.completed_calls==0`). |
+| Where the data came from | The brief's "times out after 3000ms", a default argument, not a latency budget anyone measured. |
+| How to regenerate it | `make run-task4`, `tests/test_task4_router.py`, and `test_the_brief_default_timeout_is_three_seconds` for the constant. |
+| The number that makes it look worse | Nothing races 3000 ms live, since every timing test uses `FAST_TIMEOUT_MS` 60 and the demo in `__main__.py` uses 300. |
+| What this sample can and cannot say | One test asserts the integer is 3000 and none asserts behaviour at 3000, so only the shape is exercised. |
+| What moves it | `timeout_ms`, where lower abandons a slow but healthy primary and higher lets a hung one hold the request longer. |
+
+Appears at `README.md:57`, `docs/TASKS.md:65`, and `assets/system-map.svg` (from `src/task4_model_router/router.py:38` at draw time).
 
 ### 263 tests pass
 
-```
-Claim     "263 passed" from make test. On this branch it is one sentence of README prose under
-          What is not proven, the heading of this card, the first tile of assets/hero.svg and
-          the stat box of assets/system-map.svg, and the README embeds neither figure.
-Unit      pytest cases collected under tests/. That is 155 test functions, which parametrize
-          expands into 263 cases. The split by task is in the table below.
-Match     A case counts when pytest reports it green under pyproject.toml, testpaths tests,
-          asyncio_mode auto. make claims counts skips, xfails and xpasses separately and
-          writes them to the report, and make figures-check fails when the hero tile drawn
-          from that report stops matching the committed one, so the "0 skips" beside the 263
-          is measured.
-Set       Every fixture is inside the repo and the assertions are the labels, so this scores
-          the suite against the code and never against an outside corpus. Nothing touches
-          the network. Task 1 drives a real subprocess over stdio, tasks 2 and 3 drive their
-          ASGI apps in process, and the two live provider files answer through an httpx
-          transport that replies from memory.
-Command   make test, which is uv run pytest. make claims collects and then runs the suite,
-          writes both counts to reports/test_report.json, and fails when the README prose or
-          the heading of this card disagrees with that run. make figures-check then fails
-          when assets/hero.svg does.
-Sibling   Counted by function the same suite is 155. Counted as coverage of the code it is
-          nothing at all, because coverage is never measured here.
-Bound     A green suite says the written cases hold. It says nothing about the cases nobody
-          wrote, and with no coverage number there is no way to bound what is missing.
-Knob      One extra tuple in an existing parametrize decorator moves 263 without testing a
-          single new behaviour, which is why the function count sits beside it. A skip
-          marker moves it the other way, which is what the skip count is for.
-```
+| Question | Answer |
+| --- | --- |
+| What is claimed | "263 passed", 0 skipped, from `make test`. |
+| What is counted | pytest cases under `tests/`, 155 functions expanded by parametrize into 263 cases, split by task below. |
+| How a match is decided | A case counts when pytest reports it green under `pyproject.toml` (testpaths `tests`, asyncio_mode auto), with skips, xfails and xpasses counted apart. |
+| Where the data came from | Every fixture is inside the repo and the assertions are the labels, so the suite is scored against the code, never an outside corpus. |
+| How to regenerate it | `make test`, then `make claims`, which collects and runs the suite, writes both counts to `reports/test_report.json`, and fails when the README or this heading disagrees. |
+| The number that makes it look worse | 155 by function, and nothing at all as coverage, which is never measured. |
+| What this sample can and cannot say | A green suite says the written cases hold, nothing about the unwritten ones, and no coverage number bounds the gap. |
+| What moves it | A parametrize tuple moves 263 with nothing new tested, hence the function count, and a skip marker moves it down, hence the skip count. |
 
 | Task | Cases | Functions |
 | --- | --- | --- |
@@ -141,242 +54,223 @@ Knob      One extra tuple in an existing parametrize decorator moves 263 without
 | Task 3, stream guard | 123, being 7 endpoint, 78 redactor and 38 live upstream | 65 |
 | Task 4, model router | 74, being 22 limiter, 26 router and 26 live provider | 59 |
 
-### No network and no API key
+Appears at `README.md:55`, this heading, `assets/hero.svg` (first tile), `assets/system-map.svg` (stat box).
 
-```
-Claim     "no network and no API key". It is the first line under What is not proven in the
-          README, the kicker FOUR TASKS / ONE SUITE / NO NETWORK in assets/hero.svg and the
-          stat card of assets/system-map.svg, neither of which the README embeds, and the
-          closing note in docs/TASKS.md. The claim covers the suite, and the repo does
-          contain one path that opens a socket.
-Unit      Sockets opened by make test. Zero of them, so the number being defended is a zero
-          rather than a measurement.
-Match     Held by construction. Task 1 talks to a subprocess over stdio pipes. Tasks 2 and 3
-          drive their ASGI apps in process. Every httpx client anywhere under tests/ is
-          built with an explicit transport, either ASGITransport onto an app in the same
-          process or MockTransport answering from memory, and grep for AsyncClient in tests/
-          finds no client without one. No test reads an environment variable for a key, and
-          two of them start a fresh interpreter whose os.environ raises on any read, then
-          import the live modules to prove nothing is read at import time.
-Set       The whole suite. The live path it does not cover is two files,
-          src/task3_stream_guard/http_upstream.py and
-          src/task4_model_router/http_provider.py, reached by scripts/live_stream.py.
-Command   make test opens nothing. make run-live is the only command in this repo that
-          opens a socket, and without LLM_API_KEY it names the variable and exits 2 rather
-          than trying.
-Sibling   The live path is exercised, just not live. 38 cases in test_task3_http_upstream.py
-          cover the event stream parsing, the framing rules, the refusals and the sanitised
-          target, and 26 in test_task4_http_provider.py cover the status mapping, including
-          a 429 off the wire driving a real router failover. All of it against a stubbed
-          transport. The make run-live command itself was driven end to end against a local
-          server speaking the same shape over a real socket, which proves the wiring and
-          proves nothing about any vendor.
-Bound     Two things this does not show. Nothing here has been run against a production
-          provider by this repo's own evidence: there is no recorded answer from one, no
-          transcript, and no fixture taken from a real call. And the zero is held by reading
-          and by construction, not by a sandbox that would fail the run if a test opened a
-          socket, so it is an audited property rather than an enforced one.
-Knob      LLM_API_KEY turns the live path on, LLM_BASE_URL points it at anything speaking
-          the OpenAI chat completions shape, and LLM_MODEL picks the model. None of the
-          three is read at import time, and none is read by the suite at all.
-```
+### No network and no API key anywhere in the suite
 
-### Suite wall time, 2.52 to 2.77 seconds
-
-```
-Claim     The suite finishes in a couple of seconds, printed as "263 passed in 2.54s" by
-          make test.
-Unit      Seconds of wall clock for one full make test on a warm environment, collection
-          included and uv sync excluded.
-Match     The instrument is pytest's own summary line. It is cross checked with
-          /usr/bin/time -p wrapped around make test, which adds the uv and interpreter
-          start.
-Set       Five consecutive runs on the box named above, load average between 10 and 11 on 18
-          cores while they ran. That is the same band the earlier reading in this card was
-          taken under, which is what makes the two comparable.
-Command   make test, and /usr/bin/time -p make test for the wall figure.
-Sibling   pytest reported 2.54, 2.52, 2.70, 2.77 and 2.60 seconds. Shell wall time for the
-          same five was 3.01, 3.08, 3.28, 3.34 and 3.19, so the harness costs roughly half a
-          second on top. The same box ran the 199 case suite at 2.65, 2.59 and 2.53 minutes
-          later, so the 64 cases the live provider path added cost under a tenth of a second.
-          The reading before this change, at 199 cases, was 2.28 to 2.54.
-Bound     Five runs on one loaded laptop. No cold cache run, no CI run, no second machine.
-          Earlier the same evening, with the load average near 120, this suite read 4.07 to
-          7.22 on this same box, so the load moves this number further than the code does.
-Knob      The two threaded sqlite tests, the task 1 subprocess and the two import probes each
-          spawn a process, so a slower disk or a busier box moves this more than any code
-          change would.
-```
-
-### Held text stays at 15 characters as the response grows a thousandfold
-
-```
-Claim     "held 15 chars" on all four rows of make bench, from a 3,900 character response to
-          a 3,900,000 character one.
-Unit      peak_buffered_chars, the most characters the redactor was ever holding back at one
-          time over one whole response.
-Match     The instrument is the redactor's own counter, updated on every emit at redactor.py
-          line 111. _peak_for_length reads it after flush, in scripts/bench_stream.py lines
-          120 to 135.
-Set       A synthetic response built by repeating one 39 character prose chunk, then
-          appending the same 16 character tail " ada@example.com" at the end of all four
-          sizes.
-Command   make bench, which runs uv run python scripts/bench_stream.py.
-Sibling   make bench prints a second table beside this one, at a fixed size near 100,000
-          characters. Pure prose with no partial pattern peaks at 5. This same mid email
-          ending peaks at 15. One unbroken 100,000 character token peaks at exactly 320. Two
-          more points are measured outside the script and never printed. The 428 character
-          DEMO_RESPONSE peaks at 36. A 316 character legal email split into 7 character
-          chunks peaks at 314.
-Bound     The flatness in this table is real and it is only half the claim. The other half,
-          printed beside it, is that content shape moves the number, from 5 for plain prose
-          up to 320 for the longest possible match. Neither table alone would show that this
-          is a property of the content and not of the length. Together they do.
-Knob      The longest token in the text. A longer trailing token raises this number and a
-          longer response does not.
-```
-
-Ten `make bench` runs, forty readings, every one of them 15. The same ten runs read the content shape table thirty times, every one of them 5, 15 and 320.
-
-### Hard ceiling 640 characters
-
-```
-Claim     "hard ceiling 640 characters, whatever the response length", from make bench and
-          redactor.py line 22 MAX_BUFFERED_CHARS. The README under Task 3 says the redactor
-          never holds more than 640 characters, and make claims reads that back against the
-          constant.
-Unit      Characters. The most the redactor can ever hold back, for any input, at any
-          chunking.
-Match     This one is derived rather than measured. 640 is 2 times MAX_MATCH_LENGTH 320.
-          That 320 is the longest match any pattern can produce. It is an email at the RFC
-          5321 limits, a 64 character local part plus "@" plus a 255 character domain. The
-          cut is never further back than 320, and a match straddling that cut can pull it
-          back 320 more, which is where the doubling comes from.
-Set       The three patterns in patterns.py, all written with bounded quantifiers so the
-          worst case length is computable. Email 320, card 37 for 19 digits with 18
-          separators, SSN 11.
-Command   make bench prints it. The derivation is patterns.py line 61 and redactor.py line
-          22. The tests that hold it are test_buffer_never_grows_with_response_length,
-          test_held_text_is_bounded_even_by_one_enormous_token and
-          test_one_enormous_chunk_is_still_scanned_in_bounded_slices.
-Sibling   The highest value seen here is 636, four short of the ceiling. It is held while
-          the first token bench streams its last shape, a 320 character address followed by
-          "_" and 320 more token characters in 12 character chunks. make bench prints that
-          636 under the ceiling line and writes it to reports/bench_report.json, so
-          assets/hero.svg quotes it and make figures-check fails if the drawn tile stops
-          matching. The README on this branch quotes the 640 and not the 636. The other
-          figure the bench prints is 320, from the unbroken 100,000 character run in the
-          content shape table.
-Bound     640 is still an analytic bound with no exact witness. The gap is four characters
-          rather than half the number, since the bench builds the straddling case that
-          reaches 636. The doubling is seen happening, and only those last four characters
-          rest on reading the code.
-Knob      _EMAIL_DOMAIN_MAX at 255 and _EMAIL_LOCAL_MAX at 64. Tighten either and the
-          ceiling drops, at the cost of silently missing a legal address, which is the trade
-          the boundary test records.
-```
-
-### Guardrail adds about 0 ms to first token on safe prose, about 582 ms worst case
-
-```
-Claim     The seven row first token table from make bench. Its headline reads "worst case,
-          the guardrail adds 582.32 ms to first token, on a response opening with a 320 char
-          email inside a token". The 0.02 ms safe prose row, with its "the range straddles
-          zero" note, is the best row of that table rather than the whole claim. The README
-          on this branch quotes the worst and best rows in prose under Task 3, which make
-          claims reads back against the report, and points at assets/first-token.svg by path
-          rather than embedding it. The same two rows are the middle tile of assets/hero.svg,
-          which the README does not embed either. reports/bench_report.json as committed
-          reads 582.76 for the worst row, which the README and the figure round to 583.
-Unit      Milliseconds from starting the stream to the first non-empty chunk. Each figure is
-          the median of ten paired differences for one leading content shape. A pair is one
-          back to back reading of the raw upstream and the guarded one. Beside it sits the
-          same cost counted in upstream chunks held.
-Match     The instrument is time.perf_counter, wrapped by _first_token_seconds and run in
-          pairs by _paired_trials, at scripts/bench_stream.py lines 41 to 70. The upstream
-          is scripted, with a 10 ms per chunk delay and 12 character chunks, so no network
-          is involved and what is left is the guardrail's own overhead. Each reading stops
-          at the first chunk instead of draining the response, which is what keeps seventy
-          pairs inside a fourteen second bench. The cost is always whole chunk delays,
-          because nothing can leave while the opening of the response could still be part of
-          a pattern. The waits column counts those delays at lines 104 to 117, and reads 0,
-          1, 1, 1, 26, 26 and 53 down the seven shapes. docs/TASKS.md carries the same
-          column beside its labels.
-Set       Seven responses differing only in their opening, built by _leading_shapes at lines
-          72 to 101. Ten paired trials each, one prompt, no warm up. The seven openings:
-            1  the 428 character DEMO_RESPONSE, which is safe prose
-            2  "ada@example.com"
-            3  "4111 1111 1111 1111"
-            4  "123-45-6789"
-            5  the longest legal address the pattern matches, 320 characters
-            6  1,000 "x" characters
-            7  that same address, then "_", then 320 "z" characters
-          Openings 2 to 7 each sit in front of the same prose tail.
-Command   make bench, with the instrument and the table both in scripts/bench_stream.py.
-          Then make figures redraws assets/first-token.svg and assets/hero.svg from
-          reports/bench_report.json.
-Sibling   Five runs, in the table below. The waits column read the same seven integers in
-          all five. A sixth run read safe prose at 0.00 to 0.99 ms and printed no straddling
-          note at all. That note is a property of the run, and not a guarantee. The best row
-          and the worst row of one bench differ by four orders of magnitude, which is why
-          quoting only the prose row was the defect this card records.
-Bound     One chunk size and one upstream cadence on one loaded laptop. The figure, the hero
-          tile and the README sentence show whatever the last make bench measured. So the
-          milliseconds move by a few between runs while the waits column does not, and make
-          figures-check reports that move as drift in the figures while make claims reports
-          it in the prose. The wait is whole chunk delays, so a provider sending larger
-          chunks clears the same window in fewer of them and a slower provider pays more. No
-          real provider is measured here. The last shape is the worst this design allows
-          rather than one drawn from real traffic, and nothing here says how often any of
-          the seven occurs.
-Knob      UPSTREAM_DELAY_SECONDS at 0.01 and CHUNK_SIZE at 12, which together set what one
-          chunk of waiting costs. MAX_MATCH_LENGTH at 320 sets how many chunks the last
-          three shapes wait. TRIAL_COUNT at 10 narrows the ranges if raised, on a bench that
-          already takes fourteen seconds.
-```
-
-| Response opens with | Five readings, ms |
+| Question | Answer |
 | --- | --- |
-| Safe prose | 0.02, 0.01, 0.02, 0.06, 0.03, every range straddling zero |
-| Any of the three short values | 11.02 to 11.17 |
-| A 320 char email, or a 1,000 char token | 284.84 to 286.44 |
-| A 320 char email inside a token | 582.32, 582.69, 582.29, 583.84, 583.45 |
+| What is claimed | Zero sockets and no key read by `make test`, though the repo holds one path that opens a socket. |
+| What is counted | Sockets opened by `make test`, so the number defended is a zero, not a measurement. |
+| How a match is decided | By construction, one row per path below, never by a sandbox that fails the run on a socket. |
+| Where the data came from | The whole suite, minus the live path, `src/task3_stream_guard/http_upstream.py` and `src/task4_model_router/http_provider.py`, reached by `scripts/live_stream.py`. |
+| How to regenerate it | `make test` opens nothing, and `make run-live`, the only command that opens a socket, names `LLM_API_KEY` and exits 2 without it. |
+| The number that makes it look worse | 38 cases in `tests/test_task3_http_upstream.py` and 26 in `tests/test_task4_http_provider.py` cover the live path against a stubbed transport, below. |
+| What this sample can and cannot say | No answer, transcript or fixture from a production provider exists, and `make run-live` ran only against a local server, proving wiring and no vendor. |
+| What moves it | `LLM_API_KEY` turns the live path on, `LLM_BASE_URL` picks any OpenAI chat completions endpoint, `LLM_MODEL` the model, none read at import or by tests. |
 
-### Traced peak stays in kilobytes on a 3.9 million character response
+| Path | Detail |
+| --- | --- |
+| Task 1 | A subprocess over stdio pipes |
+| Tasks 2 and 3 | ASGI apps driven in process |
+| Every httpx client under `tests/` | An explicit `ASGITransport` or `MockTransport`, and a grep for `AsyncClient` finds none without one |
+| Keys | No test reads an environment variable, and two start a fresh interpreter whose `os.environ` raises on any read, then import the live modules |
+| `tests/test_task3_http_upstream.py`, 38 stubbed cases | Event stream parsing, framing rules, refusals, the sanitised target |
+| `tests/test_task4_http_provider.py`, 26 stubbed cases | Status mapping, including a 429 off the wire driving a real router failover |
 
-```
-Claim     "traced peak 2.0 KiB" on the largest bench row, beside a 3,900,000 character
-          response.
-Unit      Kibibytes. tracemalloc's peak traced allocation across feeding the whole response,
-          Python heap only.
-Match     Start tracemalloc, feed the response, read get_traced_memory()[1]. That happens in
-          _peak_for_length at scripts/bench_stream.py lines 120 to 135, with the redactor's
-          output dropped the way a forwarding proxy would drop it.
-Set       The same synthetic response as the held text card, four sizes from 3,900 to
-          3,900,000 characters.
-Command   make bench.
-Sibling   The permanent test is test_peak_memory_does_not_track_response_length. It streams
-          7.8 million characters and asserts the peak is under 64 KiB, and under one
-          hundredth of the streamed size.
-Bound     Across ten runs this row read 2.0 to 6.6 KiB and the 39,000 character row read 3.0
-          to 11.2 KiB. The small rows sometimes exceed the large ones, so allocator noise
-          dominates the reading. It shows the absence of growth and is not a memory figure
-          worth quoting.
-Knob      tracemalloc measures Python allocations, so it never sees interpreter or OS
-          resident memory. Nothing here reports RSS.
-```
+Appears at `README.md:55`, `docs/TASKS.md:85`, `assets/hero.svg` (FOUR TASKS / ONE SUITE / NO NETWORK), `assets/system-map.svg` (stat card).
 
-## What a reviewer could check that this repo does not prove
+### 2.52 to 2.77 seconds for the whole suite
 
-- No exact witness for the 640 character ceiling. The bench's last shape builds the straddling case and holds 636 of the 640 at 12 character chunks, so what is unproven is four characters rather than half the number.
-- No throughput or CPU number anywhere. The bench reports latency and held state, never characters per second. Every timing it prints is the scripted 10 ms chunk delay times how many chunks were held, so nothing measures how fast the redactor itself runs.
-- No memory number outside tracemalloc. Resident set size is never read, so a claim about real process memory has no support here.
-- No recall or precision for the redactor. There is no labeled PII corpus and no denominator, so every redaction result is example based, and the suite cannot say what fraction of real PII would be caught.
-- The 3000 ms timeout is never raced live. Every timing test runs at 60 ms and the demo at 300 ms.
-- The sqlite limiter is proven across threads in one process. Never across processes, and never on a network filesystem, where its locking behaviour differs.
-- Task 1 is proven against this repo's own stdio client. It has not been run against a real MCP client such as the Inspector or a desktop host, so protocol compliance is asserted rather than demonstrated against a third party.
+| Question | Answer |
+| --- | --- |
+| What is claimed | "263 passed in 2.54s" from `make test`. |
+| What is counted | Wall clock seconds for one full `make test`, warm, collection included, `uv sync` excluded. |
+| How a match is decided | pytest's summary line, cross checked with `/usr/bin/time -p make test`, which adds the uv and interpreter start. |
+| Where the data came from | Five consecutive runs at a load average of 10 to 11 on 18 cores, the same band as the earlier reading, so the two compare. |
+| How to regenerate it | `make test`, and `/usr/bin/time -p make test` for the wall figure. |
+| The number that makes it look worse | Shell wall time for the same five was 3.01 to 3.34 s, so uv and the interpreter start cost roughly half a second on top. |
+| What this sample can and cannot say | Five runs on one loaded laptop, no cold cache, CI or second machine, and load moves it further than code, as the last row shows. |
+| What moves it | Five process spawns, the two threaded sqlite tests, the task 1 subprocess and the two import probes, so disk and load outweigh code. |
+
+| Runs | Readings |
+| --- | --- |
+| pytest, 263 cases, five runs | 2.54, 2.52, 2.70, 2.77 and 2.60 s |
+| Shell wall clock, the same five | 3.01, 3.08, 3.28, 3.34 and 3.19 s |
+| pytest, 199 cases, minutes later on the same box | 2.65, 2.59 and 2.53 s, so the 64 live provider cases cost under a tenth of a second |
+| pytest, 199 cases, before the live path landed | 2.28 to 2.54 s |
+| pytest, load average near 120, earlier the same evening | 4.07 to 7.22 s |
+
+Appears at the `make test` summary line only, on no page.
+
+### 15 characters held, from 3,900 to 3,900,000 characters of response
+
+| Question | Answer |
+| --- | --- |
+| What is claimed | "held 15 chars" on all four `make bench` rows, from 3,900 to 3,900,000 characters. |
+| What is counted | `peak_buffered_chars`, the most the redactor held back at one moment across one whole response. |
+| How a match is decided | A counter inside the redactor, raised on every emit (`src/task3_stream_guard/redactor.py:111`) and read after the final flush (`_peak_for_length`, `scripts/bench_stream.py:137-152`). |
+| Where the data came from | One 39 character prose chunk repeated, then the same 16 character tail " ada@example.com" at all four sizes. |
+| How to regenerate it | `make bench`, which runs `uv run python scripts/bench_stream.py`. |
+| The number that makes it look worse | Content shape, below, from 5 for pure prose to 320 for one unbroken 100,000 character token. |
+| What this sample can and cannot say | The flat row is half the claim, and only beside the shape table does it show a property of content, not length. |
+| What moves it | The longest token in the text, since a longer trailing token raises it and a longer response does not. |
+
+| Response | Peak held |
+| --- | --- |
+| Pure prose near 100,000 characters, no partial pattern | 5 |
+| The same prose, ending mid email | 15 |
+| One unbroken 100,000 character token | 320 |
+| The 428 character `DEMO_RESPONSE`, measured outside the script, never printed | 36 |
+| A 316 character legal email in 7 character chunks, measured outside the script, never printed | 314 |
+
+Appears at the `make bench` tables and `reports/bench_report.json` (`held_by_length`, `held_by_shape`), on no page.
+
+### 640 characters held at most
+
+| Question | Answer |
+| --- | --- |
+| What is claimed | "hard ceiling 640 chars" from `make bench`, and `MAX_BUFFERED_CHARS` at `src/task3_stream_guard/redactor.py:22`. |
+| What is counted | Characters, the most the redactor can ever hold back, for any input at any chunking. |
+| How a match is decided | Derived, not measured, as twice the 320 character longest match, since a match straddling the cut pulls it back another 320. |
+| Where the data came from | The three patterns in `src/task3_stream_guard/patterns.py`, with bounded quantifiers so the worst match is computable, below. |
+| How to regenerate it | `make bench` prints it, `patterns.py:61` and `redactor.py:22` derive it, and `test_buffer_never_grows_with_response_length`, `test_held_text_is_bounded_even_by_one_enormous_token`, `test_one_enormous_chunk_is_still_scanned_in_bounded_slices` hold it. |
+| The number that makes it look worse | 636 is the closest the bench gets, holding a 320 character address, "_" and 320 token characters in 12 character chunks. |
+| What this sample can and cannot say | An analytic bound never reached exactly, the doubling watched happening and only the last four characters resting on reading the code. |
+| What moves it | `_EMAIL_DOMAIN_MAX` 255 and `_EMAIL_LOCAL_MAX` 64, where tightening either lowers the bound and silently misses a legal address, as the boundary test records. |
+
+| Pattern | Longest match |
+| --- | --- |
+| Email, a 64 character local part, "@" and a 255 character domain, the RFC 5321 limits | 320 |
+| Card, 19 digits with 18 separators | 37 |
+| SSN | 11 |
+
+Appears at `README.md:39`, `docs/TASKS.md:41`, this heading, `assets/hero.svg` (with the 636, from `reports/bench_report.json`, which the README leaves out), `assets/system-map.svg`.
+
+### 583 ms worst case at the first token, under 1 ms on safe prose
+
+| Question | Answer |
+| --- | --- |
+| What is claimed | The seven row `make bench` table, headlined by its worst row, 582.32 ms on a 320 character email inside a token. |
+| What is counted | Milliseconds from stream start to the first non-empty chunk, the median of ten back to back raw and guarded pairs per opening, plus chunks held. |
+| How a match is decided | A stopwatch around the first chunk, raw then guarded, back to back (`time.perf_counter` in `_first_token_seconds`, paired by `_paired_trials`, `scripts/bench_stream.py:49-77`), against the scripted upstream below. |
+| Where the data came from | Seven responses differing only in their opening (`_leading_shapes`, `scripts/bench_stream.py:80-108`), ten paired trials each, one prompt, no warm up. |
+| How to regenerate it | `make bench`, then `make figures` to redraw `assets/first-token.svg` and `assets/hero.svg` from `reports/bench_report.json`. |
+| The number that makes it look worse | Best and worst sit four orders of magnitude apart, so quoting only the prose row was wrong, and the straddling note belongs to one run. |
+| What this sample can and cannot say | One chunk size, one cadence, one loaded laptop, no real provider, and the last shape is the worst the design allows, not one from traffic. |
+| What moves it | `UPSTREAM_DELAY_SECONDS` 0.01 with `CHUNK_SIZE` 12 prices a chunk of waiting, `MAX_MATCH_LENGTH` 320 sets how many the last three shapes wait, `TRIAL_COUNT` 10 narrows ranges. |
+
+| Opening | Text | Five readings, ms |
+| --- | --- | --- |
+| 1 | The 428 character `DEMO_RESPONSE`, safe prose | 0.02, 0.01, 0.02, 0.06, 0.03, every range straddling zero |
+| 2 | `ada@example.com` | 11.02 to 11.17 across openings 2, 3 and 4 |
+| 3 | `4111 1111 1111 1111` | As above |
+| 4 | `123-45-6789` | As above |
+| 5 | The longest legal address the pattern matches, 320 characters | 284.84 to 286.44 across openings 5 and 6 |
+| 6 | 1,000 "x" characters | As above |
+| 7 | That address, then "_", then 320 "z" characters | 582.32, 582.69, 582.29, 583.84, 583.45 |
+| 2 to 7 | Each ahead of the same prose tail | |
+| Waits | `_chunks_waited` (`scripts/bench_stream.py:121-134`), the column `docs/TASKS.md` carries | 0, 1, 1, 1, 26, 26 and 53, the same in all five runs |
+| 1, a sixth run | Safe prose again | 0.00 to 0.99, and no straddling note printed |
+
+| Detail | Value |
+| --- | --- |
+| Upstream | Scripted, 12 character chunks every 10 ms, no network, so the guardrail's own overhead is all that remains |
+| One reading | Stops at the first chunk rather than draining, keeping seventy pairs inside a fourteen second bench |
+| The cost | Whole chunk delays, since nothing leaves while the opening could still be part of a pattern |
+| Between runs | Milliseconds move by a few and the waits do not, so `make figures-check` reports drift in the figures and `make claims` in the prose |
+| What a page shows | Whatever the last `make bench` measured, in the figure, the hero tile and the README sentence |
+| Chunk size | Larger provider chunks clear the same window in fewer of them, and a slower provider pays more |
+| Frequency | Nothing says how often any of the seven openings occurs in real traffic |
+
+Appears at `README.md:39` (583 and under 1 ms, rounded from the committed `reports/bench_report.json`, which reads 582.76), `README.md:41` (the path to `assets/first-token.svg`), `docs/TASKS.md:45-53` (chunks held), `assets/first-token.svg`, `assets/hero.svg` (middle tile).
+
+### 2.0 KiB traced peak on a 3.9 million character response
+
+| Question | Answer |
+| --- | --- |
+| What is claimed | "traced peak 2.0 KiB" on the largest `make bench` row, beside 3,900,000 characters. |
+| What is counted | Kibibytes of tracemalloc's peak traced allocation while feeding the whole response, Python heap only. |
+| How a match is decided | Start tracemalloc, feed the response, read `get_traced_memory()[1]`, in `_peak_for_length` at `scripts/bench_stream.py:137-152`, dropping the output as a forwarding proxy would. |
+| Where the data came from | The same synthetic response as the 15 character card, at four sizes from 3,900 to 3,900,000 characters. |
+| How to regenerate it | `make bench`, and `test_peak_memory_does_not_track_response_length`, which streams 7.8 million characters and asserts a peak under 64 KiB and under a hundredth of that. |
+| The number that makes it look worse | Across ten runs this row read 2.0 to 6.6 KiB and the 39,000 character row 3.0 to 11.2 KiB, small rows sometimes above large ones. |
+| What this sample can and cannot say | Allocator noise dominates, so it shows the absence of growth and is not a memory figure worth quoting. |
+| What moves it | tracemalloc sees Python allocations only, never interpreter or OS resident memory, and nothing reports RSS. |
+
+Appears at the `make bench` table and `reports/bench_report.json` (`held_by_length`), on no page.
+
+## Numbers the brief set
+
+The brief set these, so each has a citation and no confidence interval.
+
+| Value | Brief line | Code | Test |
+| --- | --- | --- | --- |
+| `CUST-XXXXX` | Task 1, "customer_id string formatted as CUST-XXXXX" | `src/task1_mcp_server/models.py:16` `CUSTOMER_ID_PATTERN` | `test_task1_mcp_server.py`, invalid id cases |
+| Reason length 10 | Task 1, "reason string with minimum length of 10" | `src/task1_mcp_server/models.py:18` `REASON_MIN_LENGTH` | `test_task1_mcp_server.py`, short reason cases |
+| `-32602` | Task 1, "standard MCP JSON-RPC error codes" | `src/task1_mcp_server/server.py:125` and `:166` | `test_task1_mcp_server.py`, invalid params cases |
+| `-32001` | Task 2, "return a JSON-RPC Error (-32001: Unauthorized Tool Call)" | `src/task2_mcp_gateway/jsonrpc.py:16` | `test_viewer_is_blocked_from_admin_tools` |
+| `429` failover | Task 4, "returns a 429 Too Many Requests status" | `router.py`, the `ProviderRateLimited` branch | `test_failover_on_a_429` |
+| Five tasks | Overview, "consists of 5 practical technical tasks" | `docs/TASKS.md`, "What is not covered", says four are written | None, and the brief body stops at Task 4 |
+
+Ours, with no brief line asking for them, are `-32002` for unusable credentials, `-32700` and `-32600` for malformed payloads, and ports 8080, 8081 and 8082. So are `CHARS_PER_TOKEN` 4, `BUSY_TIMEOUT_MS` 5000 and `CHUNK_SLICE_CHARS` 4096.
+
+## Numbers with no source
+
+- None. Every number on every surface traces to a constant in `src/`, a line in the brief, or a Makefile command.
+
+## What was run for the live numbers
+
+Mac17,8, Apple M5 Pro, 18 cores, 64 GB, macOS 26.6 build 25G72, CPython 3.13.11 in the uv managed `.venv`. The box was shared with other work throughout, so every timing is a high side reading rather than a quiet box best case.
+
+| What was run | What it printed | When |
+| --- | --- | --- |
+| `make test`, five runs | 263 passed in 2.52 to 2.77 s | Live provider pass, load average 10 to 11 |
+| `make test`, roughly twenty runs | Not recorded | Live provider pass, load average 10 to 128 |
+| `make test`, five runs at 199 cases | 2.28 to 2.54 s | First audit, load average 5.3 to 12.9 |
+| `make bench`, ten runs | Held 15 on all forty length rows, and 5, 15 and 320 on all thirty shape rows | First audit, load average 5.3 to 12.9 |
+| `make bench`, five runs of the seven shape bench | 14.10 to 14.17 s of wall clock each, the five readings in the first token card | First token re-audit, load average 5.8 at the end |
+| `make lint`, once | 44 files formatted by ruff, 41 by mypy | First audit |
+| `make run-task4`, once | Every routing outcome | First audit |
+| `make check`, three runs | Not recorded | Live provider pass |
+| `make run-live`, four runs | One completion through the guardrail, from a local server standing in for a provider | Live provider pass |
+
+No `make bench` run was repeated in the live provider pass, so every timing in the first token and held text cards is the earlier one.
+
+## Which tree each card was checked against
+
+| Tree | Cards |
+| --- | --- |
+| `master` at `0308589`, working tree clean, no remote | Every card, except as below |
+| The `scripts/bench_stream.py` fix after `0308589`, where `make bench` still printed the old total time line and had no content shape table | The first token card, and the held text by content shape rows |
+| The seven shape bench, since through `0592102` the bench measured only safe prose and reported its near zero result as the whole story | The first token card again, and the 640 card's worse number and limits rows, since that change builds the straddling input |
+| This working tree, since `17d269d` added the figures, `tools/draw_figures.py`, `tools/check_claims.py` and the two reports | Every card mentioning any of those |
+| This working tree, since the live path landed after `17d269d` (`http_upstream.py`, `http_provider.py`, `scripts/live_stream.py`, two test files), taking the suite from 199 to 263 cases | Every card mentioning it |
+
+## Which numbers a command rechecks
+
+| Surface | Rechecked by |
+| --- | --- |
+| README prose (263, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
+| How `make claims` counts | It collects the suite, then runs it, since collection cannot see a skip, and rereads each constant from `src/` and each measurement from `reports/bench_report.json` |
+| The 263 and 640 headings here, and the chunks held table in `docs/TASKS.md` | `make claims` |
+| The three SVGs under `assets/`, which carry no typed number and read every value from the two reports or a constant in `src/` | `make figures-check`, which redraws and compares, after `make claims` in `make check`, so the 263 and 0 skips tile of `assets/hero.svg` compares against this run |
+| The timing rows here, and `docs/TASKS.md` beyond its chunk table | A reader, since no command reads them |
+| The fourteen `make help` lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print | A reader running them |
+
+On this branch the README embeds no figure and names `assets/first-token.svg` by path. The hero, the badges, the system map and the first token panel came off it, and the mermaid refusal map went with them, its constants now in README prose.
+
+## What a reader could check that this repo does not prove
+
+- No exact 640 seen, since the bench's last shape holds 636 of it at 12 character chunks, leaving four characters unproven rather than half the number.
+- No throughput or CPU number, since every timing is the scripted 10 ms chunk delay times chunks held, so nothing measures how fast the redactor itself runs.
+- No memory number outside tracemalloc, so a claim about real process memory has no support here.
+- No recall or precision for the redactor, since there is no labeled PII corpus and no denominator, only examples.
+- The 3000 ms timeout is never raced live, with every timing test at 60 ms and the demo at 300 ms.
+- The sqlite limiter is proven across threads in one process, never across processes or on a network filesystem, where locking differs.
+- Task 1 has met only this repo's own stdio client, never the Inspector or a desktop host, so compliance with a third party is asserted.
 - No coverage measurement exists, so the 263 has no complement.
-- Nothing is measured on a second machine or in CI, so every timing here is one loaded 18-core laptop.
-- A live provider failure cannot change the HTTP status. `/v1/generate` sends 200 before the first upstream chunk exists, so a 401 or a 500 from the provider reaches the client as a stream that stops early. `make run-live` prints the error and exits nonzero, and a client of the endpoint would see a short 200.
-- Nothing here has spoken to a production provider. The live upstream and the live provider are covered by parsing and status-mapping tests against a stubbed transport, so what is proven is the code that would talk to one, and `make run-live` is where a reviewer with a key finds out the rest.
-- Two counts in `make lint` output look inconsistent and are not. Ruff says 44 files formatted because ruff 0.16 formats Markdown too, so it counts README.md, docs/REFEREE.md and docs/TASKS.md on top of the 41 Python files. Mypy says 41 because it counts only the Python.
+- Nothing is measured on a second machine or in CI, so every timing is one loaded 18 core laptop.
+- A live provider failure cannot change the HTTP status, since `/v1/generate` sends 200 before the first upstream chunk. A 401 or 500 reaches the client as a stream that stops early, and `make run-live` prints the error and exits nonzero.
+- Nothing here has spoken to a production provider, so what is proven is the code that would. `make run-live` is where a reader with a key finds out the rest.
+- `make lint` says 44 files formatted and 41 typed, and both are right. Ruff 0.16 formats Markdown too, so it counts `README.md`, `docs/REFEREE.md` and `docs/TASKS.md` on top of the 41 Python files mypy counts.

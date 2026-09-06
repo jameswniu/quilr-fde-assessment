@@ -212,7 +212,7 @@ def referee_headings(passed: int) -> list[tuple[str, str]]:
     return [
         (rf"^### {passed} tests pass\b", "the passing case count from this run"),
         (
-            rf"^### Hard ceiling {MAX_BUFFERED_CHARS} characters\b",
+            rf"^### {MAX_BUFFERED_CHARS} characters held at most\b",
             "MAX_BUFFERED_CHARS in src/task3_stream_guard/redactor.py",
         ),
     ]
