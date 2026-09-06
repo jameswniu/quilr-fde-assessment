@@ -1,6 +1,6 @@
 # Quilr FDE assessment
 
-Four tasks from the FDE brief, in Python, and `make check` runs all of it.
+Four tasks from the FDE brief.
 
 ## Run it
 
@@ -16,58 +16,46 @@ make run-task4   # model router demo, prints every routing outcome
 make run-live    # the same guardrail against a real provider, needs LLM_API_KEY
 ```
 
-What each task owns, and the one place two of them are not wired together.
+Why task 1 is not behind the gateway.
 
 ![The four tasks, one card each, and where the gateway's downstream is the mock](assets/system-map.svg)
 
-`make figures  # from the constants in src/ and reports/test_report.json, written by make claims`
-
 ## Task 1, MCP server
 
-Two tools over stdio on the official `mcp` SDK, one Pydantic model per tool as both schema and validator.
+Two tools over stdio, one Pydantic model each as schema and validator.
 
-The SDK's `call_tool` decorator turns every exception into an `isError` result, bad arguments included. I wanted `-32602`, so both handlers sit on the low level server instead. A missing customer still gets `isError`, because that one is a domain answer.
+The SDK's `call_tool` decorator turns every exception into an `isError` result, bad arguments included. I wanted `-32602`, so both handlers sit on the low level server. A missing customer still gets `isError`, because that is a domain answer.
 
-`src/task1_mcp_server`, both handlers in `server.py`.
+## Task 2, gateway
 
-## Task 2, security gateway
+A viewer calling any `admin_` tool gets `-32001` back before the downstream hears about it.
 
-A JSON-RPC reverse proxy, where a viewer calling any `admin_` tool gets `-32001` back before the downstream hears about it.
+The `admin_` prefix is the brief's rule and a deny list. A privileged method added under another name sails through, so anything real gets a per method allow list.
 
-The `admin_` prefix is the brief's rule, and it is a deny list. A privileged method added downstream under another name sails through, so anything real gets a per method allow list. I built what was asked for.
+## Task 3, stream guard
 
-`src/task2_mcp_gateway`.
+`POST /v1/generate` streams the reply with emails, SSNs and Luhn valid cards replaced by `[REDACTED]`, split values included.
 
-## Task 3, streaming PII redaction
+The redactor emits only text that can no longer change. Every pattern has a bounded length, the longest a 320 character email at the RFC 5321 limits, so it never holds more than twice that, 640 characters.
 
-`POST /v1/generate` streams the reply back with emails, SSNs and Luhn valid card numbers replaced by `[REDACTED]`, split values included.
+Plain prose at the front costs under 1 ms at the first token, and the 320 character email inside a longer token costs 583 ms, 53 chunks held. Both are medians of ten paired trials against a scripted upstream.
 
-The redactor emits only text that can no longer change. Every pattern has a bounded length, the longest a 320 character email at the RFC 5321 limits, so it never holds more than twice that, 640 characters. A reply opening in plain prose costs under 1 ms at the first token, the median of ten paired trials against a scripted upstream. Put a 320 character email buried inside a longer token at the front and the same ten trials read about 583 ms, 53 chunks held before anything leaves.
-
-`src/task3_stream_guard`, `redactor.py` for the hold, `patterns.py` for the bounds.
-
-What the guardrail adds at the first token, by what the response opens with.
+What sets the cost at the first token.
 
 ![Time to first token the guardrail adds, one bar per opening](assets/first-token.svg)
 
-`make figures  # from reports/bench_report.json, written by make bench`
+## Task 4, model router
 
-## Task 4, rate limiting and failover
+Every charge is one sqlite row on disk, so the window slides, and a 429 or a timeout on the primary fails over.
 
-A token budget, then failover on a 429 or a timeout, every charge one sqlite row on disk so the window slides.
+A request that produced no completion hands its tokens back rather than spending the tenant's next minute. The objection is that endless failures then cost nothing, and production would count them against an abuse budget.
 
-A request that produced no completion hands its tokens back, so a failed call does not spend the tenant's next minute. I know the objection. Endless failures then cost nothing, and a production gateway would count them against an abuse budget.
+## What I left out, and why
 
-`src/task4_model_router`, `rate_limiter.py` and `router.py`.
+- All 263 tests, cases from 155 functions, run with no network and no key, because the scripted upstream and provider keep them deterministic.
+- Every timing test runs at 60 ms to stay quick, so the 3000 ms timeout is never raced live, and the real number would need a fake clock.
+- Admission runs before any provider has counted, so the limiter charges four characters a token and nothing reconciles the estimate against the bill.
+- Twenty threads race the limiter and no two processes do, because each thread holds its own connection, so the lock between workers is inferred, not proven.
+- Task 1 has met only this repo's stdio client, which reads raw bytes off stdout the SDK client would parse away.
 
-More on each in [docs/TASKS.md](docs/TASKS.md).
-
-## What is not proven
-
-- All 263 tests under `tests/` run with no network and no key, by choice, and I never measured coverage.
-- The live path, `http_upstream.py` and `http_provider.py`, parses the provider's stream format under test against a stubbed transport, and has never met a production one.
-- The 3000 ms primary timeout is a constant one test reads back, and nothing races it, since every timing test runs at 60 ms.
-- The limiter serialises across threads in one process, and nothing tests it across processes.
-- Task 1 has only met this repo's own stdio client, never a real MCP host.
-
-Every number above has its unit and its set in [docs/REFEREE.md](docs/REFEREE.md).
+More in [docs/REFEREE.md](docs/REFEREE.md).
