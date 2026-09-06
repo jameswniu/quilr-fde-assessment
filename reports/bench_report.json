@@ -9,81 +9,81 @@
     {
       "label": "safe prose",
       "waits": 0,
-      "upstream_ms": 11.05,
-      "guarded_ms": 11.06,
-      "added_ms": 0.0,
-      "min_ms": -0.55,
-      "max_ms": 0.47
+      "upstream_ms": 11.09,
+      "guarded_ms": 11.1,
+      "added_ms": 0.01,
+      "min_ms": -1.03,
+      "max_ms": 0.89
     },
     {
       "label": "a 15 char email",
       "waits": 1,
-      "upstream_ms": 11.04,
-      "guarded_ms": 22.06,
-      "added_ms": 11.05,
-      "min_ms": 10.26,
-      "max_ms": 11.78
+      "upstream_ms": 10.96,
+      "guarded_ms": 21.75,
+      "added_ms": 11.1,
+      "min_ms": 9.76,
+      "max_ms": 15.63
     },
     {
       "label": "a 19 char Luhn card",
       "waits": 1,
-      "upstream_ms": 11.05,
-      "guarded_ms": 22.1,
-      "added_ms": 11.05,
-      "min_ms": 10.13,
-      "max_ms": 11.16
+      "upstream_ms": 11.09,
+      "guarded_ms": 21.85,
+      "added_ms": 10.75,
+      "min_ms": 10.38,
+      "max_ms": 11.43
     },
     {
       "label": "an 11 char SSN",
       "waits": 1,
-      "upstream_ms": 11.04,
-      "guarded_ms": 21.68,
-      "added_ms": 10.63,
-      "min_ms": 9.69,
-      "max_ms": 11.28
+      "upstream_ms": 11.07,
+      "guarded_ms": 21.73,
+      "added_ms": 10.91,
+      "min_ms": 9.97,
+      "max_ms": 14.63
     },
     {
       "label": "a 320 char email",
       "waits": 26,
-      "upstream_ms": 11.06,
-      "guarded_ms": 296.4,
-      "added_ms": 285.35,
-      "min_ms": 283.21,
-      "max_ms": 287.86
+      "upstream_ms": 11.08,
+      "guarded_ms": 296.51,
+      "added_ms": 285.78,
+      "min_ms": 281.96,
+      "max_ms": 287.35
     },
     {
       "label": "a 1,000 char unbroken token",
       "waits": 26,
-      "upstream_ms": 11.06,
-      "guarded_ms": 296.64,
+      "upstream_ms": 11.08,
+      "guarded_ms": 296.66,
       "added_ms": 285.58,
-      "min_ms": 279.36,
-      "max_ms": 287.09
+      "min_ms": 282.66,
+      "max_ms": 288.11
     },
     {
       "label": "a 320 char email inside a token",
       "waits": 53,
-      "upstream_ms": 11.06,
-      "guarded_ms": 594.05,
-      "added_ms": 583.0,
-      "min_ms": 576.57,
-      "max_ms": 585.37
+      "upstream_ms": 11.07,
+      "guarded_ms": 593.85,
+      "added_ms": 582.76,
+      "min_ms": 579.56,
+      "max_ms": 586.12
     }
   ],
   "worst_first_token": {
     "label": "a 320 char email inside a token",
     "waits": 53,
-    "upstream_ms": 11.06,
-    "guarded_ms": 594.05,
-    "added_ms": 583.0,
-    "min_ms": 576.57,
-    "max_ms": 585.37
+    "upstream_ms": 11.07,
+    "guarded_ms": 593.85,
+    "added_ms": 582.76,
+    "min_ms": 579.56,
+    "max_ms": 586.12
   },
   "held_by_length": [
     {
       "response_chars": 3900,
       "held_chars": 15,
-      "traced_kib": 2.1
+      "traced_kib": 2.0
     },
     {
       "response_chars": 39000,

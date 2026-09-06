@@ -11,16 +11,16 @@
 <rect x="518" y="208" width="7.3" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
 <text x="539" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">11 ms, 1 held</text>
 <text x="500" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 19 char Luhn card</text>
-<rect x="518" y="262" width="7.3" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<rect x="518" y="262" width="7.1" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
 <text x="539" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">11 ms, 1 held</text>
 <text x="500" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">an 11 char SSN</text>
-<rect x="518" y="316" width="7.0" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<rect x="518" y="316" width="7.2" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
 <text x="539" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">11 ms, 1 held</text>
 <text x="500" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 320 char email</text>
-<rect x="518" y="370" width="187.9" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
-<text x="720" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">285 ms, 26 held</text>
+<rect x="518" y="370" width="188.3" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="720" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">286 ms, 26 held</text>
 <text x="500" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 1,000 char unbroken token</text>
-<rect x="518" y="424" width="188.1" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<rect x="518" y="424" width="188.2" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
 <text x="720" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">286 ms, 26 held</text>
 <text x="500" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 320 char email inside a token</text>
 <rect x="518" y="478" width="384" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
