@@ -1,4 +1,4 @@
-.PHONY: help install test lint format bench check figures figures-check claims run-task1 run-task2 run-task3 run-task4
+.PHONY: help install test lint format bench check figures figures-check claims run-task1 run-task2 run-task3 run-task4 run-live
 
 help:
 	@echo "install     install dependencies into .venv"
@@ -14,6 +14,7 @@ help:
 	@echo "run-task2   MCP security gateway on 8080, mock downstream on 8081"
 	@echo "run-task3   streaming PII guardrail on 8082"
 	@echo "run-task4   model router demo, prints every routing outcome"
+	@echo "run-live    stream one real completion through the task 3 guardrail, needs LLM_API_KEY"
 
 install:
 	uv sync
@@ -55,3 +56,6 @@ run-task3:
 
 run-task4:
 	uv run python -m task4_model_router
+
+run-live:
+	uv run python scripts/live_stream.py
