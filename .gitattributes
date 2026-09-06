@@ -1,0 +1,5 @@
+# Generated artifacts. They are committed so the landing page and the referee cards work
+# without running anything, but they are output, so the Languages bar should ignore them.
+assets/* linguist-generated=true
+reports/*.json linguist-generated=true
+uv.lock linguist-generated=true
