@@ -3,7 +3,8 @@
     uv run python tools/check_claims.py
 
 Three numbers sit on the landing page as badges: how many test cases are green, the hard
-ceiling on held text, and the Python version. A number nothing rechecks is a number that
+ceiling on held text, and the Python version. The refusal map beside the system map carries
+six more, hand written into mermaid where figures-check cannot reach them. A number nothing rechecks is a number that
 drifts, so this reruns the suite, rereads the two constants from source, and exits nonzero
 when any of them disagrees. The suite is run rather than only collected, because collection
 cannot see a skip and the page claims a skip count. It also checks the generated hero carries the same figures, since
@@ -25,7 +26,14 @@ from typing import Any, Final
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+import mcp.types
+
+from task2_mcp_gateway import jsonrpc
 from task3_stream_guard.redactor import MAX_BUFFERED_CHARS
+from task4_model_router.errors import STATUS_CODES, GatewayErrorCode
+from task4_model_router.providers import ProviderRateLimited
+from task4_model_router.rate_limiter import DEFAULT_WINDOW_SECONDS
+from task4_model_router.router import DEFAULT_TIMEOUT_MS
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 REPORT_PATH: Final = ROOT / "reports" / "test_report.json"
@@ -140,6 +148,42 @@ def bench_report() -> dict[str, Any]:
     return data
 
 
+def refusal_map_rows() -> list[str]:
+    """Node labels the README's refusal map has to carry, built from the constants themselves.
+
+    That map is hand written mermaid rather than a generated SVG, so figures-check never sees
+    it. Without this it would be the one picture on the page whose error codes and timeouts
+    could go stale in silence.
+    """
+    return [
+        # Task 2 refuses the call, so the code comes from the gateway's own module.
+        f"Refused, {jsonrpc.UNAUTHORIZED_TOOL_CALL}, downstream never called",
+        # Task 1 refuses on the schema, and it raises with the SDK's constant, not the gateway's.
+        f"Refused, {mcp.types.INVALID_PARAMS}",
+        f"Room left in the {int(DEFAULT_WINDOW_SECONDS)} second window",
+        # The limiter's refusal is what a caller sees, so this is the caller-facing status.
+        f"Refused, {STATUS_CODES[GatewayErrorCode.RATE_LIMITED]} with retry_after_seconds",
+        # This edge is the provider answering 429, a different boundary, read off its own error.
+        f"{provider_rate_limit_status()} or timeout",
+        f"Primary answers inside {DEFAULT_TIMEOUT_MS} ms",
+        f"Held, not refused, {MAX_BUFFERED_CHARS} chars at most",
+    ]
+
+
+def provider_rate_limit_status() -> str:
+    """The status the provider layer calls a rate limit, read back off the exception itself.
+
+    Derived from behaviour rather than from a constant, because there is no constant. A change
+    to what the provider layer treats as a rate limit changes this message, and the refusal map
+    then fails instead of quietly describing the old semantics.
+    """
+    message = str(ProviderRateLimited("primary"))
+    found = re.search(r"\b(\d{3})\b", message)
+    if found is None:
+        raise SystemExit("ProviderRateLimited no longer names a status code; update this check with it.")
+    return found.group(1)
+
+
 def measured_witness() -> int:
     """How much held text the bench actually witnessed, which the page quotes beside the ceiling.
 
@@ -201,6 +245,10 @@ def main() -> int:
     seen = measured_witness()
     if str(seen) not in alt:
         failures.append(f"the hero alt text in README.md does not say {seen}, the held text the bench witnessed")
+    readme = (ROOT / "README.md").read_text()
+    for node in refusal_map_rows():
+        if node not in readme:
+            failures.append(f'the refusal map in README.md is missing "{node}"')
     tasks = (ROOT / "docs" / "TASKS.md").read_text()
     for row in chunk_table_rows():
         if row not in tasks:
