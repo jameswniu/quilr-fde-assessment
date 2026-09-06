@@ -1,12 +1,15 @@
-.PHONY: help install test lint format bench check run-task1 run-task2 run-task3 run-task4
+.PHONY: help install test lint format bench check figures figures-check claims run-task1 run-task2 run-task3 run-task4
 
 help:
 	@echo "install     install dependencies into .venv"
 	@echo "test        run the whole pytest suite"
 	@echo "lint        ruff check, ruff format check, and mypy"
 	@echo "format      apply ruff formatting and safe fixes"
-	@echo "check       lint then test"
-	@echo "bench       print time to first token and peak held text for task 3"
+	@echo "check       lint, figure check, claim check, then test"
+	@echo "bench       time to first token and peak held text for task 3, writes reports/"
+	@echo "figures     redraw the README figures from reports/ and src/"
+	@echo "figures-check  redraw and fail if a committed figure drifted"
+	@echo "claims      rerun the suite and fail if a README badge drifted"
 	@echo "run-task1   MCP server on stdio"
 	@echo "run-task2   MCP security gateway on 8080, mock downstream on 8081"
 	@echo "run-task3   streaming PII guardrail on 8082"
@@ -27,10 +30,19 @@ format:
 	uv run ruff format .
 	uv run ruff check --fix .
 
-check: lint test
+check: lint claims figures-check test
 
 bench:
 	uv run python scripts/bench_stream.py
+
+figures:
+	uv run python tools/draw_figures.py --write
+
+figures-check:
+	uv run python tools/draw_figures.py --check
+
+claims:
+	uv run python tools/check_claims.py
 
 run-task1:
 	uv run python -m task1_mcp_server

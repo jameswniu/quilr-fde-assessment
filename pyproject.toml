@@ -52,7 +52,7 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "RET", "ARG", "PTH", "RUF"
 python_version = "3.13"
 strict = true
 warn_unreachable = true
-files = ["src", "tests", "scripts"]
+files = ["src", "tests", "scripts", "tools"]
 
 [[tool.mypy.overrides]]
 module = ["uvicorn.*"]
