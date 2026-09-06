@@ -17,7 +17,7 @@ Every number on a page here, or in what a command prints, has a card below, take
 | What this sample can and cannot say | Four characters count as one token, nothing checks that against a provider's bill, and eviction only shows rows leaving. |
 | What moves it | `limit_tokens`, and under it `CHARS_PER_TOKEN`, where a smaller divisor charges more per prompt and admits fewer requests. |
 
-Appears at `docs/TASKS.md:63` and `assets/system-map.svg` (from `src/task4_model_router/rate_limiter.py:31` at draw time), which `README.md:21` embeds.
+Appears at `README.md:130` (the admit row), `docs/TASKS.md:63`, and `assets/system-map.svg` (from `src/task4_model_router/rate_limiter.py:31` at draw time), which `README.md:139` embeds.
 
 ### 3000 ms before the router gives up on the primary
 
@@ -32,7 +32,7 @@ Appears at `docs/TASKS.md:63` and `assets/system-map.svg` (from `src/task4_model
 | What this sample can and cannot say | One test asserts the integer is 3000 and none asserts behaviour at 3000, so only the shape is exercised. |
 | What moves it | `timeout_ms`, where lower abandons a slow but healthy primary and higher lets a hung one hold the request longer. |
 
-Appears at `README.md:56`, `docs/TASKS.md:65`, and `assets/system-map.svg` (from `src/task4_model_router/router.py:38` at draw time), which `README.md:21` embeds.
+Appears at `README.md:14` (the timeout badge, beside the 60 ms the tests race at), `README.md:132`, `README.md:154`, `docs/TASKS.md:65`, `assets/hero.svg` (the 04 BUDGET card, embedded at `README.md:2`), and `assets/system-map.svg` (from `src/task4_model_router/router.py:38` at draw time), which `README.md:139` embeds.
 
 ### 263 tests pass
 
@@ -54,7 +54,7 @@ Appears at `README.md:56`, `docs/TASKS.md:65`, and `assets/system-map.svg` (from
 | Task 3, stream guard | 123, being 7 endpoint, 78 redactor and 38 live upstream | 65 |
 | Task 4, model router | 74, being 22 limiter, 26 router and 26 live provider | 59 |
 
-Appears at `README.md:55`, this heading, `assets/hero.svg` (first tile), `assets/system-map.svg` (stat box, embedded at `README.md:21`).
+Appears at `README.md:11` (the tests badge, beside the coverage that is not measured), `README.md:148` (the `make claims` line), `README.md:153`, this heading, and `assets/system-map.svg` (stat box, embedded at `README.md:139`). The hero carries no count on this branch.
 
 ### No network and no API key anywhere in the suite
 
@@ -78,7 +78,7 @@ Appears at `README.md:55`, this heading, `assets/hero.svg` (first tile), `assets
 | `tests/test_task3_http_upstream.py`, 38 stubbed cases | Event stream parsing, framing rules, refusals, the sanitised target |
 | `tests/test_task4_http_provider.py`, 26 stubbed cases | Status mapping, including a 429 off the wire driving a real router failover |
 
-Appears at `README.md:55`, `docs/TASKS.md:85`, `assets/hero.svg` (FOUR TASKS / ONE SUITE / NO NETWORK), `assets/system-map.svg` (stat card, embedded at `README.md:21`).
+Appears at `README.md:20` (the tagline), `README.md:153`, `docs/TASKS.md:85`, `assets/hero.svg` (the kicker FOUR TASKS / FOUR GATES / ONE SUITE, NO NETWORK, embedded at `README.md:2`), `assets/system-map.svg` (stat card, embedded at `README.md:139`).
 
 ### 2.52 to 2.77 seconds for the whole suite
 
@@ -145,7 +145,7 @@ Appears at the `make bench` tables and `reports/bench_report.json` (`held_by_len
 | Card, 19 digits with 18 separators | 37 |
 | SSN | 11 |
 
-Appears at `README.md:39`, `docs/TASKS.md:41`, this heading, `assets/hero.svg` (with the 636, from `reports/bench_report.json`, which the README leaves out), `assets/system-map.svg` (embedded at `README.md:21`).
+Appears at `README.md:12` (the held badge, with the 636 from `reports/bench_report.json` beside it), `README.md:56`, `README.md:98`, `README.md:104`, `docs/TASKS.md:41`, this heading, `assets/hero.svg` (the 03 HOLD card, embedded at `README.md:2`), `assets/system-map.svg` (embedded at `README.md:139`).
 
 ### 583 ms worst case at the first token, under 1 ms on safe prose
 
@@ -155,7 +155,7 @@ Appears at `README.md:39`, `docs/TASKS.md:41`, this heading, `assets/hero.svg` (
 | What is counted | Milliseconds from stream start to the first non-empty chunk, the median of ten back to back raw and guarded pairs per opening, plus chunks held. |
 | How a match is decided | A stopwatch around the first chunk, raw then guarded, back to back (`time.perf_counter` in `_first_token_seconds`, paired by `_paired_trials`, `scripts/bench_stream.py:49-77`), against the scripted upstream below. |
 | Where the data came from | Seven responses differing only in their opening (`_leading_shapes`, `scripts/bench_stream.py:80-108`), ten paired trials each, one prompt, no warm up. |
-| How to regenerate it | `make bench`, then `make figures` to redraw `assets/first-token.svg` and `assets/hero.svg` from `reports/bench_report.json`. |
+| How to regenerate it | `make bench`, then `make figures` to redraw `assets/first-token.svg` from `reports/bench_report.json`, then `make claims` to rebuild the first token badge and the record rows from the same file. |
 | The number that makes it look worse | Best and worst sit four orders of magnitude apart, so quoting only the prose row was wrong, and the straddling note belongs to one run. |
 | What this sample can and cannot say | One chunk size, one cadence, one loaded laptop, no real provider, and the last shape is the worst the design allows, not one from traffic. |
 | What moves it | `UPSTREAM_DELAY_SECONDS` 0.01 with `CHUNK_SIZE` 12 prices a chunk of waiting, `MAX_MATCH_LENGTH` 320 sets how many the last three shapes wait, `TRIAL_COUNT` 10 narrows ranges. |
@@ -179,11 +179,11 @@ Appears at `README.md:39`, `docs/TASKS.md:41`, this heading, `assets/hero.svg` (
 | One reading | Stops at the first chunk rather than draining, keeping seventy pairs inside a fourteen second bench |
 | The cost | Whole chunk delays, since nothing leaves while the opening could still be part of a pattern |
 | Between runs | Milliseconds move by a few and the waits do not, so `make figures-check` reports drift in the figures and `make claims` in the prose |
-| What a page shows | Whatever the last `make bench` measured, in the figure, the hero tile and the README sentence |
+| What a page shows | Whatever the last `make bench` measured, in the figure, the first token badge, the record table and the README sentence |
 | Chunk size | Larger provider chunks clear the same window in fewer of them, and a slower provider pays more |
 | Frequency | Nothing says how often any of the seven openings occurs in real traffic |
 
-Appears at `README.md:41` (583 and under 1 ms, rounded from the committed `reports/bench_report.json`, which reads 582.76), `README.md:45` (the embedded `assets/first-token.svg`), `docs/TASKS.md:45-53` (chunks held), `assets/hero.svg` (middle tile, not embedded).
+Appears at `README.md:13` (the first token badge, worst beside best), `README.md:99` (583 and under 1 ms, rounded from the committed `reports/bench_report.json`, which reads 582.76), `README.md:108` (the embedded `assets/first-token.svg`), `README.md:110-118` (the record table, chunks held, the median and the range per opening, every row pinned by `make claims`), `README.md:148`, `docs/TASKS.md:45-53` (chunks held). The hero carries no timing on this branch.
 
 ### 2.0 KiB traced peak on a 3.9 million character response
 
@@ -251,14 +251,15 @@ No `make bench` run was repeated in the live provider pass, so every timing in t
 
 | Surface | Rechecked by |
 | --- | --- |
-| README prose (263, 155 functions, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, four characters a token, twenty threads, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
+| README prose (263, 155 functions, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, four characters a token, twenty threads, 50,000 tokens, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
+| The six badges under the README title, each as its whole image URL, and the seven rows of the first token record table | `make claims`, which builds both from the same sources and fails on a missing string |
 | How `make claims` counts | It collects the suite, then runs it, since collection cannot see a skip, and rereads each constant from `src/` and each measurement from `reports/bench_report.json` |
 | The 263 and 640 headings here, and the chunks held table in `docs/TASKS.md` | `make claims` |
-| The three SVGs under `assets/`, which carry no typed number and read every value from the two reports or a constant in `src/` | `make figures-check`, which redraws and compares, after `make claims` in `make check`, so the 263 and 0 skips tile of `assets/hero.svg` compares against this run |
+| The three SVGs under `assets/`, which carry no typed number and read every value from the two reports or a constant in `src/` | `make figures-check`, which redraws and compares, after `make claims` in `make check`, so the 263 in the stat box of `assets/system-map.svg` compares against this run |
 | The timing rows here, and `docs/TASKS.md` beyond its chunk table | A reader, since no command reads them |
 | The fourteen `make help` lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print | A reader running them |
 
-On this branch the README embeds `assets/system-map.svg` and `assets/first-token.svg`, each under one line naming the question the figure answers, with no redraw line beneath, since each figure's own footer names the command. The hero, the badges and the mermaid refusal map stay off it.
+On this branch the README opens with `assets/hero.svg` before the title, then six shields.io badges, then embeds `assets/first-token.svg` above the first token record table and `assets/system-map.svg` under its own heading. Every code and constant on the hero is imported from `src/` at draw time, and every badge is pinned by `make claims` as its whole URL. The mermaid refusal map stays off it.
 
 ## What a reader could check that this repo does not prove
 
