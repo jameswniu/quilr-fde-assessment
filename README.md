@@ -36,36 +36,34 @@ make run-task4   # model router demo, prints every routing outcome
 Where a request stops, and the one place it is only held.
 
 ```mermaid
-%%{init: {"flowchart": {"rankSpacing": 30, "nodeSpacing": 22, "curve": "linear", "padding": 8}}}%%
+%%{init: {"flowchart": {"rankSpacing": 18, "nodeSpacing": 12, "curve": "linear", "padding": 6}}}%%
 flowchart TD
-  classDef entry fill:#0a0a0a,stroke:#0a0a0a,color:#ffffff
   classDef gate fill:#fafafa,stroke:#3f3f46,color:#111111
   classDef pass fill:#ffffff,stroke:#a1a1aa,color:#111111
   classDef stop fill:#18181b,stroke:#18181b,color:#ffffff
   classDef hold fill:#1b5e3f,stroke:#1b5e3f,color:#ffffff
 
-  A["a tools/call arrives"] --> B["Token resolves to a role"]
-  B -->|"viewer wants admin_"| B1["Refused, -32001, downstream never called"]
-  B -->|"otherwise"| C["Arguments checked against the tool schema"]
-  C -->|"they do not match"| C1["Refused, -32602"]
-  C -->|"they match"| C2["Handler runs"]
+  B["A tools/call.<br/>Token resolves to a role"]
+  B -->|"viewer wants admin_"| B1["Refused, -32001.<br/>No downstream call"]
+  B -->|"otherwise"| C["Arguments match the schema"]
+  C -->|"no"| C1["Refused, -32602"]
+  C -->|"yes"| C2["Handler runs"]
 
-  C2 ~~~ D
-  D["a completion arrives"] --> E["Room left in the 60 second window"]
-  E -->|"no"| E1["Refused, 429 with retry_after_seconds"]
+  C2 ~~~ E
+  E["A completion.<br/>Room in the 60 s window"]
+  E -->|"no"| E1["Refused, 429"]
   E -->|"yes"| F["Primary answers inside 3000 ms"]
   F -->|"429 or timeout"| G["Secondary tries"]
   F -->|"yes"| H["Reply returns"]
   G --> H
-  G -->|"it fails too"| G1["One error shape, charge released"]
+  G -->|"it fails too"| G1["One error shape"]
 
-  H ~~~ J
-  J["a response chunk arrives"] --> K["Could still be part of a pattern"]
-  K -->|"yes"| K1["Held, not refused, 640 chars at most"]
+  H ~~~ K
+  K["A response chunk.<br/>Could still be part of a pattern"]
+  K -->|"yes"| K1["Held, not refused.<br/>640 chars at most"]
   K1 --> K
   K -->|"no"| K2["Emitted, redacted"]
 
-  class A,D,J entry
   class B,C,E,F,K gate
   class C2,G,H,K2 pass
   class B1,C1,E1,G1 stop

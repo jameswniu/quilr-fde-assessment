@@ -157,16 +157,16 @@ def refusal_map_rows() -> list[str]:
     """
     return [
         # Task 2 refuses the call, so the code comes from the gateway's own module.
-        f"Refused, {jsonrpc.UNAUTHORIZED_TOOL_CALL}, downstream never called",
+        f"Refused, {jsonrpc.UNAUTHORIZED_TOOL_CALL}.<br/>No downstream call",
         # Task 1 refuses on the schema, and it raises with the SDK's constant, not the gateway's.
         f"Refused, {mcp.types.INVALID_PARAMS}",
-        f"Room left in the {int(DEFAULT_WINDOW_SECONDS)} second window",
+        f"Room in the {int(DEFAULT_WINDOW_SECONDS)} s window",
         # The limiter's refusal is what a caller sees, so this is the caller-facing status.
-        f"Refused, {STATUS_CODES[GatewayErrorCode.RATE_LIMITED]} with retry_after_seconds",
+        f"Refused, {STATUS_CODES[GatewayErrorCode.RATE_LIMITED]}",
         # This edge is the provider answering 429, a different boundary, read off its own error.
         f"{provider_rate_limit_status()} or timeout",
         f"Primary answers inside {DEFAULT_TIMEOUT_MS} ms",
-        f"Held, not refused, {MAX_BUFFERED_CHARS} chars at most",
+        f"{MAX_BUFFERED_CHARS} chars at most",
     ]
 
 
