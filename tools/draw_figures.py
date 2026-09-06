@@ -497,7 +497,7 @@ def mermaid_flow() -> str:
         f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
         f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
         f'"titleColor": "{LIGHT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
-        '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6, "diagramPadding": 8}}}%%'
+        '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6, "diagramPadding": 8, "subGraphTitleMargin": {"top": 6, "bottom": 14}}}}%%'
     )
     lines = [
         "```mermaid",
