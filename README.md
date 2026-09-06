@@ -16,6 +16,12 @@ make run-task4   # model router demo, prints every routing outcome
 make run-live    # the same guardrail against a real provider, needs LLM_API_KEY
 ```
 
+What each task owns, and the one place two of them are not wired together.
+
+![The four tasks, one card each, and where the gateway's downstream is the mock](assets/system-map.svg)
+
+`make figures  # from the constants in src/ and reports/test_report.json, written by make claims`
+
 ## Task 1, MCP server
 
 Two tools over stdio on the official `mcp` SDK, one Pydantic model per tool as both schema and validator.
@@ -38,7 +44,13 @@ The `admin_` prefix is the brief's rule, and it is a deny list. A privileged met
 
 The redactor emits only text that can no longer change. Every pattern has a bounded length, the longest a 320 character email at the RFC 5321 limits, so it never holds more than twice that, 640 characters. A reply opening in plain prose costs under 1 ms at the first token, the median of ten paired trials against a scripted upstream. Put a 320 character email buried inside a longer token at the front and the same ten trials read about 583 ms, 53 chunks held before anything leaves.
 
-`src/task3_stream_guard`, `redactor.py` for the hold, `patterns.py` for the bounds, and `assets/first-token.svg` for the cost by opening.
+`src/task3_stream_guard`, `redactor.py` for the hold, `patterns.py` for the bounds.
+
+What the guardrail adds at the first token, by what the response opens with.
+
+![Time to first token the guardrail adds, one bar per opening](assets/first-token.svg)
+
+`make figures  # from reports/bench_report.json, written by make bench`
 
 ## Task 4, rate limiting and failover
 

@@ -33,7 +33,6 @@ sys.path.insert(0, str(ROOT / "src"))
 from task2_mcp_gateway import jsonrpc  # noqa: E402
 from task2_mcp_gateway.__main__ import DOWNSTREAM_PORT, GATEWAY_PORT  # noqa: E402
 from task3_stream_guard.__main__ import PORT as GUARD_PORT  # noqa: E402
-from task3_stream_guard.patterns import MAX_MATCH_LENGTH  # noqa: E402
 from task3_stream_guard.redactor import MAX_BUFFERED_CHARS  # noqa: E402
 from task4_model_router.rate_limiter import DEFAULT_LIMIT_TOKENS  # noqa: E402
 from task4_model_router.router import DEFAULT_TIMEOUT_MS  # noqa: E402
@@ -271,44 +270,39 @@ def system_map() -> str:
     """
     tests = report("test_report.json")
     full_w = float(WIDTH - 2 * MARGIN)
-    half_w = (full_w - 44) / 2
-    right_x = MARGIN + half_w + 44
 
     sections: list[tuple[str, str, list[tuple[float, float, str, list[str], str]]]] = [
         (
             "01  MCP SERVER",
-            "two tools, one source of truth for the schema",
+            "two tools over stdio, one schema each",
             [
                 (
                     float(MARGIN),
                     full_w,
-                    "task1_mcp_server, two tools over stdio",
+                    "task1_mcp_server",
                     [
                         "get_customer_record and trigger_refund, strict, unknown fields rejected",
-                        "stdout carries JSON-RPC only, sys.stdout is rebound to stderr",
+                        f"bad arguments get {jsonrpc.INVALID_PARAMS}, a missing customer gets an isError result",
                     ],
-                    f"bad arguments -> {jsonrpc.INVALID_PARAMS}, an unknown customer -> an isError result",
+                    "make run-task1",
                 )
             ],
         ),
         (
             "02  GATEWAY",
-            "task 1 speaks stdio, so the downstream here is the mock",
+            "task 1 speaks stdio, so the downstream here is task 2's mock",
             [
                 (
                     float(MARGIN),
-                    half_w,
-                    f"gateway, port {GATEWAY_PORT}",
-                    ["bearer token to admin or viewer", "admin_ tools need the admin role"],
-                    f"a viewer gets {jsonrpc.UNAUTHORIZED_TOOL_CALL}, no forward",
-                ),
-                (
-                    right_x,
-                    half_w,
-                    f"mock downstream, port {DOWNSTREAM_PORT}",
-                    ["tools/list and tools/call", "records every request it sees"],
-                    "so a test can prove no forward",
-                ),
+                    full_w,
+                    f"task2_mcp_gateway on {GATEWAY_PORT}, mock downstream on {DOWNSTREAM_PORT}",
+                    [
+                        "the bearer token resolves to admin or viewer before anything is forwarded",
+                        f"a viewer calling an admin_ tool gets {jsonrpc.UNAUTHORIZED_TOOL_CALL}, "
+                        "and the downstream never hears it",
+                    ],
+                    "make run-task2",
+                )
             ],
         ),
         (
@@ -321,9 +315,9 @@ def system_map() -> str:
                     f"task3_stream_guard, POST /v1/generate on {GUARD_PORT}",
                     [
                         "emails, US SSNs and Luhn cards become [REDACTED] as the response streams",
-                        "only text that can no longer change is emitted, so a split value is caught",
+                        f"only text that can no longer change is emitted, at most {MAX_BUFFERED_CHARS} characters held",
                     ],
-                    f"bounded patterns, {MAX_MATCH_LENGTH} char longest match, {MAX_BUFFERED_CHARS} char ceiling",
+                    "make run-task3, make bench",
                 )
             ],
         ),
@@ -333,18 +327,14 @@ def system_map() -> str:
             [
                 (
                     float(MARGIN),
-                    half_w,
-                    "limiter, sqlite on disk",
-                    [f"{DEFAULT_LIMIT_TOKENS:,} tokens a minute per key", "rows keyed by a digest, not the key"],
-                    "admission in BEGIN IMMEDIATE",
-                ),
-                (
-                    right_x,
-                    half_w,
-                    "router, then failover",
-                    [f"429 or {DEFAULT_TIMEOUT_MS} ms, try the secondary", "one error shape, one request id"],
-                    "a failed call refunds its charge",
-                ),
+                    full_w,
+                    "task4_model_router, a limiter in front of two providers",
+                    [
+                        f"{DEFAULT_LIMIT_TOKENS:,} tokens a minute per key, one sqlite row per charge",
+                        f"a 429 or {DEFAULT_TIMEOUT_MS} ms tries the secondary, and a failed call refunds its charge",
+                    ],
+                    "make run-task4",
+                )
             ],
         ),
     ]
