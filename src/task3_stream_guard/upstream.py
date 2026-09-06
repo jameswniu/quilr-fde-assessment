@@ -1,4 +1,9 @@
-"""A stand in for the LLM provider, so the gateway and its tests need no network or key."""
+"""A stand in for the LLM provider, so the gateway and its tests need no network or key.
+
+Deliberate, not a limitation. Every test in the suite runs against the scripted upstream
+below, which is what keeps the suite deterministic and free. The real one lives beside it in
+``http_upstream.py``, behind the same protocol, and ``make run-live`` is how it gets used.
+"""
 
 from __future__ import annotations
 
