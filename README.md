@@ -67,9 +67,14 @@ it does not support.
 
 ## Figures and claims
 
-`make bench` writes `reports/bench_report.json`, and `make claims` recounts the suite into
-`reports/test_report.json`. `make figures` redraws the three SVGs from those two files and from the constants
-in `src/`, so no figure carries a number that was typed by hand. `make figures-check` redraws and compares
-against what is committed, and `make claims` reruns the suite and fails when a badge above stops matching it.
-Neither one pins the prose in this file, which repeats several of the same numbers, so those live in the
+No figure on this page carries a number that was typed by hand.
+
+| Command | What it does |
+| --- | --- |
+| `make bench` | Re-measures task 3 and writes `reports/bench_report.json` |
+| `make claims` | Reruns the suite into `reports/test_report.json`, and fails when a badge above stops matching it |
+| `make figures` | Redraws the three SVGs from those two reports and from the constants in `src/` |
+| `make figures-check` | Redraws and compares against what is committed |
+
+Neither check pins the prose in this file, which repeats several of the same numbers, so those live in the
 referee cards. Re-running `make bench` re-measures, so redraw the figures after it.
