@@ -6,7 +6,7 @@
 <text x="48" y="166" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#a1a1aa" text-anchor="start">MCP server, security gateway, streaming PII guardrail, model router.</text>
 <rect x="48" y="196" width="355" height="96" rx="12" fill="#1c1c20" stroke="#52525b" stroke-width="1.5"/>
 <rect x="48" y="196" width="6" height="96" rx="3" fill="#ffffff"/>
-<text x="70" y="234" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff" text-anchor="start">199 tests, 0 skips</text>
+<text x="70" y="234" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff" text-anchor="start">263 tests, 0 skips</text>
 <text x="70" y="268" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#a1a1aa" text-anchor="start">no coverage measured</text>
 <rect x="418" y="196" width="355" height="96" rx="12" fill="#1c1c20" stroke="#52525b" stroke-width="1.5"/>
 <rect x="418" y="196" width="6" height="96" rx="3" fill="#ffffff"/>

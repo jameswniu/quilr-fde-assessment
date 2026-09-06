@@ -374,7 +374,7 @@ def system_map() -> str:
     fit(subtitle, 24, WIDTH - 2 * MARGIN)
     out.append(text(MARGIN, 156, subtitle, 24, GRAY700))
     out.append(card(746, 40, 430, 96))
-    for index, line in enumerate([f"4 tasks / {tests['passed']} tests green", "no network / no API key"]):
+    for index, line in enumerate([f"4 tasks / {tests['passed']} tests green", "suite: no network, no key"]):
         fit_mono(line, 22, 430 - 44)
         out.append(mono(768, 80 + index * 36, line, 22, INK))
     out.extend(body)

@@ -6,8 +6,8 @@
 <text x="48" y="108" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#111111" text-anchor="start">How the four tasks meet</text>
 <text x="48" y="156" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#3f3f46" text-anchor="start">What each one owns, and the one place two of them are not wired together.</text>
 <rect x="746" y="40" width="430" height="96" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
-<text x="768" y="80" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start">4 tasks / 199 tests green</text>
-<text x="768" y="116" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start">no network / no API key</text>
+<text x="768" y="80" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start">4 tasks / 263 tests green</text>
+<text x="768" y="116" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start">suite: no network, no key</text>
 <text x="48" y="204" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start" letter-spacing="2">01  MCP SERVER</text>
 <text x="310" y="204" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">two tools, one source of truth for the schema</text>
 <rect x="48" y="222" width="1104" height="168" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
