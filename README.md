@@ -49,19 +49,21 @@ make run-task4   # model router demo, prints every routing outcome
   <img src="assets/first-token.svg" alt="Bar chart of the time to first token the guardrail adds, by what the response opens with. Under 1 ms on safe prose, about 11 ms on a short email, card or social security number, about a third of a second on a 320 character email or a 1,000 character token, and about 0.6 s on a 320 character email buried inside a token" width="100%">
 </p>
 
-A reply that opens in ordinary prose leaves on the first chunk. A reply that opens inside a value waits for
-that value to resolve. The wait tracks how long the value is, not which kind of value it is. The worst case is
-the longest legal email buried inside a longer token, which holds 53 chunks before anything can be sent. Both
-that wait and the held text are bounded by the pattern lengths, so a longer response never costs more.
+A reply opening mid pattern waits for that pattern to resolve, and the wait is bounded by the 320 character
+longest match. A longer response never costs more.
 
 ## What this does not prove
 
-The brief's overview says five tasks and its body stops at four, so this repo has four. No coverage is
-measured, so 199 green cases say what was written and nothing about what was not. The 640
-character ceiling is derived from the pattern lengths, and the closest witness the bench builds holds 636 of
-it. Every timing here is one loaded laptop against a scripted upstream, so none of it measures a real
-provider. [The referee cards](docs/REFEREE.md) carry one card per number, saying what it measures, on what set,
-and what it does not support.
+The brief's overview says five tasks and its body stops at four, so this repo has four.
+
+| Number on the page | What it does not cover |
+| --- | --- |
+| 199 tests green | No coverage is measured, so it says what was written and nothing about what was not |
+| 640 char hold ceiling | Derived from the pattern lengths, and the closest witness the bench builds holds 636 |
+| Every timing here | One loaded laptop against a scripted upstream, so no real provider is measured |
+
+[The referee cards](docs/REFEREE.md) carry one card per number, saying what it measures, on what set, and what
+it does not support.
 
 ## Figures and claims
 
