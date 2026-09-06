@@ -16,12 +16,14 @@ sits on at the WCAG 4.5 ratio, so a pair that reads fine on a bright monitor and
 one cannot ship either. An overflow is fixed by shortening the string, never by dropping a font
 under the floor, and a contrast failure by darkening the ink, never by enlarging the text.
 
-The palette is Claude Code's, terracotta on a warm near black, and all three figures sit on
-that same dark band, because MCP is Anthropic's protocol and this repo is built on the
-official MCP SDK, so the reference is to the protocol's home. Quilr's own colours are
-deliberately not used, since dressing a take-home in the hiring company's palette reads as a
-claim of affiliation. The mermaid flow in the README is drawn here too, spliced between two
-markers, so ``--check`` catches a hand edit to it the same way it catches one to an SVG.
+The palette is Anthropic's, its brand terracotta on a warm near black, and all three figures
+sit on that same dark band, because MCP is Anthropic's protocol and this repo is built on the
+official MCP SDK, so the reference is to the protocol's home. The terracotta is kept for thin
+rules, small labels and the chart bars, never for a fill behind text, which is what keeps the
+page quiet. Quilr's own colours are deliberately not used, since dressing a take-home in the
+hiring company's palette reads as a claim of affiliation. The mermaid flow in the README is
+drawn here too, spliced between two markers, so ``--check`` catches a hand edit to it the
+same way it catches one to an SVG.
 """
 
 from __future__ import annotations
@@ -57,8 +59,8 @@ CHIP: Final = "#1F1E1D"
 EDGE_DARK: Final = "#3A3734"
 #: Warm cream, the primary text on the band.
 CREAM: Final = "#F4F1EA"
-#: Terracotta, the one accent: kickers, footnotes, bars and rules.
-ACCENT: Final = "#D97757"
+#: Anthropic's own brand terracotta, a step more muted than the Claude Code one: kickers, bars and rules.
+ACCENT: Final = "#CC785C"
 #: Secondary text on the band.
 LIGHT: Final = "#B8B0A4"
 FONT: Final = "Helvetica Neue,Helvetica,Arial,sans-serif"
@@ -255,7 +257,7 @@ def hero() -> str:
 
     kicker = "FOUR TASKS / FOUR GATES / ONE SUITE, NO NETWORK"
     fit_mono(kicker, 22, WIDTH - 2 * MARGIN, spacing=3)
-    parts.append(mono(MARGIN, 50, kicker, 22, ACCENT, spacing=3))
+    parts.append(mono(MARGIN, 50, kicker, 22, LIGHT, spacing=3))
 
     title = "Where does a bad request stop?"
     fit(title, 44, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
@@ -283,7 +285,7 @@ def hero() -> str:
         parts.append(text(x + pad + 6, card_y + 112, question[1], 22, CREAM, "700"))
         parts.append(mono(x + pad + 6, card_y + 152, "WHEN IT SAYS NO", 22, LIGHT, spacing=1.5))
         parts.append(text(x + pad + 6, card_y + 186, answer, 26, CREAM, "700"))
-        parts.append(mono(x + pad + 6, card_y + 216, footnote, 22, ACCENT))
+        parts.append(mono(x + pad + 6, card_y + 216, footnote, 22, LIGHT))
         x += card_w + gap
 
     foot = "make bench measures, make figures redraws, make claims rereads the page"
@@ -301,7 +303,7 @@ def _map_card(x: float, y: float, w: float, title: str, details: list[str], foot
         fit(line, 22, w)
         parts.append(text(x + 26, y + 82 + index * 34, line, 22, CREAM))
     fit_mono(footnote, 22, w - 52)
-    parts.append(mono(x + 26, y + 150, footnote, 22, ACCENT))
+    parts.append(mono(x + 26, y + 150, footnote, 22, LIGHT))
     return parts
 
 
@@ -494,39 +496,39 @@ def mermaid_flow() -> str:
         '%%{init: {"theme": "base", "themeVariables": {'
         f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
         f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
-        f'"titleColor": "{ACCENT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
-        '"flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%'
+        f'"titleColor": "{LIGHT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
+        '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6}}}%%'
     )
     lines = [
         "```mermaid",
         init,
         "flowchart TB",
+        '  subgraph S2["02 role gate, task 2"]',
+        "    direction LR",
+        f'    B2["admin_ tool<br/>as viewer?"] -- yes --> B3["{jsonrpc.UNAUTHORIZED_TOOL_CALL}<br/>not forwarded"]',
+        '    B2 -- no --> B4["forwarded to<br/>the downstream"]',
+        "  end",
         '  subgraph S1["01 schema gate, task 1"]',
         "    direction LR",
         f'    A2["arguments fit<br/>the schema?"] -- no --> A3["{jsonrpc.INVALID_PARAMS}<br/>Invalid params"]',
         '    A2 -- yes --> A4["handler runs"]',
         "  end",
-        '  subgraph S2["02 role gate, task 2"]',
+        '  subgraph S4["04 budget gate, task 4"]',
         "    direction LR",
-        f'    B2["admin_ tool<br/>as viewer?"] -- yes --> B3["{jsonrpc.UNAUTHORIZED_TOOL_CALL}<br/>not forwarded"]',
-        '    B2 -- no --> B4["forwarded to<br/>the downstream"]',
+        f'    D2["budget in the<br/>last {DEFAULT_WINDOW_SECONDS:.0f} s?"] -- no --> '
+        f'D3["{GatewayErrorCode.RATE_LIMITED}<br/>retry_after_seconds"]',
+        f'    D2 -- yes --> D4["primary first,<br/>secondary on a {rate_limit_status()}<br/>'
+        f'or after {DEFAULT_TIMEOUT_MS} ms"]',
         "  end",
         '  subgraph S3["03 hold gate, task 3"]',
         "    direction LR",
         f'    C2["could this text<br/>still change?"] -- yes --> C3["held, {MAX_BUFFERED_CHARS} chars<br/>at most"]',
         '    C2 -- no --> C4["emitted, PII<br/>as [REDACTED]"]',
         "  end",
-        '  subgraph S4["04 budget gate, task 4"]',
-        "    direction LR",
-        f'    D2["budget in the<br/>last {DEFAULT_WINDOW_SECONDS:.0f} s?"] -- no --> '
-        f'D3["{GatewayErrorCode.RATE_LIMITED}<br/>retry_after_seconds"]',
-        f'    D2 -- yes --> D4["primary in {DEFAULT_TIMEOUT_MS} ms, or the<br/>'
-        f'secondary on a {rate_limit_status()} or a timeout"]',
-        "  end",
         "  S1 ~~~ S3",
         "  S2 ~~~ S4",
-        f"  classDef stop fill:{ACCENT},stroke:{ACCENT},color:{INK}",
-        f"  classDef hold fill:{EDGE_DARK},stroke:{ACCENT},color:{CREAM}",
+        f"  classDef stop fill:{CHIP},stroke:{ACCENT},stroke-width:2px,color:{CREAM}",
+        f"  classDef hold fill:{CHIP},stroke:{LIGHT},stroke-width:2px,color:{CREAM}",
         "  class A3,B3,D3 stop",
         "  class C3 hold",
         "```",

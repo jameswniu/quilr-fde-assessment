@@ -56,7 +56,7 @@ LICENSE_PATH: Final = ROOT / "LICENSE"
 
 #: The badge wall's two colours, the accent on the headline badge and the warm grey on the rest, over the
 #: dark label. The same terracotta and near black tools/draw_figures.py draws with.
-BADGE_ACCENT: Final = "D97757"
+BADGE_ACCENT: Final = "CC785C"
 BADGE_GREY: Final = "6B645A"
 BADGE_LABEL: Final = "141413"
 

@@ -8,7 +8,7 @@
 
 <br/>
 
-<img alt="263 tests passed, no coverage measured" src="https://img.shields.io/badge/tests-263_passed_%C2%B7_no_coverage_measured-D97757?style=flat-square&labelColor=141413">
+<img alt="263 tests passed, no coverage measured" src="https://img.shields.io/badge/tests-263_passed_%C2%B7_no_coverage_measured-CC785C?style=flat-square&labelColor=141413">
 <img alt="held at most 640 chars, 636 seen" src="https://img.shields.io/badge/held_at_most-640_chars_%C2%B7_636_seen-6B645A?style=flat-square&labelColor=141413">
 <img alt="first token under 1 ms on prose, 583 ms worst" src="https://img.shields.io/badge/first_token-under_1_ms_on_prose_%C2%B7_583_ms_worst-6B645A?style=flat-square&labelColor=141413">
 <img alt="timeout 3000 ms, raced at 60 ms" src="https://img.shields.io/badge/timeout-3000_ms_%C2%B7_raced_at_60_ms-6B645A?style=flat-square&labelColor=141413">
@@ -140,32 +140,32 @@ Each gate as a lane, and no arrow from the role gate into the schema gate, becau
 
 <!-- mermaid:start, drawn by tools/draw_figures.py, edit the generator -->
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#D97757", "edgeLabelBackground": "#141413", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#B8B0A4", "edgeLabelBackground": "#141413", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6}}}%%
 flowchart TB
+  subgraph S2["02 role gate, task 2"]
+    direction LR
+    B2["admin_ tool<br/>as viewer?"] -- yes --> B3["-32001<br/>not forwarded"]
+    B2 -- no --> B4["forwarded to<br/>the downstream"]
+  end
   subgraph S1["01 schema gate, task 1"]
     direction LR
     A2["arguments fit<br/>the schema?"] -- no --> A3["-32602<br/>Invalid params"]
     A2 -- yes --> A4["handler runs"]
   end
-  subgraph S2["02 role gate, task 2"]
+  subgraph S4["04 budget gate, task 4"]
     direction LR
-    B2["admin_ tool<br/>as viewer?"] -- yes --> B3["-32001<br/>not forwarded"]
-    B2 -- no --> B4["forwarded to<br/>the downstream"]
+    D2["budget in the<br/>last 60 s?"] -- no --> D3["rate_limited<br/>retry_after_seconds"]
+    D2 -- yes --> D4["primary first,<br/>secondary on a 429<br/>or after 3000 ms"]
   end
   subgraph S3["03 hold gate, task 3"]
     direction LR
     C2["could this text<br/>still change?"] -- yes --> C3["held, 640 chars<br/>at most"]
     C2 -- no --> C4["emitted, PII<br/>as [REDACTED]"]
   end
-  subgraph S4["04 budget gate, task 4"]
-    direction LR
-    D2["budget in the<br/>last 60 s?"] -- no --> D3["rate_limited<br/>retry_after_seconds"]
-    D2 -- yes --> D4["primary in 3000 ms, or the<br/>secondary on a 429 or a timeout"]
-  end
   S1 ~~~ S3
   S2 ~~~ S4
-  classDef stop fill:#D97757,stroke:#D97757,color:#141413
-  classDef hold fill:#3A3734,stroke:#D97757,color:#F4F1EA
+  classDef stop fill:#1F1E1D,stroke:#CC785C,stroke-width:2px,color:#F4F1EA
+  classDef hold fill:#1F1E1D,stroke:#B8B0A4,stroke-width:2px,color:#F4F1EA
   class A3,B3,D3 stop
   class C3 hold
 ```
