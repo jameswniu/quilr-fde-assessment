@@ -144,7 +144,11 @@ async def test_error_payloads_leak_no_upstream_detail(limiter: SlidingWindowRate
     with pytest.raises(GatewayError) as caught:
         await build(limiter, primary, secondary).complete(request())
 
-    serialised = json.dumps(caught.value.to_payload())
+    payload = caught.value.to_payload()
+    # The request id is random hex, so any short digit run can appear inside it by chance.
+    # The leak check is about the message and code, which is where an upstream detail would land.
+    payload["error"].pop("request_id")
+    serialised = json.dumps(payload)
     assert leak not in serialised
 
 
