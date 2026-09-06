@@ -14,9 +14,12 @@ held until the pattern resolves, and that is a real wait a user sees.
 from __future__ import annotations
 
 import asyncio
+import json
 import statistics
 import time
 import tracemalloc
+from pathlib import Path
+from typing import Any, Final
 
 from task3_stream_guard.gateway import redacted_stream
 from task3_stream_guard.patterns import MAX_MATCH_LENGTH
@@ -28,6 +31,11 @@ UPSTREAM_DELAY_SECONDS = 0.01
 TRIAL_COUNT = 10
 CONTENT_SHAPE_CHARS = 100_000
 LEADING_TOKEN_CHARS = 1_000
+
+#: Where every number this script measures is written, so the README figures and the claim
+#: check read a file rather than a person retyping a table out of the terminal.
+REPORT_PATH: Final = Path(__file__).resolve().parent.parent / "reports" / "bench_report.json"
+
 PROSE_SENTENCE = "all clear here, nothing to see at all. "
 PROSE_TAIL = "and the rest of the reply is ordinary prose with nothing sensitive left in it."
 
@@ -89,7 +97,6 @@ def _leading_shapes() -> list[tuple[str, str]]:
     card = "4111 1111 1111 1111"
     ssn = "123-45-6789"
     token = "x" * LEADING_TOKEN_CHARS
-    buried = f"{MAX_EMAIL}_{'z' * MAX_MATCH_LENGTH}"
     return [
         ("safe prose", DEMO_RESPONSE),
         (f"a {len(email)} char email", f"{email} {PROSE_TAIL}"),
@@ -97,8 +104,18 @@ def _leading_shapes() -> list[tuple[str, str]]:
         (f"an {len(ssn)} char SSN", f"{ssn} {PROSE_TAIL}"),
         (f"a {len(MAX_EMAIL)} char email", f"{MAX_EMAIL} {PROSE_TAIL}"),
         (f"a {len(token):,} char unbroken token", f"{token} {PROSE_TAIL}"),
-        (f"a {len(MAX_EMAIL)} char email inside a token", f"{buried} {PROSE_TAIL}"),
+        (f"a {len(MAX_EMAIL)} char email inside a token", _straddling_response()),
     ]
+
+
+def _straddling_response() -> str:
+    """The worst case fixture, used for both its first token cost and its peak held text.
+
+    A whole longest possible match sits at character 0 and nothing after it is a safe cut for
+    another MAX_MATCH_LENGTH characters, which is the case that doubles the held text ceiling.
+    Built once here so the timing row and the held text figure describe the same string.
+    """
+    return f"{MAX_EMAIL}_{'z' * MAX_MATCH_LENGTH} {PROSE_TAIL}"
 
 
 def _chunks_waited(response: str) -> int:
@@ -160,14 +177,13 @@ def _content_shapes() -> list[tuple[str, str]]:
     ]
 
 
-async def _report_first_token() -> None:
+async def _report_first_token() -> list[dict[str, Any]]:
     """Print one row per leading content shape, then the worst case across all of them."""
     print(f"time to first token, by leading content shape, median of {TRIAL_COUNT} paired trials each")
     header = f"{'waits':>6}{'upstream':>12}{'guarded':>12}{'guardrail adds':>17}   range over trials"
     print(f"  {'response opens with':<32}{header}")
 
-    worst_added = float("-inf")
-    worst_label = ""
+    rows: list[dict[str, Any]] = []
     straddling: list[str] = []
     for label, response in _leading_shapes():
         pairs = await _paired_trials(response, TRIAL_COUNT)
@@ -175,15 +191,26 @@ async def _report_first_token() -> None:
         guarded_ms = [guarded * 1000 for _, guarded in pairs]
         diffs_ms = [(guarded - raw) * 1000 for raw, guarded in pairs]
         added = statistics.median(diffs_ms)
-        if added > worst_added:
-            worst_added, worst_label = added, label
         if min(diffs_ms) <= 0 <= max(diffs_ms):
             straddling.append(label)
+        rows.append(
+            {
+                "label": label,
+                "waits": _chunks_waited(response),
+                "upstream_ms": round(statistics.median(raw_ms), 2),
+                "guarded_ms": round(statistics.median(guarded_ms), 2),
+                "added_ms": round(added, 2),
+                "min_ms": round(min(diffs_ms), 2),
+                "max_ms": round(max(diffs_ms), 2),
+            }
+        )
         print(
             f"  {label:<32}{_chunks_waited(response):>6}{statistics.median(raw_ms):>9.2f} ms"
             f"{statistics.median(guarded_ms):>9.2f} ms{added:>14.2f} ms"
             f"   {min(diffs_ms):.2f} to {max(diffs_ms):.2f} ms"
         )
+    worst = max(rows, key=lambda row: float(row["added_ms"]))
+    worst_added, worst_label = float(worst["added_ms"]), str(worst["label"])
 
     print("  safe prose is the demo reply, the other six put one leading value in front of the same prose tail")
     print("  waits counts the extra upstream chunks held before the first token, so the cost tracks how long")
@@ -197,30 +224,73 @@ async def _report_first_token() -> None:
     print("  that opens mid pattern waits for it to resolve. That wait is bounded the way the held text is,")
     print(f"  by the {MAX_MATCH_LENGTH} character longest match, doubled to {MAX_BUFFERED_CHARS} when a whole match")
     print("  opens the response, and it is paid at whatever rate the upstream sends chunks")
+    return rows
 
 
 async def main() -> None:
-    await _report_first_token()
+    first_token = await _report_first_token()
 
     print("\npeak held text, by response length, content shape held fixed")
+    by_length: list[dict[str, Any]] = []
     for chunk_count in (100, 1_000, 10_000, 100_000):
         held, traced = _peak_for_length(chunk_count)
         response_chars = chunk_count * len(PROSE_SENTENCE)
+        by_length.append({"response_chars": response_chars, "held_chars": held, "traced_kib": round(traced / 1024, 1)})
         print(f"  {response_chars:>9,} char response   held {held:>4} chars   traced peak {traced / 1024:8.1f} KiB")
     print("  flat across a thousandfold change in length, so length alone does not move this number")
 
     print(f"\npeak held text, by content shape, response length held fixed near {CONTENT_SHAPE_CHARS:,} chars")
+    by_shape: list[dict[str, Any]] = []
     for text, label in _content_shapes():
         held = _peak_for_text(text)
+        by_shape.append({"label": label, "response_chars": len(text), "held_chars": held})
         print(f"  {len(text):>9,} char {label:<32} held {held:>4} chars")
     print("  the held figure tracks the shape of the trailing content, not the length of the response")
 
+    straddle_held = _peak_for_text(_straddling_response())
     print(
         f"\n  hard ceiling {MAX_BUFFERED_CHARS} chars, twice the longest possible match "
         f"({MAX_MATCH_LENGTH} chars, an email at the RFC 5321 limits, a 64 character local part "
         f"and a 255 character domain), since a match straddling the cut can pull the window back "
         f"a second time"
     )
+    print(
+        f"  the closest witness this bench builds holds {straddle_held} of those {MAX_BUFFERED_CHARS} chars, "
+        f"the worst case shape above fed in {CHUNK_SIZE} character chunks, so the last "
+        f"{MAX_BUFFERED_CHARS - straddle_held} rest on reading the pattern lengths"
+    )
+
+    _write_report(first_token, by_length, by_shape, straddle_held)
+    print(f"\nwrote {REPORT_PATH.relative_to(REPORT_PATH.parent.parent)}")
+
+
+def _write_report(
+    first_token: list[dict[str, Any]],
+    by_length: list[dict[str, Any]],
+    by_shape: list[dict[str, Any]],
+    straddle_held: int,
+) -> None:
+    """Write every measurement to one JSON file, so no figure has to be typed by hand.
+
+    The README figures are drawn from this file and the claim check reads it, which is what
+    makes a stale number a diff rather than something a reader has to notice.
+    """
+    worst = max(first_token, key=lambda row: float(row["added_ms"]))
+    report = {
+        "source": "scripts/bench_stream.py",
+        "chunk_size_chars": CHUNK_SIZE,
+        "upstream_delay_ms": UPSTREAM_DELAY_SECONDS * 1000,
+        "trials_per_shape": TRIAL_COUNT,
+        "max_match_chars": MAX_MATCH_LENGTH,
+        "max_buffered_chars": MAX_BUFFERED_CHARS,
+        "first_token": first_token,
+        "worst_first_token": worst,
+        "held_by_length": by_length,
+        "held_by_shape": by_shape,
+        "straddling_worst_case_held_chars": straddle_held,
+    }
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2) + "\n")
 
 
 if __name__ == "__main__":

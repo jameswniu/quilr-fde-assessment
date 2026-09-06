@@ -1,0 +1,122 @@
+{
+  "source": "scripts/bench_stream.py",
+  "chunk_size_chars": 12,
+  "upstream_delay_ms": 10.0,
+  "trials_per_shape": 10,
+  "max_match_chars": 320,
+  "max_buffered_chars": 640,
+  "first_token": [
+    {
+      "label": "safe prose",
+      "waits": 0,
+      "upstream_ms": 11.05,
+      "guarded_ms": 11.06,
+      "added_ms": 0.0,
+      "min_ms": -0.55,
+      "max_ms": 0.47
+    },
+    {
+      "label": "a 15 char email",
+      "waits": 1,
+      "upstream_ms": 11.04,
+      "guarded_ms": 22.06,
+      "added_ms": 11.05,
+      "min_ms": 10.26,
+      "max_ms": 11.78
+    },
+    {
+      "label": "a 19 char Luhn card",
+      "waits": 1,
+      "upstream_ms": 11.05,
+      "guarded_ms": 22.1,
+      "added_ms": 11.05,
+      "min_ms": 10.13,
+      "max_ms": 11.16
+    },
+    {
+      "label": "an 11 char SSN",
+      "waits": 1,
+      "upstream_ms": 11.04,
+      "guarded_ms": 21.68,
+      "added_ms": 10.63,
+      "min_ms": 9.69,
+      "max_ms": 11.28
+    },
+    {
+      "label": "a 320 char email",
+      "waits": 26,
+      "upstream_ms": 11.06,
+      "guarded_ms": 296.4,
+      "added_ms": 285.35,
+      "min_ms": 283.21,
+      "max_ms": 287.86
+    },
+    {
+      "label": "a 1,000 char unbroken token",
+      "waits": 26,
+      "upstream_ms": 11.06,
+      "guarded_ms": 296.64,
+      "added_ms": 285.58,
+      "min_ms": 279.36,
+      "max_ms": 287.09
+    },
+    {
+      "label": "a 320 char email inside a token",
+      "waits": 53,
+      "upstream_ms": 11.06,
+      "guarded_ms": 594.05,
+      "added_ms": 583.0,
+      "min_ms": 576.57,
+      "max_ms": 585.37
+    }
+  ],
+  "worst_first_token": {
+    "label": "a 320 char email inside a token",
+    "waits": 53,
+    "upstream_ms": 11.06,
+    "guarded_ms": 594.05,
+    "added_ms": 583.0,
+    "min_ms": 576.57,
+    "max_ms": 585.37
+  },
+  "held_by_length": [
+    {
+      "response_chars": 3900,
+      "held_chars": 15,
+      "traced_kib": 2.1
+    },
+    {
+      "response_chars": 39000,
+      "held_chars": 15,
+      "traced_kib": 2.0
+    },
+    {
+      "response_chars": 390000,
+      "held_chars": 15,
+      "traced_kib": 2.0
+    },
+    {
+      "response_chars": 3900000,
+      "held_chars": 15,
+      "traced_kib": 2.0
+    }
+  ],
+  "held_by_shape": [
+    {
+      "label": "pure prose, no partial pattern",
+      "response_chars": 99996,
+      "held_chars": 5
+    },
+    {
+      "label": "response ending mid email",
+      "response_chars": 100012,
+      "held_chars": 15
+    },
+    {
+      "label": "one unbroken token",
+      "response_chars": 100000,
+      "held_chars": 320
+    }
+  ],
+  "straddling_worst_case_held_chars": 636
+}
