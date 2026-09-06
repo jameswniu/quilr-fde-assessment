@@ -488,13 +488,15 @@ def mermaid_flow() -> str:
     two lines and the questions are boxes rather than diamonds so a lane stays inside GitHub's
     column, which otherwise scales the whole diagram down and the text with it. Side by side
     lanes were tried and each is two nodes wide at its branch, so four of them ran to twice the
-    column.
+    column. The diagram keeps GitHub's own font, since a mono family is measured with sans
+    metrics here and the labels overflow their boxes, and the budget lane starts at its
+    question because a fourth rank pushed it past the column.
     """
     init = (
         '%%{init: {"theme": "base", "themeVariables": {'
         f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
         f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
-        f'"titleColor": "{ACCENT}", "edgeLabelBackground": "{INK}", "fontFamily": "{MONO}", "fontSize": "16px"}}, '
+        f'"titleColor": "{ACCENT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
         '"flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%'
     )
     lines = [
@@ -522,10 +524,10 @@ def mermaid_flow() -> str:
         "  end",
         '  subgraph S4["04 budget gate, task 4"]',
         "    direction LR",
-        f'    D1["a completion<br/>request"] --> D2["budget in the<br/>last {DEFAULT_WINDOW_SECONDS:.0f} s?"]',
+        f'    D2["budget in the<br/>last {DEFAULT_WINDOW_SECONDS:.0f} s?"]',
         f'    D2 -- no --> D3["{GatewayErrorCode.RATE_LIMITED}<br/>retry_after_seconds"]',
         f'    D2 -- yes --> D4["primary answers<br/>in {DEFAULT_TIMEOUT_MS} ms?"]',
-        f'    D4 -- "{rate_limit_status()} or timeout" --> D5["secondary tries"]',
+        f'    D4 -- no --> D5["secondary tries<br/>on a {rate_limit_status()} or a timeout"]',
         '    D4 -- yes --> D6["reply returns"]',
         "  end",
         "  S1 ~~~ S2 ~~~ S3 ~~~ S4",

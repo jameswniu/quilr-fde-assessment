@@ -140,7 +140,7 @@ Each gate as a lane, and no arrow from the role gate into the schema gate, becau
 
 <!-- mermaid:start, drawn by tools/draw_figures.py, edit the generator -->
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#D97757", "edgeLabelBackground": "#141413", "fontFamily": "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#D97757", "edgeLabelBackground": "#141413", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%
 flowchart TB
   subgraph S1["01 schema gate, task 1"]
     direction LR
@@ -163,10 +163,10 @@ flowchart TB
   end
   subgraph S4["04 budget gate, task 4"]
     direction LR
-    D1["a completion<br/>request"] --> D2["budget in the<br/>last 60 s?"]
+    D2["budget in the<br/>last 60 s?"]
     D2 -- no --> D3["rate_limited<br/>retry_after_seconds"]
     D2 -- yes --> D4["primary answers<br/>in 3000 ms?"]
-    D4 -- "429 or timeout" --> D5["secondary tries"]
+    D4 -- no --> D5["secondary tries<br/>on a 429 or a timeout"]
     D4 -- yes --> D6["reply returns"]
   end
   S1 ~~~ S2 ~~~ S3 ~~~ S4
