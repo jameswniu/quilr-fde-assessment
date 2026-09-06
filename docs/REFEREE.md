@@ -251,7 +251,7 @@ No `make bench` run was repeated in the live provider pass, so every timing in t
 
 | Surface | Rechecked by |
 | --- | --- |
-| README prose (263, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
+| README prose (263, 155 functions, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, four characters a token, twenty threads, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
 | How `make claims` counts | It collects the suite, then runs it, since collection cannot see a skip, and rereads each constant from `src/` and each measurement from `reports/bench_report.json` |
 | The 263 and 640 headings here, and the chunks held table in `docs/TASKS.md` | `make claims` |
 | The three SVGs under `assets/`, which carry no typed number and read every value from the two reports or a constant in `src/` | `make figures-check`, which redraws and compares, after `make claims` in `make check`, so the 263 and 0 skips tile of `assets/hero.svg` compares against this run |

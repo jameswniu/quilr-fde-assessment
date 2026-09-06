@@ -8,9 +8,9 @@ opening, and the constants those sentences lean on. A number nothing rechecks is
 drifts, so this reruns the suite, rereads each constant from source and each measurement from
 ``reports/bench_report.json``, and exits nonzero when the prose disagrees with any of them. The
 suite is run rather than only collected, because collection cannot see a skip, and a skipped case
-would still be counted as one. One number comes from the tests rather than from ``src/``, the
-shortened timeout the timing tests run at, and that is read out of ``tests/test_task4_router.py``
-by name.
+would still be counted as one. Two numbers come from the tests rather than from ``src/``, the
+shortened timeout the timing tests run at and the thread count the limiter is raced with, and
+each is read out of its test file by name.
 
 Two other pages repeat some of the same numbers. The card headings in ``docs/REFEREE.md`` carry
 the test count and the hold bound, and the chunk table in ``docs/TASKS.md`` carries the bench's
@@ -40,7 +40,7 @@ from task3_stream_guard.__main__ import PORT as GUARD_PORT
 from task3_stream_guard.patterns import MAX_MATCH_LENGTH
 from task3_stream_guard.redactor import MAX_BUFFERED_CHARS
 from task4_model_router.providers import ProviderRateLimited
-from task4_model_router.router import DEFAULT_TIMEOUT_MS
+from task4_model_router.router import CHARS_PER_TOKEN, DEFAULT_TIMEOUT_MS
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 README_PATH: Final = ROOT / "README.md"
@@ -131,11 +131,19 @@ _WORDS: Final = (
     "ten",
     "eleven",
     "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+    "twenty",
 )
 
 
 def spelled(count: int) -> str:
-    """A count the way the prose writes it: a word up to twelve, digits past that."""
+    """A count the way the prose writes it: a word up to twenty, digits past that."""
     return _WORDS[count] if 0 <= count < len(_WORDS) else str(count)
 
 
@@ -149,6 +157,19 @@ def fast_timeout_ms() -> int:
     found = re.search(r"^FAST_TIMEOUT_MS\s*=\s*(\d+)", text, re.MULTILINE)
     if found is None:
         raise SystemExit("tests/test_task4_router.py no longer declares FAST_TIMEOUT_MS; update this check with it.")
+    return int(found.group(1))
+
+
+def limiter_race_threads() -> int:
+    """How many threads the limiter is raced with, read out of the test file by name.
+
+    The README quotes the count as a claim about what the suite proves, so it is pinned to the
+    test the same way the shortened timeout is, rather than typed twice.
+    """
+    text = (ROOT / "tests" / "test_task4_rate_limiter.py").read_text()
+    found = re.search(r"^\s*thread_count\s*=\s*(\d+)", text, re.MULTILINE)
+    if found is None:
+        raise SystemExit("tests/test_task4_rate_limiter.py no longer declares thread_count; update this check with it.")
     return int(found.group(1))
 
 
@@ -166,7 +187,7 @@ def provider_rate_limit_status() -> str:
     return found.group(1)
 
 
-def readme_claims(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
+def readme_claims(passed: int, functions: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
     """Every number the README prose has to carry, as a regex built from the source it quotes.
 
     Returns (pattern, source) pairs, so a failure names where the right value lives and not only
@@ -179,6 +200,7 @@ def readme_claims(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
     best_pattern = rf"\b{re.escape(best)}\b" if best.startswith("under") else rf"(?<!under )\b{re.escape(best)}\b"
     return [
         (rf"\b{passed} tests\b", "the passing case count from this run"),
+        (rf"\b{functions} functions\b", "the test function count from this run"),
         (rf"\b{MAX_BUFFERED_CHARS} characters\b", "MAX_BUFFERED_CHARS in src/task3_stream_guard/redactor.py"),
         (rf"\b{MAX_MATCH_LENGTH} character\b", "MAX_MATCH_LENGTH in src/task3_stream_guard/patterns.py"),
         (rf"\b{float(worst['added_ms']):.0f} ms\b", "the worst first token row in reports/bench_report.json"),
@@ -186,6 +208,8 @@ def readme_claims(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
         (rf"\b{int(worst['waits'])} chunks\b", "the waits column of that worst row"),
         (rf"\b{DEFAULT_TIMEOUT_MS} ms\b", "DEFAULT_TIMEOUT_MS in src/task4_model_router/router.py"),
         (rf"\b{fast_timeout_ms()} ms\b", "FAST_TIMEOUT_MS in tests/test_task4_router.py"),
+        (rf"\b{spelled(CHARS_PER_TOKEN)} characters a token\b", "CHARS_PER_TOKEN in src/task4_model_router/router.py"),
+        (rf"\b(?i:{spelled(limiter_race_threads())}) threads\b", "thread_count in tests/test_task4_rate_limiter.py"),
         (rf"\b{provider_rate_limit_status()}\b", "the status ProviderRateLimited names, which is the failover signal"),
         (rf"\bon {GATEWAY_PORT}\b", "GATEWAY_PORT in src/task2_mcp_gateway/__main__.py"),
         (rf"\bon {DOWNSTREAM_PORT}\b", "DOWNSTREAM_PORT in src/task2_mcp_gateway/__main__.py"),
@@ -258,7 +282,7 @@ def main() -> int:
         failures.append(f"pytest collected {cases} cases but the run accounts for a different number")
 
     readme = README_PATH.read_text()
-    for pattern, source in readme_claims(passed, bench):
+    for pattern, source in readme_claims(passed, functions, bench):
         if re.search(pattern, readme) is None:
             failures.append(f"README.md no longer carries a match for {pattern!r}, from {source}")
     referee = REFEREE_PATH.read_text()
