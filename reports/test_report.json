@@ -1,0 +1,11 @@
+{
+  "source": "uv run pytest -o addopts= -q, counts from --collect-only -q",
+  "cases": 199,
+  "functions": 109,
+  "passed": 199,
+  "skipped": 0,
+  "xfailed": 0,
+  "xpassed": 0,
+  "failed": 0,
+  "error": 0
+}
