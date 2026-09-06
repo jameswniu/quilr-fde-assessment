@@ -144,32 +144,26 @@ Each gate as a lane, and no arrow from the role gate into the schema gate, becau
 flowchart TB
   subgraph S1["01 schema gate, task 1"]
     direction LR
-    A1["tools/call over stdio"] --> A2["arguments fit<br/>the schema?"]
-    A2 -- no --> A3["-32602<br/>Invalid params"]
+    A2["arguments fit<br/>the schema?"] -- no --> A3["-32602<br/>Invalid params"]
     A2 -- yes --> A4["handler runs"]
   end
   subgraph S2["02 role gate, task 2"]
     direction LR
-    B1["bearer resolves<br/>to a role"] --> B2["admin_ tool<br/>as viewer?"]
-    B2 -- yes --> B3["-32001<br/>not forwarded"]
+    B2["admin_ tool<br/>as viewer?"] -- yes --> B3["-32001<br/>not forwarded"]
     B2 -- no --> B4["forwarded to<br/>the downstream"]
   end
   subgraph S3["03 hold gate, task 3"]
     direction LR
-    C1["a response chunk"] --> C2["could it<br/>still change?"]
-    C2 -- yes --> C3["held, 640 chars<br/>at most"]
-    C3 --> C1
+    C2["could this text<br/>still change?"] -- yes --> C3["held, 640 chars<br/>at most"]
     C2 -- no --> C4["emitted, PII<br/>as [REDACTED]"]
   end
   subgraph S4["04 budget gate, task 4"]
     direction LR
-    D2["budget in the<br/>last 60 s?"]
-    D2 -- no --> D3["rate_limited<br/>retry_after_seconds"]
-    D2 -- yes --> D4["primary answers<br/>in 3000 ms?"]
-    D4 -- no --> D5["secondary tries<br/>on a 429 or a timeout"]
-    D4 -- yes --> D6["reply returns"]
+    D2["budget in the<br/>last 60 s?"] -- no --> D3["rate_limited<br/>retry_after_seconds"]
+    D2 -- yes --> D4["primary in 3000 ms, or the<br/>secondary on a 429 or a timeout"]
   end
-  S1 ~~~ S2 ~~~ S3 ~~~ S4
+  S1 ~~~ S3
+  S2 ~~~ S4
   classDef stop fill:#D97757,stroke:#D97757,color:#141413
   classDef hold fill:#3A3734,stroke:#D97757,color:#F4F1EA
   class A3,B3,D3 stop
