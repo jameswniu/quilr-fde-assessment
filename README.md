@@ -8,12 +8,12 @@
 
 <br/>
 
-<img alt="263 tests passed, no coverage measured" src="https://img.shields.io/badge/tests-263_passed_%C2%B7_no_coverage_measured-D97757?style=flat-square&labelColor=1F1E1D">
-<img alt="held at most 640 chars, 636 seen" src="https://img.shields.io/badge/held_at_most-640_chars_%C2%B7_636_seen-6B645A?style=flat-square&labelColor=1F1E1D">
-<img alt="first token under 1 ms on prose, 583 ms worst" src="https://img.shields.io/badge/first_token-under_1_ms_on_prose_%C2%B7_583_ms_worst-6B645A?style=flat-square&labelColor=1F1E1D">
-<img alt="timeout 3000 ms, raced at 60 ms" src="https://img.shields.io/badge/timeout-3000_ms_%C2%B7_raced_at_60_ms-6B645A?style=flat-square&labelColor=1F1E1D">
-<img alt="limiter raced by 20 threads and 0 processes" src="https://img.shields.io/badge/limiter-20_threads_%C2%B7_0_processes-6B645A?style=flat-square&labelColor=1F1E1D">
-<img alt="MIT license" src="https://img.shields.io/badge/license-MIT-6B645A?style=flat-square&labelColor=1F1E1D">
+<img alt="263 tests passed, no coverage measured" src="https://img.shields.io/badge/tests-263_passed_%C2%B7_no_coverage_measured-D97757?style=flat-square&labelColor=141413">
+<img alt="held at most 640 chars, 636 seen" src="https://img.shields.io/badge/held_at_most-640_chars_%C2%B7_636_seen-6B645A?style=flat-square&labelColor=141413">
+<img alt="first token under 1 ms on prose, 583 ms worst" src="https://img.shields.io/badge/first_token-under_1_ms_on_prose_%C2%B7_583_ms_worst-6B645A?style=flat-square&labelColor=141413">
+<img alt="timeout 3000 ms, raced at 60 ms" src="https://img.shields.io/badge/timeout-3000_ms_%C2%B7_raced_at_60_ms-6B645A?style=flat-square&labelColor=141413">
+<img alt="limiter raced by 20 threads and 0 processes" src="https://img.shields.io/badge/limiter-20_threads_%C2%B7_0_processes-6B645A?style=flat-square&labelColor=141413">
+<img alt="MIT license" src="https://img.shields.io/badge/license-MIT-6B645A?style=flat-square&labelColor=141413">
 
 <br/><br/>
 
@@ -135,6 +135,46 @@ Every charge is one sqlite row on disk, so the window slides, and a 429 or a tim
 ---
 
 ## The four tasks, as a map
+
+Each gate as a lane, and no arrow from the role gate into the schema gate, because task 1 speaks stdio and the gateway's downstream in this repo is the mock.
+
+<!-- mermaid:start, drawn by tools/draw_figures.py, edit the generator -->
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#D97757", "edgeLabelBackground": "#141413", "fontFamily": "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 22, "rankSpacing": 30, "padding": 10}}}%%
+flowchart LR
+  subgraph S1["01 schema gate, task 1"]
+    direction TB
+    A1["tools/call over stdio"] --> A2{"arguments fit the schema?"}
+    A2 -- no --> A3["-32602 Invalid params"]
+    A2 -- yes --> A4["handler runs"]
+  end
+  subgraph S2["02 role gate, task 2"]
+    direction TB
+    B1["bearer resolves to a role"] --> B2{"admin_ tool as viewer?"}
+    B2 -- yes --> B3["-32001, not forwarded"]
+    B2 -- no --> B4["forwarded to the downstream"]
+  end
+  subgraph S3["03 hold gate, task 3"]
+    direction TB
+    C1["a response chunk"] --> C2{"could it still change?"}
+    C2 -- yes --> C3["held, 640 chars at most"]
+    C3 --> C1
+    C2 -- no --> C4["emitted, PII as [REDACTED]"]
+  end
+  subgraph S4["04 budget gate, task 4"]
+    direction TB
+    D1["a completion request"] --> D2{"budget in the last 60 s?"}
+    D2 -- no --> D3["rate_limited, retry_after_seconds"]
+    D2 -- yes --> D4{"primary answers in 3000 ms?"}
+    D4 -- "429 or timeout" --> D5["secondary tries"]
+    D4 -- yes --> D6["reply returns"]
+  end
+  classDef stop fill:#D97757,stroke:#D97757,color:#141413
+  classDef hold fill:#3A3734,stroke:#D97757,color:#F4F1EA
+  class A3,B3,D3 stop
+  class C3 hold
+```
+<!-- mermaid:end -->
 
 ![The four tasks, one card each, and where the gateway's downstream is the mock](assets/system-map.svg)
 

@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 616" role="img" aria-label="Time to first token that the guardrail adds, by what the response opens with">
-<rect x="0" y="0" width="1200" height="616" fill="#F4F1EA"/>
-<text x="48" y="58" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="700" fill="#1F1E1D" text-anchor="start">What the guardrail costs at the first token</text>
-<text x="48" y="94" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">median of 10 paired trials per opening, upstream sends 12 char chunks every 10 ms</text>
-<rect x="48" y="122" width="1104" height="416" rx="10" fill="#FCFAF6" stroke="#D8D0C2" stroke-width="1.5"/>
-<text x="500" y="172" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">safe prose</text>
+<rect x="0" y="0" width="1200" height="616" fill="#141413"/>
+<text x="48" y="58" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="700" fill="#F4F1EA" text-anchor="start">What the guardrail costs at the first token</text>
+<text x="48" y="94" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">median of 10 paired trials per opening, upstream sends 12 char chunks every 10 ms</text>
+<rect x="48" y="122" width="1104" height="416" rx="10" fill="#1F1E1D" stroke="#3A3734" stroke-width="1.5"/>
+<text x="500" y="172" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">safe prose</text>
 <rect x="518" y="154" width="3" height="24" rx="2" fill="#D97757"/>
-<text x="535" y="172" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">under 1 ms, 0 held</text>
-<text x="500" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">a 15 char email</text>
+<text x="535" y="172" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">under 1 ms, 0 held</text>
+<text x="500" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">a 15 char email</text>
 <rect x="518" y="208" width="7.3" height="24" rx="2" fill="#D97757"/>
-<text x="539" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">11 ms, 1 held</text>
-<text x="500" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">a 19 char Luhn card</text>
+<text x="539" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">11 ms, 1 held</text>
+<text x="500" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">a 19 char Luhn card</text>
 <rect x="518" y="262" width="7.1" height="24" rx="2" fill="#D97757"/>
-<text x="539" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">11 ms, 1 held</text>
-<text x="500" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">an 11 char SSN</text>
+<text x="539" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">11 ms, 1 held</text>
+<text x="500" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">an 11 char SSN</text>
 <rect x="518" y="316" width="7.2" height="24" rx="2" fill="#D97757"/>
-<text x="539" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">11 ms, 1 held</text>
-<text x="500" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">a 320 char email</text>
+<text x="539" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">11 ms, 1 held</text>
+<text x="500" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">a 320 char email</text>
 <rect x="518" y="370" width="188.3" height="24" rx="2" fill="#D97757"/>
-<text x="720" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">286 ms, 26 held</text>
-<text x="500" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">a 1,000 char unbroken token</text>
+<text x="720" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">286 ms, 26 held</text>
+<text x="500" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">a 1,000 char unbroken token</text>
 <rect x="518" y="424" width="188.2" height="24" rx="2" fill="#D97757"/>
-<text x="720" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">286 ms, 26 held</text>
-<text x="500" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="end">a 320 char email inside a token</text>
+<text x="720" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">286 ms, 26 held</text>
+<text x="500" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="end">a 320 char email inside a token</text>
 <rect x="518" y="478" width="384" height="24" rx="2" fill="#D97757"/>
-<text x="916" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">583 ms, 53 held</text>
-<text x="48" y="582" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">reports/bench_report.json, written by make bench, redrawn by make figures</text>
+<text x="916" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#F4F1EA" text-anchor="start">583 ms, 53 held</text>
+<text x="48" y="582" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">reports/bench_report.json, written by make bench, redrawn by make figures</text>
 </svg>

@@ -58,7 +58,7 @@ LICENSE_PATH: Final = ROOT / "LICENSE"
 #: dark label. The same terracotta and near black tools/draw_figures.py draws with.
 BADGE_ACCENT: Final = "D97757"
 BADGE_GREY: Final = "6B645A"
-BADGE_LABEL: Final = "1F1E1D"
+BADGE_LABEL: Final = "141413"
 
 
 def _pytest(*arguments: str) -> str:
