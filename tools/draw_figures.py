@@ -481,8 +481,10 @@ MERMAID_END: Final = "<!-- mermaid:end -->"
 def mermaid_flow() -> str:
     """The four gates as four lanes, with the codes and limits read from ``src/``.
 
-    Four subgraphs and no edge between the first two, because task 1 speaks stdio and the
-    gateway proxies HTTP, so nothing in this repo puts task 1 behind task 2.
+    Four lanes stacked top to bottom, each read left to right, and no edge between the first
+    two, because task 1 speaks stdio and the gateway proxies HTTP, so nothing in this repo puts
+    task 1 behind task 2. The invisible links between the lanes only fix their order, since
+    mermaid otherwise stacks unconnected subgraphs in whatever order it likes.
     """
     init = (
         '%%{init: {"theme": "base", "themeVariables": {'
@@ -494,34 +496,35 @@ def mermaid_flow() -> str:
     lines = [
         "```mermaid",
         init,
-        "flowchart LR",
+        "flowchart TB",
         '  subgraph S1["01 schema gate, task 1"]',
-        "    direction TB",
+        "    direction LR",
         '    A1["tools/call over stdio"] --> A2{"arguments fit the schema?"}',
         f'    A2 -- no --> A3["{jsonrpc.INVALID_PARAMS} Invalid params"]',
         '    A2 -- yes --> A4["handler runs"]',
         "  end",
         '  subgraph S2["02 role gate, task 2"]',
-        "    direction TB",
+        "    direction LR",
         '    B1["bearer resolves to a role"] --> B2{"admin_ tool as viewer?"}',
         f'    B2 -- yes --> B3["{jsonrpc.UNAUTHORIZED_TOOL_CALL}, not forwarded"]',
         '    B2 -- no --> B4["forwarded to the downstream"]',
         "  end",
         '  subgraph S3["03 hold gate, task 3"]',
-        "    direction TB",
+        "    direction LR",
         '    C1["a response chunk"] --> C2{"could it still change?"}',
         f'    C2 -- yes --> C3["held, {MAX_BUFFERED_CHARS} chars at most"]',
         "    C3 --> C1",
         '    C2 -- no --> C4["emitted, PII as [REDACTED]"]',
         "  end",
         '  subgraph S4["04 budget gate, task 4"]',
-        "    direction TB",
+        "    direction LR",
         f'    D1["a completion request"] --> D2{{"budget in the last {DEFAULT_WINDOW_SECONDS:.0f} s?"}}',
         f'    D2 -- no --> D3["{GatewayErrorCode.RATE_LIMITED}, retry_after_seconds"]',
         f'    D2 -- yes --> D4{{"primary answers in {DEFAULT_TIMEOUT_MS} ms?"}}',
         f'    D4 -- "{rate_limit_status()} or timeout" --> D5["secondary tries"]',
         '    D4 -- yes --> D6["reply returns"]',
         "  end",
+        "  S1 ~~~ S2 ~~~ S3 ~~~ S4",
         f"  classDef stop fill:{ACCENT},stroke:{ACCENT},color:{INK}",
         f"  classDef hold fill:{EDGE_DARK},stroke:{ACCENT},color:{CREAM}",
         "  class A3,B3,D3 stop",
