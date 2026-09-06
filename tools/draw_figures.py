@@ -490,14 +490,17 @@ def mermaid_flow() -> str:
     since mermaid otherwise places unconnected subgraphs in whatever order it likes. The diagram
     keeps GitHub's own font, since a mono family is measured with sans metrics here and the
     labels overflow their boxes. No edge joins the first two lanes, because task 1 speaks stdio
-    and the gateway proxies HTTP, so nothing in this repo puts task 1 behind task 2.
+    and the gateway proxies HTTP, so nothing in this repo puts task 1 behind task 2. GitHub draws
+    its pan and zoom control over the bottom right corner of every mermaid diagram, so an empty
+    spacer node under the bottom row keeps the last lane out from under it.
     """
     init = (
         '%%{init: {"theme": "base", "themeVariables": {'
         f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
         f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
         f'"titleColor": "{LIGHT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
-        '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6, "diagramPadding": 8, "subGraphTitleMargin": {"top": 6, "bottom": 14}}}}%%'
+        '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6, '
+        '"diagramPadding": 8, "subGraphTitleMargin": {"top": 6, "bottom": 14}}}}%%'
     )
     lines = [
         "```mermaid",
@@ -527,10 +530,15 @@ def mermaid_flow() -> str:
         "  end",
         "  S1 ~~~ S3",
         "  S2 ~~~ S4",
+        '  Z["<br/><br/>"]',
+        "  S3 ~~~ Z",
+        "  S4 ~~~ Z",
         f"  classDef stop fill:{CHIP},stroke:{ACCENT},stroke-width:2px,color:{CREAM}",
         f"  classDef hold fill:{CHIP},stroke:{LIGHT},stroke-width:2px,color:{CREAM}",
         "  class A3,B3,D3 stop",
         "  class C3 hold",
+        "  classDef spacer fill:none,stroke:none,color:transparent",
+        "  class Z spacer",
         "```",
     ]
     return "\n".join(lines) + "\n"

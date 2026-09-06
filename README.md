@@ -164,10 +164,15 @@ flowchart TB
   end
   S1 ~~~ S3
   S2 ~~~ S4
+  Z["<br/><br/>"]
+  S3 ~~~ Z
+  S4 ~~~ Z
   classDef stop fill:#1F1E1D,stroke:#CC785C,stroke-width:2px,color:#F4F1EA
   classDef hold fill:#1F1E1D,stroke:#B8B0A4,stroke-width:2px,color:#F4F1EA
   class A3,B3,D3 stop
   class C3 hold
+  classDef spacer fill:none,stroke:none,color:transparent
+  class Z spacer
 ```
 <!-- mermaid:end -->
 
