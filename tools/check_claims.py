@@ -2,11 +2,14 @@
 
     uv run python tools/check_claims.py
 
-The README carries a handful of numbers in prose: how many test cases are green, the most text
-the redactor ever holds back, what the guardrail adds to the first token on its best and worst
+The README carries its numbers three ways: a badge wall under the title, a first token record
+table, and a handful of sentences, covering how many test cases are green, the most text the
+redactor ever holds back, what the guardrail adds to the first token on its best and worst
 opening, and the constants those sentences lean on. A number nothing rechecks is a number that
 drifts, so this reruns the suite, rereads each constant from source and each measurement from
-``reports/bench_report.json``, and exits nonzero when the prose disagrees with any of them. The
+``reports/bench_report.json``, and exits nonzero when a badge, a record row or the prose
+disagrees with any of them. A badge is pinned as its whole image URL, built here from the same
+sources, so a hand edit to one cannot survive a run. The
 suite is run rather than only collected, because collection cannot see a skip, and a skipped case
 would still be counted as one. Two numbers come from the tests rather than from ``src/``, the
 shortened timeout the timing tests run at and the thread count the limiter is raced with, and
@@ -40,6 +43,7 @@ from task3_stream_guard.__main__ import PORT as GUARD_PORT
 from task3_stream_guard.patterns import MAX_MATCH_LENGTH
 from task3_stream_guard.redactor import MAX_BUFFERED_CHARS
 from task4_model_router.providers import ProviderRateLimited
+from task4_model_router.rate_limiter import DEFAULT_LIMIT_TOKENS
 from task4_model_router.router import CHARS_PER_TOKEN, DEFAULT_TIMEOUT_MS
 
 ROOT: Final = Path(__file__).resolve().parent.parent
@@ -48,6 +52,13 @@ REFEREE_PATH: Final = ROOT / "docs" / "REFEREE.md"
 TASKS_PATH: Final = ROOT / "docs" / "TASKS.md"
 REPORT_PATH: Final = ROOT / "reports" / "test_report.json"
 BENCH_PATH: Final = ROOT / "reports" / "bench_report.json"
+LICENSE_PATH: Final = ROOT / "LICENSE"
+
+#: The badge wall's two colours, the accent on the headline badge and the warm grey on the rest, over the
+#: dark label. The same terracotta and near black tools/draw_figures.py draws with.
+BADGE_ACCENT: Final = "D97757"
+BADGE_GREY: Final = "6B645A"
+BADGE_LABEL: Final = "1F1E1D"
 
 
 def _pytest(*arguments: str) -> str:
@@ -173,6 +184,107 @@ def limiter_race_threads() -> int:
     return int(found.group(1))
 
 
+def processes_raced() -> int:
+    """How many test files race the limiter across processes, which is the badge's second number.
+
+    The thread race is a claim about one process, and the badge says so beside it. This counts
+    the test files that spawn workers with the standard library's process tools, so the day such
+    a test lands the badge has to move with it.
+    """
+    markers = ("multiprocessing", "ProcessPoolExecutor")
+    return sum(1 for path in (ROOT / "tests").glob("test_*.py") if any(m in path.read_text() for m in markers))
+
+
+def license_name() -> str:
+    """The licence, read off the first line of the LICENSE file the badge points a reader at."""
+    first = LICENSE_PATH.read_text().splitlines()[0].strip()
+    if first.startswith("MIT"):
+        return "MIT"
+    raise SystemExit(f"LICENSE opens with {first!r}; teach this check the badge text for it.")
+
+
+def badge_url(label: str, message: str, colour: str) -> str:
+    """One shields.io static badge, in the exact form the README embeds it.
+
+    Spaces are underscores and the separator between a number and the number that makes it look
+    worse is a middle dot, percent encoded so the URL survives every renderer.
+    """
+    dot = "%C2%B7"
+    return (
+        f"https://img.shields.io/badge/{label}-{message.replace(' ', '_').replace(chr(183), dot)}-{colour}"
+        f"?style=flat-square&labelColor={BADGE_LABEL}"
+    )
+
+
+def expected_badges(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
+    """Every badge under the title, as (image URL, source) pairs.
+
+    Each badge pairs a headline number with the number that makes it look worse, and both halves
+    come from the same place the prose gets them, so a badge that flatters on its own cannot be
+    typed in.
+    """
+    worst = bench["worst_first_token"]
+    best_ms = min(float(row["added_ms"]) for row in bench["first_token"])
+    return [
+        (badge_url("tests", f"{passed} passed · no coverage measured", BADGE_ACCENT), "the passing case count"),
+        (
+            badge_url(
+                "held_at_most",
+                f"{MAX_BUFFERED_CHARS} chars · {bench['straddling_worst_case_held_chars']} seen",
+                BADGE_GREY,
+            ),
+            "MAX_BUFFERED_CHARS and straddling_worst_case_held_chars in reports/bench_report.json",
+        ),
+        (
+            badge_url(
+                "first_token",
+                f"{stated_ms(best_ms)} on prose · {stated_ms(float(worst['added_ms']))} worst",
+                BADGE_GREY,
+            ),
+            "the best and worst first token rows in reports/bench_report.json",
+        ),
+        (
+            badge_url("timeout", f"{DEFAULT_TIMEOUT_MS} ms · raced at {fast_timeout_ms()} ms", BADGE_GREY),
+            "DEFAULT_TIMEOUT_MS in src/task4_model_router/router.py and FAST_TIMEOUT_MS in the router tests",
+        ),
+        (
+            badge_url("limiter", f"{limiter_race_threads()} threads · {processes_raced()} processes", BADGE_GREY),
+            "thread_count in tests/test_task4_rate_limiter.py and a scan of tests/ for process races",
+        ),
+        (badge_url("license", license_name(), BADGE_GREY), "the first line of LICENSE"),
+    ]
+
+
+def first_token_rows(bench: dict[str, Any]) -> list[str]:
+    """The rows the README's first token record table has to carry, one per bench opening.
+
+    Chunks held, the median the guardrail adds, and the range across the ten pairs, all from the
+    report the figure beside the table is drawn from, so the table and the figure cannot disagree.
+    """
+    rows = []
+    for row in bench["first_token"]:
+        label = str(row["label"])
+        added = stated_ms(float(row["added_ms"]))
+        spread = f"{float(row['min_ms']):.0f} to {float(row['max_ms']):.0f} ms"
+        rows.append(f"| {label[:1].upper()}{label[1:]} | {row['waits']} | {added} | {spread} |")
+    return rows
+
+
+def summary_line(passed: int, skipped: int, functions: int, bench: dict[str, Any]) -> str:
+    """The one line this check prints when it is happy, which the README quotes verbatim.
+
+    Pinning the whole line rather than the passed count alone is what keeps the skip count honest.
+    A skip added as one more parametrize case moves neither the passed count nor the function count,
+    so those two patterns would stay green while the page kept saying 0 skipped.
+    """
+    worst_ms = float(bench["worst_first_token"]["added_ms"])
+    return (
+        f"claims ok, {passed} passed and {skipped} skipped from {functions} functions, "
+        f"{MAX_BUFFERED_CHARS} chars held at most, worst first token {worst_ms:.0f} ms, "
+        f"Python {declared_python_version()}"
+    )
+
+
 def provider_rate_limit_status() -> str:
     """The status the provider layer calls a rate limit, read back off the exception itself.
 
@@ -209,6 +321,7 @@ def readme_claims(passed: int, functions: int, bench: dict[str, Any]) -> list[tu
         (rf"\b{DEFAULT_TIMEOUT_MS} ms\b", "DEFAULT_TIMEOUT_MS in src/task4_model_router/router.py"),
         (rf"\b{fast_timeout_ms()} ms\b", "FAST_TIMEOUT_MS in tests/test_task4_router.py"),
         (rf"\b{spelled(CHARS_PER_TOKEN)} characters a token\b", "CHARS_PER_TOKEN in src/task4_model_router/router.py"),
+        (rf"\b{DEFAULT_LIMIT_TOKENS:,} tokens\b", "DEFAULT_LIMIT_TOKENS in src/task4_model_router/rate_limiter.py"),
         (rf"\b(?i:{spelled(limiter_race_threads())}) threads\b", "thread_count in tests/test_task4_rate_limiter.py"),
         (rf"\b{provider_rate_limit_status()}\b", "the status ProviderRateLimited names, which is the failover signal"),
         (rf"\bon {GATEWAY_PORT}\b", "GATEWAY_PORT in src/task2_mcp_gateway/__main__.py"),
@@ -285,6 +398,12 @@ def main() -> int:
     for pattern, source in readme_claims(passed, functions, bench):
         if re.search(pattern, readme) is None:
             failures.append(f"README.md no longer carries a match for {pattern!r}, from {source}")
+    for url, source in expected_badges(passed, bench):
+        if url not in readme:
+            failures.append(f"README.md no longer embeds the badge {url}, from {source}")
+    for row in first_token_rows(bench):
+        if row not in readme:
+            failures.append(f'README.md is missing the first token record row "{row}"')
     referee = REFEREE_PATH.read_text()
     for pattern, source in referee_headings(passed):
         if re.search(pattern, referee, re.MULTILINE) is None:
@@ -294,16 +413,20 @@ def main() -> int:
         if row not in tasks:
             failures.append(f'docs/TASKS.md is missing the chunks held row "{row}"')
 
+    if outcomes["xfailed"] or outcomes["xpassed"]:
+        failures.append(
+            f"the suite carries {outcomes['xfailed']} expected failures and {outcomes['xpassed']} unexpected passes, "
+            "and the page mentions neither"
+        )
+    line = summary_line(passed, outcomes["skipped"], functions, bench)
+    if line not in readme:
+        failures.append(f"README.md no longer quotes this run's summary line verbatim: {line}")
+
     for failure in failures:
         print(failure)
     if failures:
         return 1
-    worst_ms = float(bench["worst_first_token"]["added_ms"])
-    print(
-        f"claims ok, {passed} passed and {outcomes['skipped']} skipped from {functions} functions, "
-        f"{MAX_BUFFERED_CHARS} chars held at most, worst first token {worst_ms:.0f} ms, "
-        f"Python {declared_python_version()}"
-    )
+    print(line)
     return 0
 
 
