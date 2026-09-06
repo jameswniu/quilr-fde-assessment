@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.svg" alt="Four tasks from the Forward Deployed Engineer brief, an MCP server, a security gateway, a streaming PII guardrail and a model router. 199 tests, 0 skips, no coverage measured, and a 640 char hold ceiling with 636 of it seen." width="100%">
+  <img src="assets/hero.svg" alt="Four tasks from the Forward Deployed Engineer brief, an MCP server, a security gateway, a streaming PII guardrail and a model router. 263 tests, 0 skips, no coverage measured, and a 640 char hold ceiling with 636 of it seen." width="100%">
 </p>
 
 *`make check` exits nonzero when a badge or a committed figure stops matching the report behind it.*
@@ -7,12 +7,15 @@
 # Quilr FDE assessment
 
 <p align="center">
-  <img src="https://img.shields.io/badge/tests-199_green-18181b" alt="tests 199 green">
+  <img src="https://img.shields.io/badge/tests-263_green-18181b" alt="tests 263 green">
   <img src="https://img.shields.io/badge/held_text-640_char_ceiling-1b5e3f" alt="held text 640 char ceiling">
   <img src="https://img.shields.io/badge/python-3.13-52525b" alt="python 3.13">
 </p>
 
-Four tasks from the brief in one project. The hard one is task 3. A value to redact can arrive split across two chunks of a stream, so the guardrail emits only the text that can no longer change and holds the rest. Bounded patterns cap what it holds at 640 characters, whatever the response is. One test suite covers all four, with no network and no API key.
+- Four tasks from the brief in one project, and the hard one is task 3.
+- A value to redact can arrive split across two chunks of a stream. The guardrail emits only the text that can no longer change, and holds the rest.
+- Bounded patterns cap what it holds at 640 characters, whatever the response is.
+- One test suite covers all four, with no network and no API key. The provider behind it is scripted on purpose, and pointing task 3 at a real one is one environment variable and one command.
 
 ## Run it
 
@@ -25,6 +28,7 @@ make run-task1   # MCP server on stdio
 make run-task2   # security gateway on 8080, mock downstream on 8081
 make run-task3   # streaming PII guardrail on 8082
 make run-task4   # model router demo, prints every routing outcome
+make run-live    # the same guardrail against a real provider, needs LLM_API_KEY
 ```
 
 ## What each task owns
@@ -78,6 +82,8 @@ flowchart TD
 
 `src/task4_model_router` is admission control plus failover, with the token budget in sqlite.
 
+Tasks 3 and 4 both define a protocol for their provider, and `http_upstream.py` and `http_provider.py` are real implementations of it that speak the OpenAI chat completions shape. Export `LLM_API_KEY`, run `make run-live`, and a real completion streams through the same redactor. Unset, that command names the missing variable and stops.
+
 [The four tasks](docs/TASKS.md) has the decision inside each one that is worth arguing about.
 
 ## What the guardrail costs
@@ -96,7 +102,8 @@ The brief's overview says five tasks and its body stops at four, so this repo ha
 
 | Number on the page | What it does not cover |
 | --- | --- |
-| 199 tests green | No coverage is measured, so it says what was written and nothing about what was not |
+| 263 tests green | No coverage is measured, so it says what was written and nothing about what was not |
+| The live provider path | Its parsing and its failures are tested, and nothing here has been run against a production provider |
 | 640 char hold ceiling | Derived from the pattern lengths, and the closest witness the bench builds holds 636 |
 | Every timing here | One loaded laptop against a scripted upstream, so no real provider is measured |
 
