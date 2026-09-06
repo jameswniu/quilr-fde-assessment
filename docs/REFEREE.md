@@ -6,15 +6,17 @@ Audited on `master` at `0308589`, working tree clean, no remote. Two cards are e
 
 The time to first token card has since been audited a second time, against the seven shape bench. Through `0592102` that bench measured only the safe prose shape and reported its near zero result as if it were the whole story. The same change finally builds an input that nearly reaches the 640 character ceiling, so the hard ceiling card's Sibling and Bound lines are audited here too. The landing page figures, `tools/draw_figures.py`, `tools/check_claims.py` and the two reports they read all landed after `17d269d`. So did the live provider path, `src/task3_stream_guard/http_upstream.py`, `src/task4_model_router/http_provider.py`, `scripts/live_stream.py` and the two test files beside them, which moved the suite from 199 cases to 263. Cards that mention any of that are audited against this working tree.
 
-The reader-facing surface is `README.md` with its three figures, `docs/TASKS.md`, the fourteen Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print.
+This branch, `lean`, drops the hero, the badges, the system map, the refusal map and the first token panel from the README. The three SVGs are still drawn under `assets/` and still compared by `make figures-check`, and each card below says where its number appears here.
+
+The reader-facing surface is `README.md`, which carries no figure and points at `assets/first-token.svg` by path, `docs/TASKS.md`, the fourteen Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print.
 
 The three SVGs carry no number that was typed by hand. `tools/draw_figures.py` reads every value it draws from `reports/bench_report.json`, from `reports/test_report.json`, or from the constant in `src/` that defines it. That last route is where the system map gets the ports, the error codes, the 50,000 token budget and the 3000 ms timeout. `make figures-check` redraws and compares against what is committed, so a figure cannot drift from its generator.
 
-The refusal map under the system map is the exception, because it is hand written mermaid and `figures-check` never sees it. `make claims` reads its node labels back out of the README and fails when any of the six numbers in them stops matching the constant it came from.
+There is no hand written figure on this branch. The refusal map that sat under the system map on `master`, mermaid that `figures-check` could not see, went with the rest, and the constants it carried now sit in the README prose.
 
-The badges and the prose are the parts typed by hand, so `make claims` checks them. It collects the suite for the case and function counts, then runs it for the outcome counts. It rereads `MAX_BUFFERED_CHARS` and `.python-version`, then fails when the three badges, the hero band or the hero alt text stops matching. It runs the suite rather than only collecting it, because collection cannot see a skipped test and the hero band claims a skip count. `make check` puts it before `figures-check` so the figures get compared against a report from this run.
+The prose is the part typed by hand, so `make claims` checks it. It collects the suite for the case and function counts, then runs it for the outcome counts. It rereads `MAX_BUFFERED_CHARS`, `MAX_MATCH_LENGTH`, `DEFAULT_TIMEOUT_MS`, the two JSON-RPC codes the README quotes, the 429 that `ProviderRateLimited` names, the three ports in the run block, `.python-version`, the `FAST_TIMEOUT_MS` the timing tests run at, and the worst and best first token rows and the trial count in `reports/bench_report.json`, then fails when the README stops carrying any of them. It reads the two card headings here that carry the test count and the hold bound the same way. It runs the suite rather than only collecting it, because collection cannot see a skipped test. `make check` puts it before `figures-check` so the figures get compared against a report from this run, which is also what keeps the skip count in the hero tile measured.
 
-What it does not read is the body prose, which repeats several of the same numbers. A stale figure there is caught by reading rather than by a command. Every measurement a reviewer sees is printed by a command they run themselves.
+What it does not read is the rest of this file, whose timing cards quote the runs they were audited against, or `docs/TASKS.md` beyond its chunk table. A stale number in either is caught by reading rather than by a command. Every measurement a reviewer sees is printed by a command they run themselves.
 
 ## Untraceable numbers
 
@@ -51,8 +53,9 @@ Several other numbers are ours, not the brief's. `-32002` for unusable credentia
 
 ```
 Claim     50,000 tokens a minute per tenant API key. It shows up in docs/TASKS.md under Task
-          4, and in the system map's limiter card, which reads DEFAULT_LIMIT_TOKENS out of
-          rate_limiter.py line 31 at draw time.
+          4, and in the limiter card of assets/system-map.svg, which reads DEFAULT_LIMIT_TOKENS
+          out of rate_limiter.py line 31 at draw time. The README on this branch does not
+          quote it.
 Unit      Estimated tokens, summed over the charges written for one key digest inside the
           half open interval from 60 seconds ago to now. These are our own estimates, and no
           provider reported them.
@@ -78,9 +81,10 @@ Knob      The limit_tokens argument, and under it CHARS_PER_TOKEN. Lower that di
 ### 3000 ms primary timeout
 
 ```
-Claim     3000 ms. It appears in the README under What each task owns, and in docs/TASKS.md
-          under Task 4. The system map's router card reads DEFAULT_TIMEOUT_MS out of
-          router.py line 38 at draw time.
+Claim     3000 ms. It appears in the README under What is not proven, where make claims reads
+          it back against DEFAULT_TIMEOUT_MS, and in docs/TASKS.md under Task 4. The router
+          card of assets/system-map.svg reads the same constant out of router.py line 38 at
+          draw time.
 Unit      Milliseconds from dispatching the primary provider call to giving up on it and
           starting the secondary, counted per request.
 Match     The timeout races the primary instead of always firing. A primary that answers
@@ -102,22 +106,25 @@ Knob      The timeout_ms argument. Lower it and a slow but healthy primary gets 
 ### 263 tests pass
 
 ```
-Claim     "263 passed" from make test. On the page it is the tests badge, the hero band's
-          first tile, the hero alt text and the system map's stat box.
+Claim     "263 passed" from make test. On this branch it is one sentence of README prose under
+          What is not proven, the heading of this card, the first tile of assets/hero.svg and
+          the stat box of assets/system-map.svg, and the README embeds neither figure.
 Unit      pytest cases collected under tests/. That is 155 test functions, which parametrize
           expands into 263 cases. The split by task is in the table below.
 Match     A case counts when pytest reports it green under pyproject.toml, testpaths tests,
-          asyncio_mode auto. make claims counts skips, xfails and xpasses separately. It
-          fails when the hero band's skip count stops matching the run, so the "0 skips"
-          beside the 263 is measured.
+          asyncio_mode auto. make claims counts skips, xfails and xpasses separately and
+          writes them to the report, and make figures-check fails when the hero tile drawn
+          from that report stops matching the committed one, so the "0 skips" beside the 263
+          is measured.
 Set       Every fixture is inside the repo and the assertions are the labels, so this scores
           the suite against the code and never against an outside corpus. Nothing touches
           the network. Task 1 drives a real subprocess over stdio, tasks 2 and 3 drive their
           ASGI apps in process, and the two live provider files answer through an httpx
           transport that replies from memory.
 Command   make test, which is uv run pytest. make claims collects and then runs the suite,
-          writes both counts to reports/test_report.json, and fails when the badge, the hero
-          band or the hero alt text disagrees with that run.
+          writes both counts to reports/test_report.json, and fails when the README prose or
+          the heading of this card disagrees with that run. make figures-check then fails
+          when assets/hero.svg does.
 Sibling   Counted by function the same suite is 155. Counted as coverage of the code it is
           nothing at all, because coverage is never measured here.
 Bound     A green suite says the written cases hold. It says nothing about the cases nobody
@@ -137,9 +144,10 @@ Knob      One extra tuple in an existing parametrize decorator moves 263 without
 ### No network and no API key
 
 ```
-Claim     "no network and no API key". It is the last of the README's opening bullets, the
-          hero kicker FOUR TASKS / ONE SUITE / NO NETWORK, the system map's stat card, and
-          the closing note in docs/TASKS.md. The claim covers the suite, and the repo does
+Claim     "no network and no API key". It is the first line under What is not proven in the
+          README, the kicker FOUR TASKS / ONE SUITE / NO NETWORK in assets/hero.svg and the
+          stat card of assets/system-map.svg, neither of which the README embeds, and the
+          closing note in docs/TASKS.md. The claim covers the suite, and the repo does
           contain one path that opens a socket.
 Unit      Sockets opened by make test. Zero of them, so the number being defended is a zero
           rather than a measurement.
@@ -234,7 +242,9 @@ Ten `make bench` runs, forty readings, every one of them 15. The same ten runs r
 
 ```
 Claim     "hard ceiling 640 characters, whatever the response length", from make bench and
-          redactor.py line 22 MAX_BUFFERED_CHARS.
+          redactor.py line 22 MAX_BUFFERED_CHARS. The README under Task 3 says the redactor
+          never holds more than 640 characters, and make claims reads that back against the
+          constant.
 Unit      Characters. The most the redactor can ever hold back, for any input, at any
           chunking.
 Match     This one is derived rather than measured. 640 is 2 times MAX_MATCH_LENGTH 320.
@@ -252,8 +262,9 @@ Command   make bench prints it. The derivation is patterns.py line 61 and redact
 Sibling   The highest value seen here is 636, four short of the ceiling. It is held while
           the first token bench streams its last shape, a 320 character address followed by
           "_" and 320 more token characters in 12 character chunks. make bench prints that
-          636 under the ceiling line and writes it to reports/bench_report.json, so the hero
-          band quotes it and make claims fails if the alt text stops matching. The other
+          636 under the ceiling line and writes it to reports/bench_report.json, so
+          assets/hero.svg quotes it and make figures-check fails if the drawn tile stops
+          matching. The README on this branch quotes the 640 and not the 636. The other
           figure the bench prints is 320, from the unbroken 100,000 character run in the
           content shape table.
 Bound     640 is still an analytic bound with no exact witness. The gap is four characters
@@ -271,9 +282,12 @@ Knob      _EMAIL_DOMAIN_MAX at 255 and _EMAIL_LOCAL_MAX at 64. Tighten either an
 Claim     The seven row first token table from make bench. Its headline reads "worst case,
           the guardrail adds 582.32 ms to first token, on a response opening with a 320 char
           email inside a token". The 0.02 ms safe prose row, with its "the range straddles
-          zero" note, is the best row of that table rather than the whole claim. On the page
-          the same table is assets/first-token.svg, one bar per shape, and its worst and
-          best rows are the hero band's middle tile.
+          zero" note, is the best row of that table rather than the whole claim. The README
+          on this branch quotes the worst and best rows in prose under Task 3, which make
+          claims reads back against the report, and points at assets/first-token.svg by path
+          rather than embedding it. The same two rows are the middle tile of assets/hero.svg,
+          which the README does not embed either. reports/bench_report.json as committed
+          reads 582.76 for the worst row, which the README and the figure round to 583.
 Unit      Milliseconds from starting the stream to the first non-empty chunk. Each figure is
           the median of ten paired differences for one leading content shape. A pair is one
           back to back reading of the raw upstream and the guarded one. Beside it sits the
@@ -299,17 +313,18 @@ Set       Seven responses differing only in their opening, built by _leading_sha
             7  that same address, then "_", then 320 "z" characters
           Openings 2 to 7 each sit in front of the same prose tail.
 Command   make bench, with the instrument and the table both in scripts/bench_stream.py.
-          Then make figures redraws assets/first-token.svg and the hero band from
+          Then make figures redraws assets/first-token.svg and assets/hero.svg from
           reports/bench_report.json.
 Sibling   Five runs, in the table below. The waits column read the same seven integers in
           all five. A sixth run read safe prose at 0.00 to 0.99 ms and printed no straddling
           note at all. That note is a property of the run, and not a guarantee. The best row
           and the worst row of one bench differ by four orders of magnitude, which is why
           quoting only the prose row was the defect this card records.
-Bound     One chunk size and one upstream cadence on one loaded laptop. The figure and the
-          hero tile show whatever the last make bench measured. So the milliseconds move by
-          a few between runs while the waits column does not, and make figures-check reports
-          that move as drift. The wait is whole chunk delays, so a provider sending larger
+Bound     One chunk size and one upstream cadence on one loaded laptop. The figure, the hero
+          tile and the README sentence show whatever the last make bench measured. So the
+          milliseconds move by a few between runs while the waits column does not, and make
+          figures-check reports that move as drift in the figures while make claims reports
+          it in the prose. The wait is whole chunk delays, so a provider sending larger
           chunks clears the same window in fewer of them and a slower provider pays more. No
           real provider is measured here. The last shape is the worst this design allows
           rather than one drawn from real traffic, and nothing here says how often any of

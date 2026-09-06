@@ -40,7 +40,7 @@ The `admin_` prefix is the rule the brief specifies, and it is a deny list. A do
 
 The hard case is a value split across chunk boundaries. The redactor cannot emit text that might still turn out to be part of a pattern. It emits only what can no longer change, cutting outside the nearest token. A reply opening mid pattern waits for that pattern to resolve. The worst case doubles that. A whole 320 character match at the front pulls the cut back to its own start, for another 320 characters. That is where the 640 character ceiling comes from.
 
-The wait is whole upstream chunks, which is the unit that survives a change of machine. The milliseconds beside each row are that count times the upstream's own cadence, and they are on the README panel and in `reports/bench_report.json`.
+The wait is whole upstream chunks, which is the unit that survives a change of machine. The milliseconds beside each row are that count times the upstream's own cadence, and they are drawn in `assets/first-token.svg` and written to `reports/bench_report.json`.
 
 | Response opens with | Chunks held |
 | --- | --- |
