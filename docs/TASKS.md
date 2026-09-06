@@ -82,4 +82,6 @@ The brief's overview says five tasks and its body stops at four, so this repo ha
 
 Task 1 speaks stdio and the gateway proxies HTTP, so the thing behind the gateway here is task 2's own mock downstream, not task 1. They are separate tasks in the brief and they are separate here.
 
-Nothing talks to a real model or identity provider, so the suite needs no network.
+Nothing in the suite talks to a real model or identity provider. The scripted upstream and the scripted provider are there to keep it deterministic and free to run, and that is why every test uses them. The live ones sit behind the same two protocols, in `http_upstream.py` and `http_provider.py`. Both speak the OpenAI chat completions shape, and both stay off until `LLM_API_KEY` is exported. `make run-live` then streams one real completion through the task 3 guardrail. What the suite tests is the parsing and the failure mapping, against a stubbed transport rather than a live call, so it stays at no network and no key.
+
+The live path inherits one thing from the endpoint. A streaming response commits to 200 before the first upstream chunk arrives, so a provider answering 401 or 500 ends the stream early rather than changing the status. `make run-live` prints the error and exits nonzero, and a deployment that wanted a status instead would hold the headers back until the first chunk.
