@@ -140,32 +140,32 @@ Each gate as a lane, and no arrow from the role gate into the schema gate, becau
 
 <!-- mermaid:start, drawn by tools/draw_figures.py, edit the generator -->
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#D97757", "edgeLabelBackground": "#141413", "fontFamily": "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 22, "rankSpacing": 30, "padding": 10}}}%%
-flowchart TB
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1F1E1D", "primaryTextColor": "#F4F1EA", "primaryBorderColor": "#3A3734", "lineColor": "#B8B0A4", "textColor": "#F4F1EA", "clusterBkg": "#141413", "clusterBorder": "#3A3734", "titleColor": "#D97757", "edgeLabelBackground": "#141413", "fontFamily": "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace", "fontSize": "16px"}, "flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%
+flowchart LR
   subgraph S1["01 schema gate, task 1"]
-    direction LR
-    A1["tools/call over stdio"] --> A2{"arguments fit the schema?"}
-    A2 -- no --> A3["-32602 Invalid params"]
+    direction TB
+    A1["tools/call over stdio"] --> A2["arguments fit<br/>the schema?"]
+    A2 -- no --> A3["-32602<br/>Invalid params"]
     A2 -- yes --> A4["handler runs"]
   end
   subgraph S2["02 role gate, task 2"]
-    direction LR
-    B1["bearer resolves to a role"] --> B2{"admin_ tool as viewer?"}
-    B2 -- yes --> B3["-32001, not forwarded"]
-    B2 -- no --> B4["forwarded to the downstream"]
+    direction TB
+    B1["bearer resolves<br/>to a role"] --> B2["admin_ tool<br/>as viewer?"]
+    B2 -- yes --> B3["-32001<br/>not forwarded"]
+    B2 -- no --> B4["forwarded to<br/>the downstream"]
   end
   subgraph S3["03 hold gate, task 3"]
-    direction LR
-    C1["a response chunk"] --> C2{"could it still change?"}
-    C2 -- yes --> C3["held, 640 chars at most"]
+    direction TB
+    C1["a response chunk"] --> C2["could it<br/>still change?"]
+    C2 -- yes --> C3["held, 640 chars<br/>at most"]
     C3 --> C1
-    C2 -- no --> C4["emitted, PII as [REDACTED]"]
+    C2 -- no --> C4["emitted, PII<br/>as [REDACTED]"]
   end
   subgraph S4["04 budget gate, task 4"]
-    direction LR
-    D1["a completion request"] --> D2{"budget in the last 60 s?"}
-    D2 -- no --> D3["rate_limited, retry_after_seconds"]
-    D2 -- yes --> D4{"primary answers in 3000 ms?"}
+    direction TB
+    D1["a completion<br/>request"] --> D2["budget in the<br/>last 60 s?"]
+    D2 -- no --> D3["rate_limited<br/>retry_after_seconds"]
+    D2 -- yes --> D4["primary answers<br/>in 3000 ms?"]
     D4 -- "429 or timeout" --> D5["secondary tries"]
     D4 -- yes --> D6["reply returns"]
   end

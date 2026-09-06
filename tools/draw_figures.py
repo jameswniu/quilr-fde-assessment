@@ -481,46 +481,48 @@ MERMAID_END: Final = "<!-- mermaid:end -->"
 def mermaid_flow() -> str:
     """The four gates as four lanes, with the codes and limits read from ``src/``.
 
-    Four lanes stacked top to bottom, each read left to right, and no edge between the first
-    two, because task 1 speaks stdio and the gateway proxies HTTP, so nothing in this repo puts
-    task 1 behind task 2. The invisible links between the lanes only fix their order, since
-    mermaid otherwise stacks unconnected subgraphs in whatever order it likes.
+    Four lanes side by side, each read top to bottom, and no edge between the first two,
+    because task 1 speaks stdio and the gateway proxies HTTP, so nothing in this repo puts task 1
+    behind task 2. The invisible links between the lanes only fix their order, since mermaid
+    otherwise stacks unconnected subgraphs in whatever order it likes. Labels break at two lines
+    and the questions are boxes rather than diamonds so the natural width stays inside GitHub's
+    column, which otherwise scales the whole diagram down and the text with it.
     """
     init = (
         '%%{init: {"theme": "base", "themeVariables": {'
         f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
         f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
         f'"titleColor": "{ACCENT}", "edgeLabelBackground": "{INK}", "fontFamily": "{MONO}", "fontSize": "16px"}}, '
-        '"flowchart": {"curve": "linear", "nodeSpacing": 22, "rankSpacing": 30, "padding": 10}}}%%'
+        '"flowchart": {"curve": "linear", "nodeSpacing": 18, "rankSpacing": 26, "padding": 8}}}%%'
     )
     lines = [
         "```mermaid",
         init,
-        "flowchart TB",
+        "flowchart LR",
         '  subgraph S1["01 schema gate, task 1"]',
-        "    direction LR",
-        '    A1["tools/call over stdio"] --> A2{"arguments fit the schema?"}',
-        f'    A2 -- no --> A3["{jsonrpc.INVALID_PARAMS} Invalid params"]',
+        "    direction TB",
+        '    A1["tools/call over stdio"] --> A2["arguments fit<br/>the schema?"]',
+        f'    A2 -- no --> A3["{jsonrpc.INVALID_PARAMS}<br/>Invalid params"]',
         '    A2 -- yes --> A4["handler runs"]',
         "  end",
         '  subgraph S2["02 role gate, task 2"]',
-        "    direction LR",
-        '    B1["bearer resolves to a role"] --> B2{"admin_ tool as viewer?"}',
-        f'    B2 -- yes --> B3["{jsonrpc.UNAUTHORIZED_TOOL_CALL}, not forwarded"]',
-        '    B2 -- no --> B4["forwarded to the downstream"]',
+        "    direction TB",
+        '    B1["bearer resolves<br/>to a role"] --> B2["admin_ tool<br/>as viewer?"]',
+        f'    B2 -- yes --> B3["{jsonrpc.UNAUTHORIZED_TOOL_CALL}<br/>not forwarded"]',
+        '    B2 -- no --> B4["forwarded to<br/>the downstream"]',
         "  end",
         '  subgraph S3["03 hold gate, task 3"]',
-        "    direction LR",
-        '    C1["a response chunk"] --> C2{"could it still change?"}',
-        f'    C2 -- yes --> C3["held, {MAX_BUFFERED_CHARS} chars at most"]',
+        "    direction TB",
+        '    C1["a response chunk"] --> C2["could it<br/>still change?"]',
+        f'    C2 -- yes --> C3["held, {MAX_BUFFERED_CHARS} chars<br/>at most"]',
         "    C3 --> C1",
-        '    C2 -- no --> C4["emitted, PII as [REDACTED]"]',
+        '    C2 -- no --> C4["emitted, PII<br/>as [REDACTED]"]',
         "  end",
         '  subgraph S4["04 budget gate, task 4"]',
-        "    direction LR",
-        f'    D1["a completion request"] --> D2{{"budget in the last {DEFAULT_WINDOW_SECONDS:.0f} s?"}}',
-        f'    D2 -- no --> D3["{GatewayErrorCode.RATE_LIMITED}, retry_after_seconds"]',
-        f'    D2 -- yes --> D4{{"primary answers in {DEFAULT_TIMEOUT_MS} ms?"}}',
+        "    direction TB",
+        f'    D1["a completion<br/>request"] --> D2["budget in the<br/>last {DEFAULT_WINDOW_SECONDS:.0f} s?"]',
+        f'    D2 -- no --> D3["{GatewayErrorCode.RATE_LIMITED}<br/>retry_after_seconds"]',
+        f'    D2 -- yes --> D4["primary answers<br/>in {DEFAULT_TIMEOUT_MS} ms?"]',
         f'    D4 -- "{rate_limit_status()} or timeout" --> D5["secondary tries"]',
         '    D4 -- yes --> D6["reply returns"]',
         "  end",
