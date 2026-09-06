@@ -38,7 +38,7 @@ The `admin_` prefix is the rule the brief specifies, and it is a deny list. A do
 
 `src/task3_stream_guard`. `POST /v1/generate` streams the response back with emails, US social security numbers and Luhn cards replaced by `[REDACTED]`.
 
-The hard case is a value split across chunk boundaries. The redactor cannot emit text that might still turn out to be part of a pattern. It emits only what can no longer change, cutting outside the nearest token. A reply opening mid pattern waits for that pattern to resolve, bounded by the 320 character longest match.
+The hard case is a value split across chunk boundaries. The redactor cannot emit text that might still turn out to be part of a pattern. It emits only what can no longer change, cutting outside the nearest token. A reply opening mid pattern waits for that pattern to resolve. The worst case doubles that. A whole 320 character match at the front pulls the cut back to its own start, for another 320 characters. That is where the 640 character ceiling comes from.
 
 The wait is whole upstream chunks, which is the unit that survives a change of machine. The milliseconds beside each row are that count times the upstream's own cadence, and they are on the README panel and in `reports/bench_report.json`.
 
@@ -52,11 +52,11 @@ The wait is whole upstream chunks, which is the unit that survives a change of m
 | A 1,000 char unbroken token | 26 |
 | A 320 char email inside a token | 53 |
 
-The cost tracks how long the leading value is, not which kind of value it is. `make bench` prints a row for each of these and names the worst.
+The cost tracks the length of the leading value. A 19 character card and a 15 character email both clear in one chunk, while the 320 character address takes 26. `make bench` prints a row for each of these and names the worst.
 
 ## Task 4, rate limiting and model failover
 
-`src/task4_model_router`. Admission control in front of two providers. Every charge is one row in an on disk sqlite file, so the window really slides instead of resetting on a boundary.
+`src/task4_model_router` writes every charge as one row in an on disk sqlite file, which is what makes the window really slide instead of resetting on a boundary. Admission control sits in front of two providers.
 
 | Knob | Value | Where it comes from |
 | --- | --- | --- |
