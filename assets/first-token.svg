@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 616" role="img" aria-label="Time to first token that the guardrail adds, by what the response opens with">
+<rect x="0" y="0" width="1200" height="616" fill="#fafafa"/>
+<defs><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f5f5"/><stop offset="0.5" stop-color="#d4d4d8"/><stop offset="1" stop-color="#a1a1aa"/></linearGradient></defs>
+<text x="48" y="58" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="30" font-weight="700" fill="#111111" text-anchor="start">What the guardrail costs at the first token</text>
+<text x="48" y="94" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#3f3f46" text-anchor="start">median of 10 paired trials per opening, upstream sends 12 char chunks every 10 ms</text>
+<rect x="48" y="122" width="1104" height="416" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
+<text x="500" y="172" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">safe prose</text>
+<rect x="518" y="154" width="3" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="535" y="172" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">under 1 ms, 0 held</text>
+<text x="500" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 15 char email</text>
+<rect x="518" y="208" width="7.3" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="539" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">11 ms, 1 held</text>
+<text x="500" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 19 char Luhn card</text>
+<rect x="518" y="262" width="7.3" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="539" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">11 ms, 1 held</text>
+<text x="500" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">an 11 char SSN</text>
+<rect x="518" y="316" width="7.0" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="539" y="334" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">11 ms, 1 held</text>
+<text x="500" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 320 char email</text>
+<rect x="518" y="370" width="187.9" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="720" y="388" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">285 ms, 26 held</text>
+<text x="500" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 1,000 char unbroken token</text>
+<rect x="518" y="424" width="188.1" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="720" y="442" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">286 ms, 26 held</text>
+<text x="500" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="end">a 320 char email inside a token</text>
+<rect x="518" y="478" width="384" height="24" fill="#52525b" stroke="#111111" stroke-width="1"/>
+<text x="916" y="496" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">583 ms, 53 held</text>
+<rect x="48" y="537" width="1104" height="1" fill="#e4e4e7"/>
+<text x="48" y="582" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">reports/bench_report.json, written by make bench, redrawn by make figures</text>
+</svg>
