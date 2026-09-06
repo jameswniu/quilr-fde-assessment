@@ -1,40 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1166" role="img" aria-label="System map of what each of the four tasks owns, and where two of them are not wired together">
-<rect x="0" y="0" width="1200" height="1166" fill="#fafafa"/>
-<rect x="0" y="0" width="8" height="1166" fill="#1b5e3f"/>
-<defs><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f5f5"/><stop offset="0.5" stop-color="#d4d4d8"/><stop offset="1" stop-color="#a1a1aa"/></linearGradient></defs>
-<text x="48" y="56" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start" letter-spacing="4">SYSTEM MAP</text>
-<text x="48" y="108" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#111111" text-anchor="start">How the four tasks meet</text>
-<text x="48" y="156" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#3f3f46" text-anchor="start">What each one owns, and the one place two of them are not wired together.</text>
-<rect x="746" y="40" width="430" height="96" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
-<text x="768" y="80" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start">4 tasks / 263 tests green</text>
-<text x="768" y="116" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start">suite: no network, no key</text>
-<text x="48" y="204" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start" letter-spacing="2">01  MCP SERVER</text>
-<text x="310" y="204" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">two tools over stdio, one schema each</text>
-<rect x="48" y="222" width="1104" height="168" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
-<text x="70" y="266" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#111111" text-anchor="start">task1_mcp_server</text>
-<text x="70" y="304" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">get_customer_record and trigger_refund, strict, unknown fields rejected</text>
-<text x="70" y="338" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">bad arguments get -32602, a missing customer gets an isError result</text>
-<text x="70" y="372" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">make run-task1</text>
-<text x="48" y="442" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start" letter-spacing="2">02  GATEWAY</text>
-<text x="310" y="442" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">task 1 speaks stdio, so the downstream here is task 2's mock</text>
-<rect x="48" y="460" width="1104" height="168" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
-<text x="70" y="504" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#111111" text-anchor="start">task2_mcp_gateway on 8080, mock downstream on 8081</text>
-<text x="70" y="542" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">the bearer token resolves to admin or viewer before anything is forwarded</text>
-<text x="70" y="576" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">a viewer calling an admin_ tool gets -32001, and the downstream never hears it</text>
-<text x="70" y="610" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">make run-task2</text>
-<text x="48" y="680" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start" letter-spacing="2">03  STREAM GUARD</text>
-<text x="310" y="680" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">the only task with a bench</text>
-<rect x="48" y="698" width="1104" height="168" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
-<text x="70" y="742" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#111111" text-anchor="start">task3_stream_guard, POST /v1/generate on 8082</text>
-<text x="70" y="780" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">emails, US SSNs and Luhn cards become [REDACTED] as the response streams</text>
-<text x="70" y="814" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">only text that can no longer change is emitted, at most 640 characters held</text>
-<text x="70" y="848" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">make run-task3, make bench</text>
-<text x="48" y="918" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#111111" text-anchor="start" letter-spacing="2">04  MODEL ROUTER</text>
-<text x="310" y="918" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">admission first, then failover</text>
-<rect x="48" y="936" width="1104" height="168" fill="#ffffff" stroke="url(#rim)" stroke-width="1.75"/>
-<text x="70" y="980" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#111111" text-anchor="start">task4_model_router, a limiter in front of two providers</text>
-<text x="70" y="1018" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">50,000 tokens a minute per key, one sqlite row per charge</text>
-<text x="70" y="1052" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#111111" text-anchor="start">a 429 or 3000 ms tries the secondary, and a failed call refunds its charge</text>
-<text x="70" y="1086" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">make run-task4</text>
-<text x="48" y="1136" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#3f3f46" text-anchor="start">every number here is read from src/ at draw time, make figures-check compares</text>
+<rect x="0" y="0" width="1200" height="1166" fill="#F4F1EA"/>
+<rect x="0" y="0" width="8" height="1166" fill="#D97757"/>
+<text x="48" y="56" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#A3491F" text-anchor="start" letter-spacing="4">SYSTEM MAP</text>
+<text x="48" y="108" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#1F1E1D" text-anchor="start">How the four tasks meet</text>
+<text x="48" y="156" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#6B645A" text-anchor="start">What each one owns, and the one place two of them are not wired together.</text>
+<rect x="746" y="40" width="430" height="96" rx="10" fill="#FCFAF6" stroke="#D8D0C2" stroke-width="1.5"/>
+<text x="768" y="80" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">4 tasks / 263 tests green</text>
+<text x="768" y="116" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">suite: no network, no key</text>
+<text x="48" y="204" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#A3491F" text-anchor="start" letter-spacing="2">01  MCP SERVER</text>
+<text x="310" y="204" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">two tools over stdio, one schema each</text>
+<rect x="48" y="222" width="1104" height="168" rx="10" fill="#FCFAF6" stroke="#D8D0C2" stroke-width="1.5"/><rect x="48" y="222" width="6" height="168" rx="3" fill="#D97757"/>
+<text x="74" y="266" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1E1D" text-anchor="start">task1_mcp_server</text>
+<text x="74" y="304" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">get_customer_record and trigger_refund, strict, unknown fields rejected</text>
+<text x="74" y="338" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">bad arguments get -32602, a missing customer gets an isError result</text>
+<text x="74" y="372" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#A3491F" text-anchor="start">make run-task1</text>
+<text x="48" y="442" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#A3491F" text-anchor="start" letter-spacing="2">02  GATEWAY</text>
+<text x="310" y="442" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">task 1 speaks stdio, so the downstream here is task 2's mock</text>
+<rect x="48" y="460" width="1104" height="168" rx="10" fill="#FCFAF6" stroke="#D8D0C2" stroke-width="1.5"/><rect x="48" y="460" width="6" height="168" rx="3" fill="#D97757"/>
+<text x="74" y="504" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1E1D" text-anchor="start">task2_mcp_gateway on 8080, mock downstream on 8081</text>
+<text x="74" y="542" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">the bearer token resolves to admin or viewer before anything is forwarded</text>
+<text x="74" y="576" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">a viewer calling an admin_ tool gets -32001, and the downstream never hears it</text>
+<text x="74" y="610" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#A3491F" text-anchor="start">make run-task2</text>
+<text x="48" y="680" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#A3491F" text-anchor="start" letter-spacing="2">03  STREAM GUARD</text>
+<text x="310" y="680" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">the only task with a bench</text>
+<rect x="48" y="698" width="1104" height="168" rx="10" fill="#FCFAF6" stroke="#D8D0C2" stroke-width="1.5"/><rect x="48" y="698" width="6" height="168" rx="3" fill="#D97757"/>
+<text x="74" y="742" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1E1D" text-anchor="start">task3_stream_guard, POST /v1/generate on 8082</text>
+<text x="74" y="780" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">emails, US SSNs and Luhn cards become [REDACTED] as the response streams</text>
+<text x="74" y="814" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">only text that can no longer change is emitted, at most 640 characters held</text>
+<text x="74" y="848" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#A3491F" text-anchor="start">make run-task3, make bench</text>
+<text x="48" y="918" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#A3491F" text-anchor="start" letter-spacing="2">04  MODEL ROUTER</text>
+<text x="310" y="918" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">admission first, then failover</text>
+<rect x="48" y="936" width="1104" height="168" rx="10" fill="#FCFAF6" stroke="#D8D0C2" stroke-width="1.5"/><rect x="48" y="936" width="6" height="168" rx="3" fill="#D97757"/>
+<text x="74" y="980" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1E1D" text-anchor="start">task4_model_router, a limiter in front of two providers</text>
+<text x="74" y="1018" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">50,000 tokens a minute per key, one sqlite row per charge</text>
+<text x="74" y="1052" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#1F1E1D" text-anchor="start">a 429 or 3000 ms tries the secondary, and a failed call refunds its charge</text>
+<text x="74" y="1086" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#A3491F" text-anchor="start">make run-task4</text>
+<text x="48" y="1136" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B645A" text-anchor="start">every number here is read from src/ at draw time, make figures-check compares</text>
 </svg>

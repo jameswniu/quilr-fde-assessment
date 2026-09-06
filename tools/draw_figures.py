@@ -8,21 +8,28 @@ Nothing in a figure is typed by hand. Every number is either read from a report 
 figure cannot say something the code and the measurements do not. Figures are deterministic
 text, which makes drift a diff: ``--check`` redraws and compares against what is committed.
 
-Two guards run at draw time. No font may sit under 22 units on a 1200 unit viewBox, which is
-what keeps the page readable at 75% browser zoom in GitHub's roughly 890px column. And every
-line drawn inside a card is width estimated against that card, so a string that would cross a
-border fails the build instead of shipping. An overflow is fixed by shortening the string,
-never by dropping a font under the floor.
+Three guards run at draw time. No font may sit under 22 units on a 1200 unit viewBox, which is
+what keeps the page readable at 75% browser zoom in GitHub's roughly 890px column. Every line
+drawn inside a card is width estimated against that card, so a string that would cross a border
+fails the build instead of shipping. And every text colour is checked against the surface it
+sits on at the WCAG 4.5 ratio, so a pair that reads fine on a bright monitor and not on a dim
+one cannot ship either. An overflow is fixed by shortening the string, never by dropping a font
+under the floor, and a contrast failure by darkening the ink, never by enlarging the text.
 
-The palette is the monochrome house one: one ink, a few greys, white paper, a silver rim, and
-a single banknote green spent in three places. It is deliberately not the client's palette,
-because borrowing a company's brand colours reads as a claim of affiliation.
+The palette is Claude Code's, terracotta on a warm near black for the band above the title and
+a warm cream for the two light figures, because MCP is Anthropic's protocol and this repo is
+built on the official MCP SDK, so the reference is to the protocol's home. Quilr's own colours
+are deliberately not used, since dressing a take-home in the hiring company's palette reads as
+a claim of affiliation. The lighter terracotta sits under 3:1 on cream, so accent text on the
+cream figures uses a deepened one, and the lighter one is kept for the dark band, for bars, and
+for rules.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Final
@@ -30,28 +37,39 @@ from typing import Any, Final
 ROOT: Final = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+import mcp.types  # noqa: E402
+
 from task2_mcp_gateway import jsonrpc  # noqa: E402
 from task2_mcp_gateway.__main__ import DOWNSTREAM_PORT, GATEWAY_PORT  # noqa: E402
 from task3_stream_guard.__main__ import PORT as GUARD_PORT  # noqa: E402
 from task3_stream_guard.redactor import MAX_BUFFERED_CHARS  # noqa: E402
+from task4_model_router.errors import GatewayErrorCode  # noqa: E402
+from task4_model_router.providers import ProviderRateLimited  # noqa: E402
 from task4_model_router.rate_limiter import DEFAULT_LIMIT_TOKENS  # noqa: E402
 from task4_model_router.router import DEFAULT_TIMEOUT_MS  # noqa: E402
 
 ASSETS: Final = ROOT / "assets"
 
-INK: Final = "#111111"
-BLACK: Final = "#0a0a0a"
-CHIP: Final = "#1c1c20"
-GRAY700: Final = "#3f3f46"
-GRAY600: Final = "#52525b"
-GRAY400: Final = "#a1a1aa"
-GRAY200: Final = "#e4e4e7"
-GRAY50: Final = "#fafafa"
-PAPER: Final = "#ffffff"
-SILVER_HI: Final = "#f5f5f5"
-SILVER: Final = "#d4d4d8"
-SILVER_LO: Final = "#a1a1aa"
-GREEN: Final = "#1b5e3f"
+#: Warm near black, the band above the title and every heading on cream.
+INK: Final = "#1F1E1D"
+#: The card fill on the dark band, a shade lighter than the band so the cards read as cards.
+CHIP: Final = "#262422"
+#: The card stroke on the dark band.
+EDGE_DARK: Final = "#4A4642"
+#: Warm cream, the surface behind the two light figures.
+CREAM: Final = "#F4F1EA"
+#: The card fill on cream.
+PAPER: Final = "#FCFAF6"
+#: The card stroke on cream.
+EDGE: Final = "#D8D0C2"
+#: Terracotta, the one accent: text on the dark band, bars and rules everywhere.
+ACCENT: Final = "#D97757"
+#: The same terracotta deepened, for accent text on cream, where the lighter one fails 4.5:1.
+ACCENT_DEEP: Final = "#A3491F"
+#: Secondary text on cream.
+DIM: Final = "#6B645A"
+#: Secondary text on the dark band.
+LIGHT: Final = "#B8B0A4"
 FONT: Final = "Helvetica Neue,Helvetica,Arial,sans-serif"
 MONO: Final = "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace"
 
@@ -60,6 +78,24 @@ WIDTH: Final = 1200
 MARGIN: Final = 48
 #: Every card in the system map is this tall: a title, two detail lines and a mono footnote.
 CARD_HEIGHT: Final = 168
+#: The WCAG ratio for ordinary text, which every text and surface pair below has to clear.
+CONTRAST_FLOOR: Final = 4.5
+
+#: Every text colour with every surface it is drawn on. Checked once per run, before drawing.
+TEXT_ON_SURFACE: Final[tuple[tuple[str, str], ...]] = (
+    (ACCENT, INK),
+    (ACCENT, CHIP),
+    (CREAM, INK),
+    (CREAM, CHIP),
+    (LIGHT, INK),
+    (LIGHT, CHIP),
+    (INK, CREAM),
+    (INK, PAPER),
+    (DIM, CREAM),
+    (DIM, PAPER),
+    (ACCENT_DEEP, CREAM),
+    (ACCENT_DEEP, PAPER),
+)
 
 
 def report(name: str) -> dict[str, Any]:
@@ -94,22 +130,33 @@ def fit(value: object, size: float, box_w: float, inner_pad: float = 22, bold: b
         raise SystemExit(f'"{value}" is too wide for its card: estimated {estimate:.0f} units, {room:.0f} available')
 
 
-def fit_mono(value: object, size: float, avail: float) -> None:
-    """The same guard for monospace, at 0.62 em per character."""
-    estimate = len(str(value)) * size * 0.62
+def fit_mono(value: object, size: float, avail: float, spacing: float = 0) -> None:
+    """The same guard for monospace, at 0.62 em per character plus any letter spacing."""
+    estimate = len(str(value)) * (size * 0.62 + spacing)
     if estimate > avail:
         raise SystemExit(f'"{value}" is too wide for its figure: estimated {estimate:.0f} units, {avail:.0f} available')
 
 
-def rim_defs() -> str:
-    """The silver rim. One vertical gradient per file, referenced by every card border in it."""
-    return (
-        '<defs><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">'
-        f'<stop offset="0" stop-color="{SILVER_HI}"/>'
-        f'<stop offset="0.5" stop-color="{SILVER}"/>'
-        f'<stop offset="1" stop-color="{SILVER_LO}"/>'
-        "</linearGradient></defs>"
-    )
+def _luminance(colour: str) -> float:
+    """Relative luminance as WCAG 2 defines it, from a #rrggbb string."""
+    channels = [int(colour.lstrip("#")[index : index + 2], 16) / 255 for index in (0, 2, 4)]
+    linear = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+
+def contrast(foreground: str, background: str) -> float:
+    """The WCAG contrast ratio between two colours, 1 for identical and 21 for black on white."""
+    brighter, darker = sorted((_luminance(foreground), _luminance(background)), reverse=True)
+    return (brighter + 0.05) / (darker + 0.05)
+
+
+def check_contrast() -> list[str]:
+    """Every text and surface pair under the 4.5 floor, named with its ratio."""
+    return [
+        f"{text} on {surface} is {contrast(text, surface):.2f}, under {CONTRAST_FLOOR}"
+        for text, surface in TEXT_ON_SURFACE
+        if contrast(text, surface) < CONTRAST_FLOOR
+    ]
 
 
 def num(value: float) -> str:
@@ -139,8 +186,8 @@ def rect(
 
 
 def card(x: float, y: float, w: float, h: float) -> str:
-    """A white card with the silver rim. Square corners, and the rim carries the finish."""
-    return rect(x, y, w, h, PAPER, stroke="url(#rim)", stroke_width=1.75)
+    """A paper card on cream with a warm stroke and a terracotta bar down its left edge."""
+    return rect(x, y, w, h, PAPER, rx=10, stroke=EDGE) + rect(x, y, 6, h, ACCENT, rx=3)
 
 
 def text(x: float, y: float, value: object, size: float, fill: str, weight: str = "400", anchor: str = "start") -> str:
@@ -151,11 +198,18 @@ def text(x: float, y: float, value: object, size: float, fill: str, weight: str 
 
 
 def mono(
-    x: float, y: float, value: object, size: float, fill: str, anchor: str = "start", spacing: float | None = None
+    x: float,
+    y: float,
+    value: object,
+    size: float,
+    fill: str,
+    anchor: str = "start",
+    spacing: float | None = None,
+    weight: str = "400",
 ) -> str:
     letter_spacing = f' letter-spacing="{spacing}"' if spacing else ""
     return (
-        f'<text x="{x:.0f}" y="{y:.0f}" font-family="{MONO}" font-size="{size}" '
+        f'<text x="{x:.0f}" y="{y:.0f}" font-family="{MONO}" font-size="{size}" font-weight="{weight}" '
         f'fill="{fill}" text-anchor="{anchor}"{letter_spacing}>{esc(value)}</text>'
     )
 
@@ -169,6 +223,14 @@ def stated_ms(value: float) -> str:
     return "under 1 ms" if abs(value) < 1 else f"{value:.0f} ms"
 
 
+def rate_limit_status() -> str:
+    """The status the provider layer calls a rate limit, read off the exception itself."""
+    found = re.search(r"\b(\d{3})\b", str(ProviderRateLimited("primary")))
+    if found is None:
+        raise SystemExit("ProviderRateLimited no longer names a status code; update the hero with it.")
+    return found.group(1)
+
+
 def open_svg(height: float, label: str) -> str:
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height:.0f}" '
@@ -177,87 +239,84 @@ def open_svg(height: float, label: str) -> str:
 
 
 def hero() -> str:
-    """The band at the top of the README, and the only place three headline numbers appear.
+    """The band above the title: the framing question, and the four tasks as four gates.
 
-    Each tile carries its own qualifier rather than the number alone. A green suite has its
-    missing coverage figure beside it, the worst first token cost has the best beside it, and
-    the derived ceiling has the closest thing to a witness for it. A flattering number on its
-    own is the defect this shape exists to prevent, and the skip count is drawn from a real run
-    rather than written here, because a collected count cannot see a skipped test.
+    Each card is one gate, the question it answers, and what it says when the answer is no.
+    Every code and constant on a card is imported from ``src/`` at draw time, so the band
+    cannot name a refusal the code does not make, and the footer names the commands that
+    regenerate everything else. It is the one dark surface on the page.
     """
-    bench = report("bench_report.json")
-    tests = report("test_report.json")
-    worst = bench["worst_first_token"]
-    best = min(bench["first_token"], key=lambda row: float(row["added_ms"]))
+    status = rate_limit_status()
+    refusal = GatewayErrorCode.RATE_LIMITED.value
+    gates = [
+        ("01 SCHEMA", ("Do the arguments", "fit the schema?"), str(mcp.types.INVALID_PARAMS), "Invalid params"),
+        ("02 ROLE", ("May this role", "call this tool?"), str(jsonrpc.UNAUTHORIZED_TOOL_CALL), "not forwarded"),
+        ("03 HOLD", ("Can this text", "still change?"), "holds the tail", f"{MAX_BUFFERED_CHARS} char ceiling"),
+        ("04 BUDGET", ("Is there budget,", "is primary up?"), refusal, f"{status} or {DEFAULT_TIMEOUT_MS} ms"),
+    ]
 
-    height = 420.0
+    height = 460.0
     banner = (
-        "Four tasks from the Quilr FDE brief, an MCP server, a security gateway, "
-        "a streaming PII guardrail and a model router"
+        "Where does a bad request stop? Four tasks from the FDE brief, each a gate with one refusal to prove. "
+        f"The schema gate asks whether the arguments fit the schema and refuses with {mcp.types.INVALID_PARAMS}. "
+        f"The role gate asks whether this role may call this tool and refuses with {jsonrpc.UNAUTHORIZED_TOOL_CALL} "
+        "before anything is forwarded. The hold gate asks whether this text can still change and holds it, "
+        f"{MAX_BUFFERED_CHARS} characters at most. The budget gate asks whether there is budget and whether the "
+        f"primary is up, refuses with {refusal}, and fails over on a {status} or {DEFAULT_TIMEOUT_MS} ms."
     )
     parts = [open_svg(height, banner)]
-    parts.append(rect(0, 0, WIDTH, height, BLACK))
+    parts.append(rect(0, 0, WIDTH, height, INK))
+    parts.append(rect(0, 0, WIDTH, 4, ACCENT))
 
-    kicker = "FOUR TASKS / ONE SUITE / NO NETWORK"
-    fit_mono(kicker, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, 46, kicker, 22, SILVER, spacing=3))
+    kicker = "FOUR TASKS / FOUR GATES / ONE SUITE, NO NETWORK"
+    fit_mono(kicker, 22, WIDTH - 2 * MARGIN, spacing=3)
+    parts.append(mono(MARGIN, 50, kicker, 22, ACCENT, spacing=3))
 
-    title = "Four tasks from the FDE brief"
-    fit(title, 44, WIDTH - 2 * MARGIN, bold=True)
-    parts.append(text(MARGIN, 98, title, 44, PAPER, "700"))
-    parts.append(rect(0, 126, 64, 4, PAPER))
+    title = "Where does a bad request stop?"
+    fit(title, 44, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
+    parts.append(text(MARGIN, 102, title, 44, CREAM, "700"))
 
-    subtitle = "MCP server, security gateway, streaming PII guardrail, model router."
-    fit(subtitle, 24, WIDTH - 2 * MARGIN)
-    parts.append(text(MARGIN, 166, subtitle, 24, SILVER_LO))
+    subtitle = "Four tasks from the FDE brief, each a gate with one refusal to prove."
+    fit(subtitle, 24, WIDTH - 2 * MARGIN, inner_pad=0)
+    parts.append(text(MARGIN, 142, subtitle, 24, LIGHT))
 
-    tiles = [
-        (
-            f"{tests['passed']} tests, {tests['skipped']} skip{'' if tests['skipped'] == 1 else 's'}",
-            "no coverage measured",
-        ),
-        (f"{float(worst['added_ms']):.0f} ms worst case", f"{stated_ms(float(best['added_ms']))} on safe prose"),
-        (f"{MAX_BUFFERED_CHARS} char ceiling", f"derived bound, {bench['straddling_worst_case_held_chars']} seen"),
-    ]
+    gap = 16.0
+    card_w = (WIDTH - 2 * MARGIN - 3 * gap) / 4
+    card_y, card_h, pad = 168.0, 232.0, 16.0
     x = float(MARGIN)
-    for tile_title, tile_sub in tiles:
-        tile_w = 355.0
-        fit(tile_title, 26, tile_w, bold=True)
-        fit(tile_sub, 22, tile_w)
-        parts.append(rect(x, 196, tile_w, 96, CHIP, rx=12, stroke=GRAY600))
-        parts.append(rect(x, 196, 6, 96, PAPER, rx=3))
-        parts.append(text(x + 22, 234, tile_title, 26, PAPER, "600"))
-        parts.append(text(x + 22, 268, tile_sub, 22, SILVER_LO))
-        x += tile_w + 15
+    for kicker_text, question, answer, footnote in gates:
+        fit_mono(kicker_text, 22, card_w - 2 * pad, spacing=2)
+        for line in question:
+            fit(line, 22, card_w, inner_pad=pad, bold=True)
+        fit_mono("WHEN IT SAYS NO", 22, card_w - 2 * pad, spacing=1.5)
+        fit(answer, 26, card_w, inner_pad=pad, bold=True)
+        fit_mono(footnote, 22, card_w - 2 * pad)
+        parts.append(rect(x, card_y, card_w, card_h, CHIP, rx=10, stroke=EDGE_DARK))
+        parts.append(rect(x, card_y, 6, card_h, ACCENT, rx=3))
+        parts.append(mono(x + pad + 6, card_y + 40, kicker_text, 22, ACCENT, spacing=2, weight="700"))
+        parts.append(text(x + pad + 6, card_y + 82, question[0], 22, CREAM, "700"))
+        parts.append(text(x + pad + 6, card_y + 112, question[1], 22, CREAM, "700"))
+        parts.append(mono(x + pad + 6, card_y + 152, "WHEN IT SAYS NO", 22, LIGHT, spacing=1.5))
+        parts.append(text(x + pad + 6, card_y + 186, answer, 26, CREAM, "700"))
+        parts.append(mono(x + pad + 6, card_y + 216, footnote, 22, ACCENT))
+        x += card_w + gap
 
-    x = float(MARGIN)
-    for stage in ("mcp server", "gateway", "stream guard", "router"):
-        stage_w = round(len(stage) * 13.2) + 40
-        fit(stage, 22, stage_w, inner_pad=20)
-        highlighted = stage == "stream guard"
-        if highlighted:
-            parts.append(rect(x, 316, stage_w, 40, GREEN, rx=2))
-        else:
-            parts.append(rect(x, 316, stage_w, 40, rx=2, stroke=GRAY400))
-        parts.append(mono(x + stage_w / 2, 343, stage, 22, PAPER, "middle"))
-        x += stage_w + 14
-
-    foot = "make bench writes the report, make figures redraws this band"
+    foot = "make bench measures, make figures redraws, make claims rereads the page"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, 396, foot, 22, SILVER))
+    parts.append(mono(MARGIN, 440, foot, 22, LIGHT))
     parts.append("</svg>")
     return "\n".join(parts) + "\n"
 
 
 def _map_card(x: float, y: float, w: float, title: str, details: list[str], footnote: str) -> list[str]:
-    """One bordered card in the system map: a bold title, two detail lines, a mono footnote."""
+    """One card in the system map: a bold title, two detail lines, a mono footnote."""
     fit(title, 26, w, bold=True)
-    parts = [card(x, y, w, CARD_HEIGHT), text(x + 22, y + 44, title, 26, INK, "700")]
+    parts = [card(x, y, w, CARD_HEIGHT), text(x + 26, y + 44, title, 26, INK, "700")]
     for index, line in enumerate(details):
         fit(line, 22, w)
-        parts.append(text(x + 22, y + 82 + index * 34, line, 22, INK))
-    fit_mono(footnote, 22, w - 44)
-    parts.append(mono(x + 22, y + 150, footnote, 22, GRAY700))
+        parts.append(text(x + 26, y + 82 + index * 34, line, 22, INK))
+    fit_mono(footnote, 22, w - 52)
+    parts.append(mono(x + 26, y + 150, footnote, 22, ACCENT_DEEP))
     return parts
 
 
@@ -331,7 +390,8 @@ def system_map() -> str:
                     "task4_model_router, a limiter in front of two providers",
                     [
                         f"{DEFAULT_LIMIT_TOKENS:,} tokens a minute per key, one sqlite row per charge",
-                        f"a 429 or {DEFAULT_TIMEOUT_MS} ms tries the secondary, and a failed call refunds its charge",
+                        f"a {rate_limit_status()} or {DEFAULT_TIMEOUT_MS} ms tries the secondary, "
+                        "and a failed call refunds its charge",
                     ],
                     "make run-task4",
                 )
@@ -342,10 +402,10 @@ def system_map() -> str:
     body: list[str] = []
     cursor = 196.0
     for label, note, cards in sections:
-        fit_mono(label, 22, 310 - MARGIN)
+        fit_mono(label, 22, 310 - MARGIN, spacing=2)
         fit_mono(note, 22, WIDTH - MARGIN - 310)
-        body.append(mono(MARGIN, cursor + 8, label, 22, INK, spacing=2))
-        body.append(mono(310, cursor + 8, note, 22, GRAY700))
+        body.append(mono(MARGIN, cursor + 8, label, 22, ACCENT_DEEP, spacing=2, weight="700"))
+        body.append(mono(310, cursor + 8, note, 22, DIM))
         for x, w, title, details, footnote in cards:
             body.extend(_map_card(x, cursor + 26, w, title, details, footnote))
         cursor += 26 + CARD_HEIGHT + 44
@@ -353,24 +413,23 @@ def system_map() -> str:
     height = cursor - 44 + 62
     label_text = "System map of what each of the four tasks owns, and where two of them are not wired together"
     out = [open_svg(height, label_text)]
-    out.append(rect(0, 0, WIDTH, height, GRAY50))
-    out.append(rect(0, 0, 8, height, GREEN))
-    out.append(rim_defs())
-    out.append(mono(MARGIN, 56, "SYSTEM MAP", 22, GRAY700, spacing=4))
+    out.append(rect(0, 0, WIDTH, height, CREAM))
+    out.append(rect(0, 0, 8, height, ACCENT))
+    out.append(mono(MARGIN, 56, "SYSTEM MAP", 22, ACCENT_DEEP, spacing=4, weight="700"))
     title = "How the four tasks meet"
     fit(title, 44, 698, inner_pad=0, bold=True)
     out.append(text(MARGIN, 108, title, 44, INK, "700"))
     subtitle = "What each one owns, and the one place two of them are not wired together."
-    fit(subtitle, 24, WIDTH - 2 * MARGIN)
-    out.append(text(MARGIN, 156, subtitle, 24, GRAY700))
-    out.append(card(746, 40, 430, 96))
+    fit(subtitle, 24, WIDTH - 2 * MARGIN, inner_pad=0)
+    out.append(text(MARGIN, 156, subtitle, 24, DIM))
+    out.append(rect(746, 40, 430, 96, PAPER, rx=10, stroke=EDGE))
     for index, line in enumerate([f"4 tasks / {tests['passed']} tests green", "suite: no network, no key"]):
         fit_mono(line, 22, 430 - 44)
         out.append(mono(768, 80 + index * 36, line, 22, INK))
     out.extend(body)
     foot = "every number here is read from src/ at draw time, make figures-check compares"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    out.append(mono(MARGIN, height - 30, foot, 22, GRAY700))
+    out.append(mono(MARGIN, height - 30, foot, 22, DIM))
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
@@ -400,18 +459,17 @@ def first_token_panel() -> str:
     largest = max(value for _, value, _ in rows) or 1.0
 
     parts = [open_svg(height, "Time to first token that the guardrail adds, by what the response opens with")]
-    parts.append(rect(0, 0, WIDTH, height, GRAY50))
-    parts.append(rim_defs())
+    parts.append(rect(0, 0, WIDTH, height, CREAM))
     title = "What the guardrail costs at the first token"
-    fit(title, 30, WIDTH - 2 * MARGIN, bold=True)
+    fit(title, 30, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
     parts.append(text(MARGIN, 58, title, 30, INK, "700"))
     subtitle = (
         f"median of {bench['trials_per_shape']} paired trials per opening, upstream sends "
         f"{bench['chunk_size_chars']} char chunks every {float(bench['upstream_delay_ms']):.0f} ms"
     )
-    fit(subtitle, 22, WIDTH - 2 * MARGIN)
-    parts.append(text(MARGIN, 94, subtitle, 22, GRAY700))
-    parts.append(card(MARGIN, card_y, WIDTH - 2 * MARGIN, card_h))
+    fit(subtitle, 22, WIDTH - 2 * MARGIN, inner_pad=0)
+    parts.append(text(MARGIN, 94, subtitle, 22, DIM))
+    parts.append(rect(MARGIN, card_y, WIDTH - 2 * MARGIN, card_h, PAPER, rx=10, stroke=EDGE))
 
     y = card_y + card_pad + 14
     for label, value, shown in rows:
@@ -419,14 +477,13 @@ def first_token_panel() -> str:
         fit(shown, 22, value_w, inner_pad=8)
         parts.append(text(plot_x - 18, y + 8, label, 22, INK, anchor="end"))
         bar_w = max(3.0, plot_w * value / largest)
-        parts.append(rect(plot_x, y - 10, bar_w, 24, GRAY600, stroke=INK, stroke_width=1))
+        parts.append(rect(plot_x, y - 10, bar_w, 24, ACCENT, rx=2))
         parts.append(text(plot_x + bar_w + 14, y + 8, shown, 22, INK))
         y += row_h
 
-    parts.append(rect(MARGIN, card_y + card_h - 1, WIDTH - 2 * MARGIN, 1, GRAY200))
     foot = "reports/bench_report.json, written by make bench, redrawn by make figures"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, height - 34, foot, 22, GRAY700))
+    parts.append(mono(MARGIN, height - 34, foot, 22, DIM))
     parts.append("</svg>")
     return "\n".join(parts) + "\n"
 
@@ -451,8 +508,14 @@ def main() -> int:
     if not args.check and not args.write:
         parser.error("pass --write or --check")
 
-    ASSETS.mkdir(exist_ok=True)
     failed = False
+    for failure in check_contrast():
+        print(f"palette: {failure}")
+        failed = True
+    if failed:
+        return 1
+
+    ASSETS.mkdir(exist_ok=True)
     for name, draw in FIGURES.items():
         svg = draw()
         under = fonts_under_floor(svg)

@@ -1,28 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="Four tasks from the Quilr FDE brief, an MCP server, a security gateway, a streaming PII guardrail and a model router">
-<rect x="0" y="0" width="1200" height="420" fill="#0a0a0a"/>
-<text x="48" y="46" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#d4d4d8" text-anchor="start" letter-spacing="3">FOUR TASKS / ONE SUITE / NO NETWORK</text>
-<text x="48" y="98" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#ffffff" text-anchor="start">Four tasks from the FDE brief</text>
-<rect x="0" y="126" width="64" height="4" fill="#ffffff"/>
-<text x="48" y="166" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#a1a1aa" text-anchor="start">MCP server, security gateway, streaming PII guardrail, model router.</text>
-<rect x="48" y="196" width="355" height="96" rx="12" fill="#1c1c20" stroke="#52525b" stroke-width="1.5"/>
-<rect x="48" y="196" width="6" height="96" rx="3" fill="#ffffff"/>
-<text x="70" y="234" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff" text-anchor="start">263 tests, 0 skips</text>
-<text x="70" y="268" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#a1a1aa" text-anchor="start">no coverage measured</text>
-<rect x="418" y="196" width="355" height="96" rx="12" fill="#1c1c20" stroke="#52525b" stroke-width="1.5"/>
-<rect x="418" y="196" width="6" height="96" rx="3" fill="#ffffff"/>
-<text x="440" y="234" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff" text-anchor="start">583 ms worst case</text>
-<text x="440" y="268" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#a1a1aa" text-anchor="start">under 1 ms on safe prose</text>
-<rect x="788" y="196" width="355" height="96" rx="12" fill="#1c1c20" stroke="#52525b" stroke-width="1.5"/>
-<rect x="788" y="196" width="6" height="96" rx="3" fill="#ffffff"/>
-<text x="810" y="234" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff" text-anchor="start">640 char ceiling</text>
-<text x="810" y="268" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="400" fill="#a1a1aa" text-anchor="start">derived bound, 636 seen</text>
-<rect x="48" y="316" width="172" height="40" rx="2" fill="none" stroke="#a1a1aa" stroke-width="1.5"/>
-<text x="134" y="343" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#ffffff" text-anchor="middle">mcp server</text>
-<rect x="234" y="316" width="132" height="40" rx="2" fill="none" stroke="#a1a1aa" stroke-width="1.5"/>
-<text x="300" y="343" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#ffffff" text-anchor="middle">gateway</text>
-<rect x="380" y="316" width="198" height="40" rx="2" fill="#1b5e3f"/>
-<text x="479" y="343" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#ffffff" text-anchor="middle">stream guard</text>
-<rect x="592" y="316" width="119" height="40" rx="2" fill="none" stroke="#a1a1aa" stroke-width="1.5"/>
-<text x="652" y="343" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#ffffff" text-anchor="middle">router</text>
-<text x="48" y="396" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" fill="#d4d4d8" text-anchor="start">make bench writes the report, make figures redraws this band</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" role="img" aria-label="Where does a bad request stop? Four tasks from the FDE brief, each a gate with one refusal to prove. The schema gate asks whether the arguments fit the schema and refuses with -32602. The role gate asks whether this role may call this tool and refuses with -32001 before anything is forwarded. The hold gate asks whether this text can still change and holds it, 640 characters at most. The budget gate asks whether there is budget and whether the primary is up, refuses with rate_limited, and fails over on a 429 or 3000 ms.">
+<rect x="0" y="0" width="1200" height="460" fill="#1F1E1D"/>
+<rect x="0" y="0" width="1200" height="4" fill="#D97757"/>
+<text x="48" y="50" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#D97757" text-anchor="start" letter-spacing="3">FOUR TASKS / FOUR GATES / ONE SUITE, NO NETWORK</text>
+<text x="48" y="102" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#F4F1EA" text-anchor="start">Where does a bad request stop?</text>
+<text x="48" y="142" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#B8B0A4" text-anchor="start">Four tasks from the FDE brief, each a gate with one refusal to prove.</text>
+<rect x="48" y="168" width="264" height="232" rx="10" fill="#262422" stroke="#4A4642" stroke-width="1.5"/>
+<rect x="48" y="168" width="6" height="232" rx="3" fill="#D97757"/>
+<text x="70" y="208" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#D97757" text-anchor="start" letter-spacing="2">01 SCHEMA</text>
+<text x="70" y="250" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">Do the arguments</text>
+<text x="70" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">fit the schema?</text>
+<text x="70" y="320" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start" letter-spacing="1.5">WHEN IT SAYS NO</text>
+<text x="70" y="354" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">-32602</text>
+<text x="70" y="384" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#D97757" text-anchor="start">Invalid params</text>
+<rect x="328" y="168" width="264" height="232" rx="10" fill="#262422" stroke="#4A4642" stroke-width="1.5"/>
+<rect x="328" y="168" width="6" height="232" rx="3" fill="#D97757"/>
+<text x="350" y="208" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#D97757" text-anchor="start" letter-spacing="2">02 ROLE</text>
+<text x="350" y="250" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">May this role</text>
+<text x="350" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">call this tool?</text>
+<text x="350" y="320" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start" letter-spacing="1.5">WHEN IT SAYS NO</text>
+<text x="350" y="354" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">-32001</text>
+<text x="350" y="384" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#D97757" text-anchor="start">not forwarded</text>
+<rect x="608" y="168" width="264" height="232" rx="10" fill="#262422" stroke="#4A4642" stroke-width="1.5"/>
+<rect x="608" y="168" width="6" height="232" rx="3" fill="#D97757"/>
+<text x="630" y="208" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#D97757" text-anchor="start" letter-spacing="2">03 HOLD</text>
+<text x="630" y="250" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">Can this text</text>
+<text x="630" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">still change?</text>
+<text x="630" y="320" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start" letter-spacing="1.5">WHEN IT SAYS NO</text>
+<text x="630" y="354" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">holds the tail</text>
+<text x="630" y="384" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#D97757" text-anchor="start">640 char ceiling</text>
+<rect x="888" y="168" width="264" height="232" rx="10" fill="#262422" stroke="#4A4642" stroke-width="1.5"/>
+<rect x="888" y="168" width="6" height="232" rx="3" fill="#D97757"/>
+<text x="910" y="208" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="700" fill="#D97757" text-anchor="start" letter-spacing="2">04 BUDGET</text>
+<text x="910" y="250" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">Is there budget,</text>
+<text x="910" y="280" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">is primary up?</text>
+<text x="910" y="320" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start" letter-spacing="1.5">WHEN IT SAYS NO</text>
+<text x="910" y="354" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">rate_limited</text>
+<text x="910" y="384" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#D97757" text-anchor="start">429 or 3000 ms</text>
+<text x="48" y="440" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">make bench measures, make figures redraws, make claims rereads the page</text>
 </svg>
