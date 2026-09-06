@@ -19,7 +19,7 @@ Four tasks from the brief in one project. The hard one is task 3. A value to red
 ```bash
 make install     # uv sync, Python 3.13
 make test        # the whole suite, all four tasks
-make check       # lint, figure check, claim check, then the suite
+make check       # lint, claim check, figure check, then the suite
 make bench       # what the task 3 guardrail costs
 make run-task1   # MCP server on stdio
 make run-task2   # security gateway on 8080, mock downstream on 8081
