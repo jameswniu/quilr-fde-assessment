@@ -1,66 +1,73 @@
+<p align="center">
+  <img src="assets/hero.svg" alt="Four tasks from the Forward Deployed Engineer brief, an MCP server, a security gateway, a streaming PII guardrail and a model router. 199 tests, 0 skips, no coverage measured, and a 640 char hold ceiling with 636 of it seen." width="100%">
+</p>
+
+*Every number on this page comes from a command here, and `make check` fails when a badge or a committed figure drifts from its report.*
+
 # Quilr FDE assessment
 
-Four tasks from the Forward Deployed Engineer brief. One project, one test suite, no network.
+<p align="center">
+  <img src="https://img.shields.io/badge/tests-199_green-18181b" alt="tests 199 green">
+  <img src="https://img.shields.io/badge/held_text-640_char_ceiling-1b5e3f" alt="held text 640 char ceiling">
+  <img src="https://img.shields.io/badge/python-3.13-52525b" alt="python 3.13">
+</p>
 
-```
+Four tasks from the brief in one project. The hard one is task 3. A value to redact can arrive split across two chunks of a stream, so the guardrail emits only the text that can no longer change and holds the rest. Bounded patterns cap what it holds at 640 characters, whatever the response is. One test suite covers all four, with no network and no API key.
+
+## Run it
+
+```bash
 make install     # uv sync, Python 3.13
-make test        # the whole pytest suite, all four tasks
-make lint        # ruff check, ruff format check, mypy strict
-make bench       # task 3 timings and memory
+make test        # the whole suite, all four tasks
+make check       # lint, figure check, claim check, then the suite
+make bench       # what the task 3 guardrail costs
 make run-task1   # MCP server on stdio
-make run-task2   # MCP security gateway on 8080, mock downstream on 8081
+make run-task2   # security gateway on 8080, mock downstream on 8081
 make run-task3   # streaming PII guardrail on 8082
 make run-task4   # model router demo, prints every routing outcome
 ```
 
-## Task 1, MCP server with strict validation
+## What each task owns
 
-`src/task1_mcp_server`. Two tools over stdio on the official `mcp` SDK. Pydantic models are the single source
-of truth for the advertised schema and the runtime check, strict, unknown fields rejected. Bad arguments
-return `-32602 Invalid params`. Both handlers are registered directly on the low level server to get that
-code, because the SDK's `call_tool` decorator turns every exception into an `isError` result. An unknown
-customer is a domain failure, so it stays an `isError` result.
+<p align="center">
+  <img src="assets/system-map.svg" alt="System map of the four tasks. Task 1 puts two tools on stdio, task 2 is a gateway on 8080 in front of a mock downstream on 8081, task 3 is a streaming guardrail on 8082 with a 640 character hold ceiling, and task 4 is a sqlite token limiter in front of a primary and a secondary provider" width="100%">
+</p>
 
-Stdout carries JSON-RPC only. The transport takes the real stdout handle once and `sys.stdout` then points at
-stderr, so a stray `print` cannot reach the wire. The test drives the server as a subprocess, asserts every
-stdout line is JSON-RPC, and forces a print to prove it lands there.
+`src/task1_mcp_server` puts two tools on stdio behind one Pydantic model that is both the advertised schema and the runtime check.
 
-## Task 2, MCP security gateway
+`src/task2_mcp_gateway` is a JSON-RPC reverse proxy that decides before it forwards, so a viewer asking for an `admin_` tool never reaches the downstream.
 
-`src/task2_mcp_gateway`. A JSON-RPC reverse proxy. The bearer token resolves to admin or viewer, and
-`tools/list` forwards untouched. On `tools/call`, a name starting with `admin_` requires admin, and a viewer
-gets `-32001 Unauthorized Tool Call` with the downstream never contacted, which the tests confirm from its
-log. Unusable credentials return 401 with `-32002`, malformed payloads 400. The mock downstream ships with it,
-so `make run-task2` is the whole system.
+`src/task3_stream_guard` redacts emails, social security numbers and card numbers while the response is still streaming, including a value split across two chunks.
 
-## Task 3, streaming PII redaction
+`src/task4_model_router` admits a request against a sliding token budget kept in sqlite, then fails over to a second provider on a 429 or a 3000 ms timeout.
 
-`src/task3_stream_guard`. `POST /v1/generate` streams the response back with emails, US social security
-numbers and Luhn cards replaced by `[REDACTED]`. The hard case is a value split across chunk boundaries. The
-redactor emits only text that can no longer change, cutting outside the nearest token, so a reply opening in
-prose holds a few characters and starts as fast as the upstream does. A reply that opens mid pattern waits for
-that pattern to resolve instead, and what it costs tracks how long the leading value is rather than which
-kind of value it is. A 15 character address, a 19 character card or an 11 character social security number
-costs one extra chunk. The longest legal address, at 320 characters, costs 26. The worst case costs 53, that
-same address buried inside a longer token so no safe cut turns up for another 320 characters, which is about
-582 ms at the bench's 10 ms per chunk. Bounded patterns give both the held text and that wait a ceiling
-independent of response size. `make bench` prints a first token row for every one of those shapes and names
-the worst.
+[The four tasks](docs/TASKS.md) has the decision inside each one that is worth arguing about.
 
-## Task 4, rate limiting and model failover
+## What the guardrail costs
 
-`src/task4_model_router`. A token aware sliding window limiter, 50,000 tokens per minute per tenant key, every
-charge a row in an on disk sqlite file, so the window really slides. Each connection is per thread and
-admission runs inside `BEGIN IMMEDIATE`, so two requests for one key cannot both spend it. A 429, or a call
-still running after 3000 ms, fails over to the secondary. Rows are keyed by a digest of the tenant key, not
-the key. Failures become one payload with a fixed message and a request id, upstream text staying in the log
-and the charge released.
+<p align="center">
+  <img src="assets/first-token.svg" alt="Bar chart of the time to first token the guardrail adds, by what the response opens with. Under 1 ms on safe prose, about 11 ms on a short email, card or social security number, about a third of a second on a 320 character email or a 1,000 character token, and about 0.6 s on a 320 character email buried inside a token" width="100%">
+</p>
 
-## What is not covered
+A reply that opens in ordinary prose leaves on the first chunk. A reply that opens inside a value waits for
+that value to resolve. The wait tracks how long the value is, not which kind of value it is. The worst case is
+the longest legal email buried inside a longer token, which holds 53 chunks before anything can be sent. Both
+that wait and the held text are bounded by the pattern lengths, so a longer response never costs more.
 
-The brief's overview says five tasks but only four are written, so this repo has four. Task 1 debits the
-balance so a replay cannot spend it twice, but the brief pins the arguments, so there is no idempotency key.
-Task 2 reads tokens from a static map rather than signed ones, and refuses JSON-RPC batches. Task 3 is bounded
-at the RFC address limits, so a longer address, or a quoted local part, is not matched, which is tested rather
-than hidden. Task 4 charges an estimated token count, never reconciled against reported usage. Nothing talks
-to a real model or identity provider, so the suite needs no network.
+## What this does not prove
+
+The brief's overview says five tasks and its body stops at four, so this repo has four. No coverage is
+measured, so 199 green cases say what was written and nothing about what was not. The 640
+character ceiling is derived from the pattern lengths, and the closest witness the bench builds holds 636 of
+it. Every timing here is one loaded laptop against a scripted upstream, so none of it measures a real
+provider. [The referee cards](docs/REFEREE.md) carry one card per number, saying what it measures, on what set,
+and what it does not support.
+
+## Figures and claims
+
+`make bench` writes `reports/bench_report.json`, and `make claims` recounts the suite into
+`reports/test_report.json`. `make figures` redraws the three SVGs from those two files and from the constants
+in `src/`, so no figure carries a number that was typed by hand. `make figures-check` redraws and compares
+against what is committed, and `make claims` reruns the suite and fails when a badge above stops matching it.
+Neither one pins the prose in this file, which repeats several of the same numbers, so those live in the
+referee cards. Re-running `make bench` re-measures, so redraw the figures after it.
