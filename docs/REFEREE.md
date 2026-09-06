@@ -4,9 +4,9 @@ One card per number a reviewer sees, written from the code and from live runs ra
 
 Audited on `master` at `0308589`, working tree clean, no remote. Two cards are exceptions, the time to first token card and the held text by content shape card. Both describe a fix to `scripts/bench_stream.py` that landed after `0308589`, and both are audited against that fixed worktree instead. `make bench` at `0308589` still prints the old total time line and has no content shape table.
 
-The time to first token card has since been audited a second time, against the seven shape bench. Through `0592102` that bench measured only the safe prose shape and reported its near zero result as if it were the whole story. The same change finally builds an input that nearly reaches the 640 character ceiling, so the hard ceiling card's Sibling and Bound lines are audited here too. The landing page figures, `tools/draw_figures.py`, `tools/check_claims.py` and the two reports they read all landed after `17d269d`. Cards that mention them are audited against this working tree.
+The time to first token card has since been audited a second time, against the seven shape bench. Through `0592102` that bench measured only the safe prose shape and reported its near zero result as if it were the whole story. The same change finally builds an input that nearly reaches the 640 character ceiling, so the hard ceiling card's Sibling and Bound lines are audited here too. The landing page figures, `tools/draw_figures.py`, `tools/check_claims.py` and the two reports they read all landed after `17d269d`. So did the live provider path, `src/task3_stream_guard/http_upstream.py`, `src/task4_model_router/http_provider.py`, `scripts/live_stream.py` and the two test files beside them, which moved the suite from 199 cases to 263. Cards that mention any of that are audited against this working tree.
 
-The reader-facing surface is `README.md` with its three figures, `docs/TASKS.md`, the thirteen Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench` and `make run-task4` print.
+The reader-facing surface is `README.md` with its three figures, `docs/TASKS.md`, the fourteen Makefile help lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print.
 
 The three SVGs carry no number that was typed by hand. `tools/draw_figures.py` reads every value it draws from `reports/bench_report.json`, from `reports/test_report.json`, or from the constant in `src/` that defines it. That last route is where the system map gets the ports, the error codes, the 50,000 token budget and the 3000 ms timeout. `make figures-check` redraws and compares against what is committed, so a figure cannot drift from its generator.
 
@@ -27,6 +27,8 @@ Mac17,8, Apple M5 Pro, 18 cores, 64 GB, macOS 26.6 build 25G72. CPython 3.13.11 
 One minute load average ran between 5.3 and 12.9 on 18 cores across the session. That is a shared box under other work, so every timing here is an upper-ish reading rather than a quiet-box best case. Five `make test` runs, ten `make bench` runs, one `make lint`, one `make run-task4`.
 
 The first token re-audit added five more `make bench` runs on the same box, 14.10 to 14.17 seconds of wall clock each now that the bench times seven shapes. Load average was 5.8 as they finished. Those five are the runs its Sibling line quotes.
+
+The live provider pass added roughly twenty more `make test` runs on the same box, under a one minute load average that ran between 10 and 128 on those 18 cores, plus three `make check` runs and four `make run-live` runs against a local server standing in for a provider. No `make bench` run was repeated, so every timing in the first token and held text cards is still the earlier one.
 
 ## Specifications from the brief, not measurements
 
@@ -97,29 +99,30 @@ Knob      The timeout_ms argument. Lower it and a slow but healthy primary gets 
           Raise it and a hung primary holds the request longer before failover.
 ```
 
-### 199 tests pass
+### 263 tests pass
 
 ```
-Claim     "199 passed" from make test. On the page it is the tests badge, the hero band's
+Claim     "263 passed" from make test. On the page it is the tests badge, the hero band's
           first tile, the hero alt text and the system map's stat box.
-Unit      pytest cases collected under tests/. That is 109 test functions, which parametrize
-          expands into 199 cases. The split by task is in the table below.
+Unit      pytest cases collected under tests/. That is 155 test functions, which parametrize
+          expands into 263 cases. The split by task is in the table below.
 Match     A case counts when pytest reports it green under pyproject.toml, testpaths tests,
           asyncio_mode auto. make claims counts skips, xfails and xpasses separately. It
           fails when the hero band's skip count stops matching the run, so the "0 skips"
-          beside the 199 is measured.
+          beside the 263 is measured.
 Set       Every fixture is inside the repo and the assertions are the labels, so this scores
           the suite against the code and never against an outside corpus. Nothing touches
-          the network. Task 1 drives a real subprocess over stdio, and tasks 2 and 3 drive
-          their ASGI apps in process.
+          the network. Task 1 drives a real subprocess over stdio, tasks 2 and 3 drive their
+          ASGI apps in process, and the two live provider files answer through an httpx
+          transport that replies from memory.
 Command   make test, which is uv run pytest. make claims collects and then runs the suite,
           writes both counts to reports/test_report.json, and fails when the badge, the hero
           band or the hero alt text disagrees with that run.
-Sibling   Counted by function the same suite is 109. Counted as coverage of the code it is
+Sibling   Counted by function the same suite is 155. Counted as coverage of the code it is
           nothing at all, because coverage is never measured here.
 Bound     A green suite says the written cases hold. It says nothing about the cases nobody
           wrote, and with no coverage number there is no way to bound what is missing.
-Knob      One extra tuple in an existing parametrize decorator moves 199 without testing a
+Knob      One extra tuple in an existing parametrize decorator moves 263 without testing a
           single new behaviour, which is why the function count sits beside it. A skip
           marker moves it the other way, which is what the skip count is for.
 ```
@@ -128,29 +131,73 @@ Knob      One extra tuple in an existing parametrize decorator moves 199 without
 | --- | --- | --- |
 | Task 1, MCP server | 42 | 18 |
 | Task 2, gateway | 24 | 13 |
-| Task 3, stream guard | 85 | 37, being 7 endpoint and 78 redactor |
-| Task 4, model router | 48 | 41, being 22 limiter and 26 router |
+| Task 3, stream guard | 123, being 7 endpoint, 78 redactor and 38 live upstream | 65 |
+| Task 4, model router | 74, being 22 limiter, 26 router and 26 live provider | 59 |
 
-### Suite wall time, 2.28 to 2.54 seconds
+### No network and no API key
 
 ```
-Claim     The suite finishes in a couple of seconds, printed as "199 passed in 2.54s" by
+Claim     "no network and no API key". It is the last of the README's opening bullets, the
+          hero kicker FOUR TASKS / ONE SUITE / NO NETWORK, the system map's stat card, and
+          the closing note in docs/TASKS.md. The claim covers the suite, and the repo does
+          contain one path that opens a socket.
+Unit      Sockets opened by make test. Zero of them, so the number being defended is a zero
+          rather than a measurement.
+Match     Held by construction. Task 1 talks to a subprocess over stdio pipes. Tasks 2 and 3
+          drive their ASGI apps in process. Every httpx client anywhere under tests/ is
+          built with an explicit transport, either ASGITransport onto an app in the same
+          process or MockTransport answering from memory, and grep for AsyncClient in tests/
+          finds no client without one. No test reads an environment variable for a key, and
+          two of them start a fresh interpreter whose os.environ raises on any read, then
+          import the live modules to prove nothing is read at import time.
+Set       The whole suite. The live path it does not cover is two files,
+          src/task3_stream_guard/http_upstream.py and
+          src/task4_model_router/http_provider.py, reached by scripts/live_stream.py.
+Command   make test opens nothing. make run-live is the only command in this repo that
+          opens a socket, and without LLM_API_KEY it names the variable and exits 2 rather
+          than trying.
+Sibling   The live path is exercised, just not live. 38 cases in test_task3_http_upstream.py
+          cover the event stream parsing, the framing rules, the refusals and the sanitised
+          target, and 26 in test_task4_http_provider.py cover the status mapping, including
+          a 429 off the wire driving a real router failover. All of it against a stubbed
+          transport. The make run-live command itself was driven end to end against a local
+          server speaking the same shape over a real socket, which proves the wiring and
+          proves nothing about any vendor.
+Bound     Two things this does not show. Nothing here has been run against a production
+          provider by this repo's own evidence: there is no recorded answer from one, no
+          transcript, and no fixture taken from a real call. And the zero is held by reading
+          and by construction, not by a sandbox that would fail the run if a test opened a
+          socket, so it is an audited property rather than an enforced one.
+Knob      LLM_API_KEY turns the live path on, LLM_BASE_URL points it at anything speaking
+          the OpenAI chat completions shape, and LLM_MODEL picks the model. None of the
+          three is read at import time, and none is read by the suite at all.
+```
+
+### Suite wall time, 2.52 to 2.77 seconds
+
+```
+Claim     The suite finishes in a couple of seconds, printed as "263 passed in 2.54s" by
           make test.
 Unit      Seconds of wall clock for one full make test on a warm environment, collection
           included and uv sync excluded.
 Match     The instrument is pytest's own summary line. It is cross checked with
           /usr/bin/time -p wrapped around make test, which adds the uv and interpreter
           start.
-Set       Five consecutive runs on the box named above, load average between 7.7 and 11.7 on
-          18 cores while they ran.
+Set       Five consecutive runs on the box named above, load average between 10 and 11 on 18
+          cores while they ran. That is the same band the earlier reading in this card was
+          taken under, which is what makes the two comparable.
 Command   make test, and /usr/bin/time -p make test for the wall figure.
-Sibling   pytest reported 2.54, 2.41, 2.42, 2.28 and 2.39 seconds. Shell wall time for the
-          same five was 2.82, 2.65, 2.66, 2.48 and 2.62, so the harness costs roughly 0.25
-          seconds on top.
+Sibling   pytest reported 2.54, 2.52, 2.70, 2.77 and 2.60 seconds. Shell wall time for the
+          same five was 3.01, 3.08, 3.28, 3.34 and 3.19, so the harness costs roughly half a
+          second on top. The same box ran the 199 case suite at 2.65, 2.59 and 2.53 minutes
+          later, so the 64 cases the live provider path added cost under a tenth of a second.
+          The reading before this change, at 199 cases, was 2.28 to 2.54.
 Bound     Five runs on one loaded laptop. No cold cache run, no CI run, no second machine.
-          This says the suite is cheap here and nothing about anywhere else.
-Knob      The two threaded sqlite tests and the task 1 subprocess dominate, so a slower disk
-          or a busier box moves this more than any code change would.
+          Earlier the same evening, with the load average near 120, this suite read 4.07 to
+          7.22 on this same box, so the load moves this number further than the code does.
+Knob      The two threaded sqlite tests, the task 1 subprocess and the two import probes each
+          spawn a process, so a slower disk or a busier box moves this more than any code
+          change would.
 ```
 
 ### Held text stays at 15 characters as the response grows a thousandfold
@@ -313,6 +360,8 @@ Knob      tracemalloc measures Python allocations, so it never sees interpreter 
 - The 3000 ms timeout is never raced live. Every timing test runs at 60 ms and the demo at 300 ms.
 - The sqlite limiter is proven across threads in one process. Never across processes, and never on a network filesystem, where its locking behaviour differs.
 - Task 1 is proven against this repo's own stdio client. It has not been run against a real MCP client such as the Inspector or a desktop host, so protocol compliance is asserted rather than demonstrated against a third party.
-- No coverage measurement exists, so the 199 has no complement.
+- No coverage measurement exists, so the 263 has no complement.
 - Nothing is measured on a second machine or in CI, so every timing here is one loaded 18-core laptop.
-- Two counts in `make lint` output look inconsistent and are not. Ruff says 38 files formatted because ruff 0.16 formats Markdown too, so it counts README.md, docs/REFEREE.md and docs/TASKS.md on top of the 35 Python files. Mypy says 35 because it counts only the Python.
+- A live provider failure cannot change the HTTP status. `/v1/generate` sends 200 before the first upstream chunk exists, so a 401 or a 500 from the provider reaches the client as a stream that stops early. `make run-live` prints the error and exits nonzero, and a client of the endpoint would see a short 200.
+- Nothing here has spoken to a production provider. The live upstream and the live provider are covered by parsing and status-mapping tests against a stubbed transport, so what is proven is the code that would talk to one, and `make run-live` is where a reviewer with a key finds out the rest.
+- Two counts in `make lint` output look inconsistent and are not. Ruff says 44 files formatted because ruff 0.16 formats Markdown too, so it counts README.md, docs/REFEREE.md and docs/TASKS.md on top of the 41 Python files. Mypy says 41 because it counts only the Python.
