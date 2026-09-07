@@ -71,7 +71,11 @@ Two tools over stdio, one Pydantic model each as schema and validator.
 - The official SDK client, `ClientSession` over `stdio_client`, completes the handshake, lists both tools with the same schema and gets `-32602` back as an `McpError`, in `tests/test_task1_sdk_client.py`.
 - MCP Inspector 2.5.0, `make inspector`, connects over stdio, lists both tools, and renders the same `-32602` as a failed tool call. Both screenshots below are from that run.
 
+The refusal, on purpose. `customer_id` was sent as `CUST-1`, which fails the `CUST-XXXXX` pattern, so the server answers `-32602` and Inspector shows it as a failed call.
+
 ![MCP Inspector showing the -32602 Invalid params refusal for CUST-1](assets/inspector-invalid-params.png)
+
+The happy path, same session. A refund for `CUST-10042` at 25.50, accepted, with the balance that remains.
 
 ![MCP Inspector showing the accepted refund for CUST-10042](assets/inspector-refund.png)
 
