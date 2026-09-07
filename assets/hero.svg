@@ -1,35 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 416" role="img" aria-label="Where does a bad request stop? Four tasks from the FDE brief, each a gate with one refusal to prove. The schema gate asks whether the arguments fit the schema and refuses with -32602. The role gate asks whether this role may call this tool and refuses with -32001 before anything is forwarded. The hold gate asks whether this text can still change and holds it, 640 characters at most. The budget gate asks whether there is budget and whether the primary is up, refuses with rate_limited, and fails over on a 429 or 3000 ms.">
-<rect x="0" y="0" width="1200" height="416" fill="#FAFAF8"/>
-<rect x="0" y="0" width="1200" height="4" fill="#2F5D8A"/>
-<text x="48" y="76" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#1F1F1F" text-anchor="start">Where does a bad request stop?</text>
-<text x="48" y="116" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#6B6B66" text-anchor="start">Four tasks from the FDE brief, each a gate with one refusal to prove.</text>
-<rect x="48" y="144" width="264" height="212" rx="10" fill="#FFFFFF" stroke="#D0CFCA" stroke-width="1.5"/>
-<rect x="48" y="144" width="6" height="212" rx="3" fill="#2F5D8A"/>
-<text x="70" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#2F5D8A" text-anchor="start">1. Schema</text>
-<text x="70" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">Do the arguments</text>
-<text x="70" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">fit the schema?</text>
-<text x="70" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1F1F" text-anchor="start">-32602</text>
-<text x="70" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B6B66" text-anchor="start">Invalid params</text>
-<rect x="328" y="144" width="264" height="212" rx="10" fill="#FFFFFF" stroke="#D0CFCA" stroke-width="1.5"/>
-<rect x="328" y="144" width="6" height="212" rx="3" fill="#2F5D8A"/>
-<text x="350" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#2F5D8A" text-anchor="start">2. Role</text>
-<text x="350" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">May this role</text>
-<text x="350" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">call this tool?</text>
-<text x="350" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1F1F" text-anchor="start">-32001</text>
-<text x="350" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B6B66" text-anchor="start">not forwarded</text>
-<rect x="608" y="144" width="264" height="212" rx="10" fill="#FFFFFF" stroke="#D0CFCA" stroke-width="1.5"/>
-<rect x="608" y="144" width="6" height="212" rx="3" fill="#2F5D8A"/>
-<text x="630" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#2F5D8A" text-anchor="start">3. Hold</text>
-<text x="630" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">Can this text</text>
-<text x="630" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">still change?</text>
-<text x="630" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1F1F" text-anchor="start">holds the tail</text>
-<text x="630" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B6B66" text-anchor="start">640 char ceiling</text>
-<rect x="888" y="144" width="264" height="212" rx="10" fill="#FFFFFF" stroke="#D0CFCA" stroke-width="1.5"/>
-<rect x="888" y="144" width="6" height="212" rx="3" fill="#2F5D8A"/>
-<text x="910" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#2F5D8A" text-anchor="start">4. Budget</text>
-<text x="910" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">Is there budget,</text>
-<text x="910" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#1F1F1F" text-anchor="start">is primary up?</text>
-<text x="910" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#1F1F1F" text-anchor="start">rate_limited</text>
-<text x="910" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B6B66" text-anchor="start">429 or 3000 ms</text>
-<text x="48" y="396" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#6B6B66" text-anchor="start">make bench measures, make figures redraws, make claims rereads the page</text>
+<rect x="0" y="0" width="1200" height="416" fill="#141413"/>
+<rect x="0" y="0" width="1200" height="4" fill="#CC785C"/>
+<text x="48" y="76" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="44" font-weight="700" fill="#F4F1EA" text-anchor="start">Where does a bad request stop?</text>
+<text x="48" y="116" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="24" font-weight="400" fill="#B8B0A4" text-anchor="start">Four tasks from the FDE brief, each a gate with one refusal to prove.</text>
+<rect x="48" y="144" width="264" height="212" rx="10" fill="#1F1E1D" stroke="#3A3734" stroke-width="1.5"/>
+<rect x="48" y="144" width="6" height="212" rx="3" fill="#CC785C"/>
+<text x="70" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#CC785C" text-anchor="start">1. Schema</text>
+<text x="70" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">Do the arguments</text>
+<text x="70" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">fit the schema?</text>
+<text x="70" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">-32602</text>
+<text x="70" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">Invalid params</text>
+<rect x="328" y="144" width="264" height="212" rx="10" fill="#1F1E1D" stroke="#3A3734" stroke-width="1.5"/>
+<rect x="328" y="144" width="6" height="212" rx="3" fill="#CC785C"/>
+<text x="350" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#CC785C" text-anchor="start">2. Role</text>
+<text x="350" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">May this role</text>
+<text x="350" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">call this tool?</text>
+<text x="350" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">-32001</text>
+<text x="350" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">not forwarded</text>
+<rect x="608" y="144" width="264" height="212" rx="10" fill="#1F1E1D" stroke="#3A3734" stroke-width="1.5"/>
+<rect x="608" y="144" width="6" height="212" rx="3" fill="#CC785C"/>
+<text x="630" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#CC785C" text-anchor="start">3. Hold</text>
+<text x="630" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">Can this text</text>
+<text x="630" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">still change?</text>
+<text x="630" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">holds the tail</text>
+<text x="630" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">640 char ceiling</text>
+<rect x="888" y="144" width="264" height="212" rx="10" fill="#1F1E1D" stroke="#3A3734" stroke-width="1.5"/>
+<rect x="888" y="144" width="6" height="212" rx="3" fill="#CC785C"/>
+<text x="910" y="184" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#CC785C" text-anchor="start">4. Budget</text>
+<text x="910" y="226" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">Is there budget,</text>
+<text x="910" y="256" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#F4F1EA" text-anchor="start">is primary up?</text>
+<text x="910" y="310" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#F4F1EA" text-anchor="start">rate_limited</text>
+<text x="910" y="340" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">429 or 3000 ms</text>
+<text x="48" y="396" font-family="SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="22" font-weight="400" fill="#B8B0A4" text-anchor="start">make bench measures, make figures redraws, make claims rereads the page</text>
 </svg>

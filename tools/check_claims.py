@@ -2,22 +2,21 @@
 
     uv run python tools/check_claims.py
 
-The README carries its numbers three ways: a badge wall under the title, a first token record
-table, and a handful of sentences, covering how many test cases are green, the most text the
-redactor ever holds back, what the guardrail adds to the first token on its best and worst
-opening, and the constants those sentences lean on. A number nothing rechecks is a number that
-drifts, so this reruns the suite, rereads each constant from source and each measurement from
-``reports/bench_report.json``, and exits nonzero when a badge, a record row or the prose
-disagrees with any of them. A badge is pinned as its whole image URL, built here from the same
-sources, so a hand edit to one cannot survive a run. The
-suite is run rather than only collected, because collection cannot see a skip, and a skipped case
-would still be counted as one. Two numbers come from the tests rather than from ``src/``, the
-shortened timeout the timing tests run at and the thread count the limiter is raced with, and
-each is read out of its test file by name.
+The README carries its numbers two ways: a badge wall under the title and a handful of sentences,
+covering how many test cases are green, the most text the redactor ever holds back, what the
+guardrail adds to the first token on its best and worst opening, and the constants those sentences
+lean on. A number nothing rechecks is a number that drifts, so this reruns the suite, rereads each
+constant from source and each measurement from ``reports/bench_report.json``, and exits nonzero
+when a badge, a record row or the prose disagrees with any of them. A badge is pinned as its whole
+image URL, built here from the same sources, so a hand edit to one cannot survive a run. The suite
+is run rather than only collected, because collection cannot see a skip, and a skipped case would
+still be counted as one. Two numbers come from the tests rather than from ``src/``, the shortened
+timeout the timing tests run at and the thread count the limiter is raced with, and each is read
+out of its test file by name.
 
-Two other pages repeat some of the same numbers. The card headings in ``docs/REFEREE.md`` carry
-the test count and the hold bound, and the chunk table in ``docs/TASKS.md`` carries the bench's
-wait counts, so both are read as well.
+Two other pages repeat some of the same numbers. ``docs/REFEREE.md`` carries the test count and the
+hold bound in two card headings and the whole first token record table, and the chunk table in
+``docs/TASKS.md`` carries the bench's wait counts, so both are read as well.
 
 The measured counts are written to ``reports/test_report.json``, which is what
 ``tools/draw_figures.py`` reads. The prose is the claim, this file is the check, and the report is
@@ -54,10 +53,11 @@ REPORT_PATH: Final = ROOT / "reports" / "test_report.json"
 BENCH_PATH: Final = ROOT / "reports" / "bench_report.json"
 LICENSE_PATH: Final = ROOT / "LICENSE"
 
-#: The badge wall's two colours, the slate blue on the headline badge and the warm grey on the rest.
-#: The same slate blue and grey tools/draw_figures.py draws with.
-BADGE_ACCENT: Final = "2F5D8A"
-BADGE_GREY: Final = "6B6B66"
+#: The badge wall's two colours, the accent on the headline badge and the warm grey on the rest, over the
+#: dark label. The same terracotta and near black tools/draw_figures.py draws with.
+BADGE_ACCENT: Final = "CC785C"
+BADGE_GREY: Final = "6B645A"
+BADGE_LABEL: Final = "141413"
 
 
 def _pytest(*arguments: str) -> str:
@@ -184,11 +184,11 @@ def limiter_race_threads() -> int:
 
 
 def processes_raced() -> int:
-    """How many test files race the limiter across processes, which is the badge's second number.
+    """How many test files race the limiter across processes, which is what bounds the thread race.
 
-    The thread race is a claim about one process, and the badge says so beside it. This counts
-    the test files that spawn workers with the standard library's process tools, so the day such
-    a test lands the badge has to move with it.
+    The thread race is a claim about one process, and the page says so in What I left out. This
+    counts the test files that spawn workers with the standard library's process tools, so the day
+    such a test lands that sentence has to move with it.
     """
     markers = ("multiprocessing", "ProcessPoolExecutor")
     return sum(1 for path in (ROOT / "tests").glob("test_*.py") if any(m in path.read_text() for m in markers))
@@ -211,21 +211,20 @@ def badge_url(label: str, message: str, colour: str) -> str:
     dot = "%C2%B7"
     return (
         f"https://img.shields.io/badge/{label}-{message.replace(' ', '_').replace(chr(183), dot)}-{colour}"
-        f"?style=flat-square"
+        f"?style=flat-square&labelColor={BADGE_LABEL}"
     )
 
 
 def expected_badges(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
     """Every badge under the title, as (image URL, source) pairs.
 
-    Each badge pairs a headline number with the number that makes it look worse, and both halves
-    come from the same place the prose gets them, so a badge that flatters on its own cannot be
-    typed in.
+    Each badge pairs its headline with the thing that qualifies it, and both halves come from the
+    same place the prose gets them, so a badge that flatters on its own cannot be typed in.
     """
     worst = bench["worst_first_token"]
     best_ms = min(float(row["added_ms"]) for row in bench["first_token"])
     return [
-        (badge_url("tests", f"{passed} passed · no coverage measured", BADGE_ACCENT), "the passing case count"),
+        (badge_url("tests", f"{passed} · no network, no key", BADGE_ACCENT), "the passing case count"),
         (
             badge_url(
                 "held_at_most",
@@ -242,23 +241,16 @@ def expected_badges(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]
             ),
             "the best and worst first token rows in reports/bench_report.json",
         ),
-        (
-            badge_url("timeout", f"{DEFAULT_TIMEOUT_MS} ms · raced at {fast_timeout_ms()} ms", BADGE_GREY),
-            "DEFAULT_TIMEOUT_MS in src/task4_model_router/router.py and FAST_TIMEOUT_MS in the router tests",
-        ),
-        (
-            badge_url("limiter", f"{limiter_race_threads()} threads · {processes_raced()} processes", BADGE_GREY),
-            "thread_count in tests/test_task4_rate_limiter.py and a scan of tests/ for process races",
-        ),
         (badge_url("license", license_name(), BADGE_GREY), "the first line of LICENSE"),
     ]
 
 
 def first_token_rows(bench: dict[str, Any]) -> list[str]:
-    """The rows the README's first token record table has to carry, one per bench opening.
+    """The rows the first token record table has to carry, one per bench opening.
 
-    Chunks held, the median the guardrail adds, and the range across the ten pairs, all from the
-    report the figure beside the table is drawn from, so the table and the figure cannot disagree.
+    The table lives in docs/REFEREE.md beside the first token card, and is drawn from the same
+    report as the chart on the README, so the table and the chart cannot disagree. Chunks held,
+    the median the guardrail adds, and the range across the ten pairs.
     """
     rows = []
     for row in bench["first_token"]:
@@ -434,25 +426,25 @@ def main() -> int:
         if "no two processes" in readme:
             failures.append(
                 f"README.md still says no two processes race the limiter, but {processes} test file(s) "
-                "now do; the limiter badge would repeat it, so update the "
-                "Limitations claim to the new count"
+                "now do; the limiter numbers are held by the prose regexes and the sentence in "
+                "What I left out, so update that sentence to the new count"
             )
         elif f"{processes} process" not in readme:
             failures.append(
                 f"{processes} test file(s) now race the limiter across processes, but README.md does not "
-                "name that count anywhere; the limiter badge would repeat it, so "
-                "add the claim"
+                "name that count anywhere; the limiter numbers are held by the prose regexes and the "
+                "sentence in What I left out, so add the claim there"
             )
     elif "no two processes" not in readme:
         failures.append(
             "README.md no longer says no two processes race the limiter, though processes_raced() is "
-            "still zero; the limiter badge that used to catch a drift here is gone, so restore the claim "
-            "or teach this check its new wording"
+            "still zero; the limiter numbers are held by the prose regexes and the sentence in What I "
+            "left out, so restore that sentence or teach this check its new wording"
         )
-    for row in first_token_rows(bench):
-        if row not in readme:
-            failures.append(f'README.md is missing the first token record row "{row}"')
     referee = REFEREE_PATH.read_text()
+    for row in first_token_rows(bench):
+        if row not in referee:
+            failures.append(f'docs/REFEREE.md is missing the first token record row "{row}"')
     for pattern, source in referee_headings(passed):
         if re.search(pattern, referee, re.MULTILINE) is None:
             failures.append(f"docs/REFEREE.md has no heading matching {pattern!r}, from {source}")

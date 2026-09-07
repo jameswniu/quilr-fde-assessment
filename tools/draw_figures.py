@@ -16,11 +16,11 @@ sits on at the WCAG 4.5 ratio, so a pair that reads fine on a bright monitor and
 one cannot ship either. An overflow is fixed by shortening the string, never by dropping a font
 under the floor, and a contrast failure by darkening the ink, never by enlarging the text.
 
-The three figures sit on a pale paper with dark ink, thin grey strokes and one slate blue for
-the bars and rules, so they read like the rest of the page and not like a poster, and the
-mermaid diagram uses mermaid's own neutral theme for the same reason. The diagram is generated
-here too and spliced between the README's mermaid fences, so --check catches a hand edit to it
-the same way it catches one to the SVGs.
+The palette is a warm near black with one muted terracotta, the same ground the hero uses, so
+the three figures and the diagram read as one page. The terracotta is kept for small labels,
+bars and rules, never a fill behind text. The mermaid diagram is generated here too and spliced
+into the README fence that opens with the sentinel line, so --check catches a hand edit to it
+the same way it catches one to an SVG.
 """
 
 from __future__ import annotations
@@ -48,18 +48,18 @@ from task4_model_router.router import DEFAULT_TIMEOUT_MS  # noqa: E402
 
 ASSETS: Final = ROOT / "assets"
 
-#: Pale paper, the surface behind the figure.
-PAPER: Final = "#FAFAF8"
-#: The card fill on paper.
-PANEL: Final = "#FFFFFF"
-#: Near black, every heading and label.
-INK: Final = "#1F1F1F"
-#: Secondary text.
-DIM: Final = "#6B6B66"
-#: Card and rule strokes.
-LINE: Final = "#D0CFCA"
-#: A slate blue, the bars and nothing else.
-ACCENT: Final = "#2F5D8A"
+#: Warm near black, the surface behind every figure.
+INK: Final = "#141413"
+#: The card fill, a shade lighter than the band so the cards read as cards.
+CHIP: Final = "#1F1E1D"
+#: The card stroke.
+EDGE_DARK: Final = "#3A3734"
+#: Warm cream, the primary text on the band.
+CREAM: Final = "#F4F1EA"
+#: Terracotta, the one accent: small labels, bars and rules, never a fill behind text.
+ACCENT: Final = "#CC785C"
+#: Secondary text on the band.
+LIGHT: Final = "#B8B0A4"
 FONT: Final = "Helvetica Neue,Helvetica,Arial,sans-serif"
 MONO: Final = "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace"
 
@@ -73,12 +73,12 @@ CONTRAST_FLOOR: Final = 4.5
 
 #: Every text colour with every surface it is drawn on. Checked once per run, before drawing.
 TEXT_ON_SURFACE: Final[tuple[tuple[str, str], ...]] = (
-    (INK, PAPER),
-    (INK, PANEL),
-    (DIM, PAPER),
-    (DIM, PANEL),
-    (ACCENT, PAPER),
-    (ACCENT, PANEL),
+    (ACCENT, INK),
+    (ACCENT, CHIP),
+    (CREAM, INK),
+    (CREAM, CHIP),
+    (LIGHT, INK),
+    (LIGHT, CHIP),
 )
 
 
@@ -170,8 +170,8 @@ def rect(
 
 
 def card(x: float, y: float, w: float, h: float) -> str:
-    """A panel card on the paper with a thin stroke and a slate blue bar down its left edge."""
-    return rect(x, y, w, h, PANEL, rx=10, stroke=LINE) + rect(x, y, 6, h, ACCENT, rx=3)
+    """A chip card on the band with a dark stroke and a terracotta bar down its left edge."""
+    return rect(x, y, w, h, CHIP, rx=10, stroke=EDGE_DARK) + rect(x, y, 6, h, ACCENT, rx=3)
 
 
 def text(x: float, y: float, value: object, size: float, fill: str, weight: str = "400", anchor: str = "start") -> str:
@@ -228,8 +228,8 @@ def hero() -> str:
     Each card is one gate, the question it answers, and what it says when the answer is no.
     Every code and constant on a card is imported from ``src/`` at draw time, so the band
     cannot name a refusal the code does not make, and the footer names the commands that
-    regenerate everything else. It is the band above the title, on the same paper as the
-    other figures.
+    regenerate everything else. It is the band above the title, on the same dark ground as
+    the other figures.
     """
     status = rate_limit_status()
     refusal = GatewayErrorCode.RATE_LIMITED.value
@@ -250,16 +250,16 @@ def hero() -> str:
         f"primary is up, refuses with {refusal}, and fails over on a {status} or {DEFAULT_TIMEOUT_MS} ms."
     )
     parts = [open_svg(height, banner)]
-    parts.append(rect(0, 0, WIDTH, height, PAPER))
+    parts.append(rect(0, 0, WIDTH, height, INK))
     parts.append(rect(0, 0, WIDTH, 4, ACCENT))
 
     title = "Where does a bad request stop?"
     fit(title, 44, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
-    parts.append(text(MARGIN, 76, title, 44, INK, "700"))
+    parts.append(text(MARGIN, 76, title, 44, CREAM, "700"))
 
     subtitle = "Four tasks from the FDE brief, each a gate with one refusal to prove."
     fit(subtitle, 24, WIDTH - 2 * MARGIN, inner_pad=0)
-    parts.append(text(MARGIN, 116, subtitle, 24, DIM))
+    parts.append(text(MARGIN, 116, subtitle, 24, LIGHT))
 
     gap = 16.0
     card_w = (WIDTH - 2 * MARGIN - 3 * gap) / 4
@@ -271,18 +271,18 @@ def hero() -> str:
             fit(line, 22, card_w, inner_pad=pad, bold=True)
         fit(answer, 26, card_w, inner_pad=pad, bold=True)
         fit_mono(footnote, 22, card_w - 2 * pad)
-        parts.append(rect(x, card_y, card_w, card_h, PANEL, rx=10, stroke=LINE))
+        parts.append(rect(x, card_y, card_w, card_h, CHIP, rx=10, stroke=EDGE_DARK))
         parts.append(rect(x, card_y, 6, card_h, ACCENT, rx=3))
         parts.append(text(x + pad + 6, card_y + 40, kicker_text, 22, ACCENT, "700"))
-        parts.append(text(x + pad + 6, card_y + 82, question[0], 22, INK, "700"))
-        parts.append(text(x + pad + 6, card_y + 112, question[1], 22, INK, "700"))
-        parts.append(text(x + pad + 6, card_y + 166, answer, 26, INK, "700"))
-        parts.append(mono(x + pad + 6, card_y + 196, footnote, 22, DIM))
+        parts.append(text(x + pad + 6, card_y + 82, question[0], 22, CREAM, "700"))
+        parts.append(text(x + pad + 6, card_y + 112, question[1], 22, CREAM, "700"))
+        parts.append(text(x + pad + 6, card_y + 166, answer, 26, CREAM, "700"))
+        parts.append(mono(x + pad + 6, card_y + 196, footnote, 22, LIGHT))
         x += card_w + gap
 
     foot = "make bench measures, make figures redraws, make claims rereads the page"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, 396, foot, 22, DIM))
+    parts.append(mono(MARGIN, 396, foot, 22, LIGHT))
     parts.append("</svg>")
     return "\n".join(parts) + "\n"
 
@@ -290,12 +290,12 @@ def hero() -> str:
 def _map_card(x: float, y: float, w: float, title: str, details: list[str], footnote: str) -> list[str]:
     """One card in the system map: a bold title, two detail lines, a mono footnote."""
     fit(title, 26, w, bold=True)
-    parts = [card(x, y, w, CARD_HEIGHT), text(x + 26, y + 44, title, 26, INK, "700")]
+    parts = [card(x, y, w, CARD_HEIGHT), text(x + 26, y + 44, title, 26, CREAM, "700")]
     for index, line in enumerate(details):
         fit(line, 22, w)
-        parts.append(text(x + 26, y + 82 + index * 34, line, 22, INK))
+        parts.append(text(x + 26, y + 82 + index * 34, line, 22, CREAM))
     fit_mono(footnote, 22, w - 52)
-    parts.append(mono(x + 26, y + 150, footnote, 22, DIM))
+    parts.append(mono(x + 26, y + 150, footnote, 22, LIGHT))
     return parts
 
 
@@ -384,7 +384,7 @@ def system_map() -> str:
         fit(label, 22, 310 - MARGIN, inner_pad=0, bold=True)
         fit(note, 22, WIDTH - MARGIN - 310, inner_pad=0)
         body.append(text(MARGIN, cursor + 8, label, 22, ACCENT, "700"))
-        body.append(text(310, cursor + 8, note, 22, DIM))
+        body.append(text(310, cursor + 8, note, 22, LIGHT))
         for x, w, title, details, footnote in cards:
             body.extend(_map_card(x, cursor + 26, w, title, details, footnote))
         cursor += 26 + CARD_HEIGHT + 44
@@ -392,22 +392,22 @@ def system_map() -> str:
     height = cursor - 44 + 62
     label_text = "System map of what each of the four tasks owns, and where two of them are not wired together"
     out = [open_svg(height, label_text)]
-    out.append(rect(0, 0, WIDTH, height, PAPER))
+    out.append(rect(0, 0, WIDTH, height, INK))
     out.append(rect(0, 0, 8, height, ACCENT))
     title = "How the four tasks meet"
     fit(title, 44, 698, inner_pad=0, bold=True)
-    out.append(text(MARGIN, 108, title, 44, INK, "700"))
+    out.append(text(MARGIN, 108, title, 44, CREAM, "700"))
     subtitle = "What each one owns, and the one place two of them are not wired together."
     fit(subtitle, 24, WIDTH - 2 * MARGIN, inner_pad=0)
-    out.append(text(MARGIN, 156, subtitle, 24, DIM))
-    out.append(rect(746, 40, 430, 96, PANEL, rx=10, stroke=LINE))
+    out.append(text(MARGIN, 156, subtitle, 24, LIGHT))
+    out.append(rect(746, 40, 430, 96, CHIP, rx=10, stroke=EDGE_DARK))
     for index, line in enumerate([f"4 tasks / {tests['passed']} tests green", "suite: no network, no key"]):
         fit_mono(line, 22, 430 - 44)
-        out.append(mono(768, 80 + index * 36, line, 22, INK))
+        out.append(mono(768, 80 + index * 36, line, 22, CREAM))
     out.extend(body)
     foot = "every number here is read from src/ at draw time, make figures-check compares"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    out.append(mono(MARGIN, height - 30, foot, 22, DIM))
+    out.append(mono(MARGIN, height - 30, foot, 22, LIGHT))
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
@@ -437,31 +437,31 @@ def first_token_panel() -> str:
     largest = max(value for _, value, _ in rows) or 1.0
 
     parts = [open_svg(height, "Time to first token that the guardrail adds, by what the response opens with")]
-    parts.append(rect(0, 0, WIDTH, height, PAPER))
+    parts.append(rect(0, 0, WIDTH, height, INK))
     title = "What the guardrail costs at the first token"
     fit(title, 30, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
-    parts.append(text(MARGIN, 58, title, 30, INK, "700"))
+    parts.append(text(MARGIN, 58, title, 30, CREAM, "700"))
     subtitle = (
         f"median of {bench['trials_per_shape']} paired trials per opening, upstream sends "
         f"{bench['chunk_size_chars']} char chunks every {float(bench['upstream_delay_ms']):.0f} ms"
     )
     fit(subtitle, 22, WIDTH - 2 * MARGIN, inner_pad=0)
-    parts.append(text(MARGIN, 94, subtitle, 22, DIM))
-    parts.append(rect(MARGIN, card_y, WIDTH - 2 * MARGIN, card_h, PANEL, rx=10, stroke=LINE))
+    parts.append(text(MARGIN, 94, subtitle, 22, LIGHT))
+    parts.append(rect(MARGIN, card_y, WIDTH - 2 * MARGIN, card_h, CHIP, rx=10, stroke=EDGE_DARK))
 
     y = card_y + card_pad + 14
     for label, value, shown in rows:
         fit(label, 22, label_w, inner_pad=16)
         fit(shown, 22, value_w, inner_pad=8)
-        parts.append(text(plot_x - 18, y + 8, label, 22, INK, anchor="end"))
+        parts.append(text(plot_x - 18, y + 8, label, 22, CREAM, anchor="end"))
         bar_w = max(3.0, plot_w * value / largest)
         parts.append(rect(plot_x, y - 10, bar_w, 24, ACCENT, rx=2))
-        parts.append(text(plot_x + bar_w + 14, y + 8, shown, 22, INK))
+        parts.append(text(plot_x + bar_w + 14, y + 8, shown, 22, CREAM))
         y += row_h
 
     foot = "reports/bench_report.json, written by make bench, redrawn by make figures"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, height - 34, foot, 22, DIM))
+    parts.append(mono(MARGIN, height - 34, foot, 22, LIGHT))
     parts.append("</svg>")
     return "\n".join(parts) + "\n"
 
@@ -486,7 +486,10 @@ def mermaid_flow() -> str:
     spacer node under the bottom row keeps the last lane out from under it.
     """
     init = (
-        '%%{init: {"theme": "neutral", "themeVariables": {"fontSize": "16px"}, '
+        '%%{init: {"theme": "base", "themeVariables": {'
+        f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
+        f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
+        f'"titleColor": "{LIGHT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
         '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6, '
         '"diagramPadding": 8, "subGraphTitleMargin": {"top": 6, "bottom": 14}}}}%%'
     )
@@ -522,8 +525,8 @@ def mermaid_flow() -> str:
         '  Z["<br/><br/>"]',
         "  S3 ~~~ Z",
         "  S4 ~~~ Z",
-        f"  classDef stop fill:{PANEL},stroke:{ACCENT},stroke-width:2px,color:{INK}",
-        f"  classDef hold fill:{PANEL},stroke:{DIM},stroke-width:2px,color:{INK}",
+        f"  classDef stop fill:{CHIP},stroke:{ACCENT},stroke-width:2px,color:{CREAM}",
+        f"  classDef hold fill:{CHIP},stroke:{LIGHT},stroke-width:2px,color:{CREAM}",
         "  class A3,B3,D3 stop",
         "  class C3 hold",
         "  classDef spacer fill:none,stroke:none,color:transparent",
