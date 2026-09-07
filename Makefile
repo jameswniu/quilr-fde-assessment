@@ -1,4 +1,4 @@
-.PHONY: help install test lint format bench check figures figures-check claims run-task1 run-task2 run-task3 run-task4 run-live run-client
+.PHONY: help install test lint format bench check figures figures-check claims inspector run-task1 run-task2 run-task3 run-task4 run-live run-client
 
 help:
 	@echo "install     install dependencies into .venv"
@@ -16,6 +16,7 @@ help:
 	@echo "run-task4   model router demo, prints every routing outcome"
 	@echo "run-live    stream one real completion through the task 3 guardrail, needs LLM_API_KEY"
 	@echo "run-client  the official SDK client against task 1, prints the exchange"
+	@echo "inspector   MCP Inspector's web UI against task 1, needs npx"
 
 install:
 	uv sync
@@ -60,6 +61,9 @@ run-task4:
 
 run-live:
 	uv run python scripts/live_stream.py
+
+inspector:
+	npx -y @modelcontextprotocol/inspector uv run python -m task1_mcp_server
 
 run-client:
 	uv run python scripts/sdk_client.py

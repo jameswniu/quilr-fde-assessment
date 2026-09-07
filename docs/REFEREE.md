@@ -269,7 +269,7 @@ On this branch the README opens with `assets/hero.svg` before the title, then si
 - No recall or precision for the redactor, since there is no labeled PII corpus and no denominator, only examples.
 - The 3000 ms timeout is never raced live, with every timing test at 60 ms and the demo at 300 ms.
 - The sqlite limiter is proven across threads in one process, never across processes or on a network filesystem, where locking differs.
-- Task 1 has met this repo's own stdio client and the official SDK client in `tests/test_task1_sdk_client.py`, never the Inspector or a desktop host, so compliance with a third party is asserted.
+- Task 1 has met this repo's own stdio client and the official SDK client in `tests/test_task1_sdk_client.py`, never the Inspector or a desktop host, so compliance with a third party is asserted. MCP Inspector 2.5.0's web UI, started with `make inspector`, connected over stdio, listed both tools and rendered the `-32602` refusal and an accepted refund, and the two screenshots under the schema gate come from that session. Its `--cli` mode failed on its own side, a `NameError` in a Python snippet it injects and then a 15 s connection timeout, so the UI run is the evidence and the CLI is not on the page.
 - No coverage measurement exists, so the 267 has no complement.
 - Nothing is measured on a second machine or in CI, so every timing is one loaded 18 core laptop.
 - A live provider failure cannot change the HTTP status, since `/v1/generate` sends 200 before the first upstream chunk. A 401 or 500 reaches the client as a stream that stops early, and `make run-live` prints the error and exits nonzero.

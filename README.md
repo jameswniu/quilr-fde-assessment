@@ -33,6 +33,7 @@ make check       # lint, claim check, figure check, then the suite
 make bench       # what the task 3 guardrail costs
 make run-task1   # MCP server on stdio
 make run-client  # the official SDK client against task 1, prints the exchange
+make inspector   # MCP Inspector's web UI against task 1, needs npx
 make run-task2   # security gateway on 8080, mock downstream on 8081
 make run-task3   # streaming PII guardrail on 8082
 make run-task4   # model router demo, prints every routing outcome
@@ -68,6 +69,11 @@ Two tools over stdio, one Pydantic model each as schema and validator.
 - The SDK's `call_tool` decorator turns every exception into an `isError` result, bad arguments included. I wanted `-32602`, so both handlers sit on the low level server.
 - A missing customer still gets `isError`, because that is a domain answer.
 - The official SDK client, `ClientSession` over `stdio_client`, completes the handshake, lists both tools with the same schema and gets `-32602` back as an `McpError`, in `tests/test_task1_sdk_client.py`.
+- MCP Inspector 2.5.0, `make inspector`, connects over stdio, lists both tools, and renders the same `-32602` as a failed tool call. Both screenshots below are from that run.
+
+![MCP Inspector showing the -32602 Invalid params refusal for CUST-1](assets/inspector-invalid-params.png)
+
+![MCP Inspector showing the accepted refund for CUST-10042](assets/inspector-refund.png)
 
 | Step | What it has to prove before the next step may start | How it fails |
 |:---|:---|:---|
@@ -196,6 +202,6 @@ claims ok, 267 passed and 0 skipped from 159 functions, 640 chars held at most, 
 - Every timing test runs at 60 ms to stay quick, so the 3000 ms timeout is never raced live, and the real number would need a fake clock.
 - Admission runs before any provider has counted, so the limiter charges four characters a token and nothing reconciles the estimate against the bill.
 - Twenty threads race the limiter and no two processes do, because each thread holds its own connection, so the lock between workers is inferred, not proven.
-- Task 1 has met this repo's raw stdio client, the official SDK client in `tests/test_task1_sdk_client.py`, and no host such as Claude Desktop yet.
+- Task 1 has met this repo's raw stdio client, the official SDK client in `tests/test_task1_sdk_client.py`, and MCP Inspector's web UI by hand, and no host such as Claude Desktop yet.
 
 More in [docs/REFEREE.md](docs/REFEREE.md).
