@@ -54,6 +54,11 @@ REPORT_PATH: Final = ROOT / "reports" / "test_report.json"
 BENCH_PATH: Final = ROOT / "reports" / "bench_report.json"
 LICENSE_PATH: Final = ROOT / "LICENSE"
 
+#: The badge wall's two colours, the slate blue on the headline badge and the warm grey on the rest.
+#: The same slate blue and grey tools/draw_figures.py draws with.
+BADGE_ACCENT: Final = "2F5D8A"
+BADGE_GREY: Final = "6B6B66"
+
 
 def _pytest(*arguments: str) -> str:
     """Run pytest with the project's own addopts cleared, and return what it printed."""
@@ -200,21 +205,52 @@ def license_name() -> str:
 def badge_url(label: str, message: str, colour: str) -> str:
     """One shields.io static badge, in the exact form the README embeds it.
 
-    Spaces in the message become underscores, shields.io's own separator for a multi-word badge.
+    Spaces are underscores and the separator between a number and the number that makes it look
+    worse is a middle dot, percent encoded so the URL survives every renderer.
     """
-    return f"https://img.shields.io/badge/{label}-{message.replace(' ', '_')}-{colour}?style=flat-square"
+    dot = "%C2%B7"
+    return (
+        f"https://img.shields.io/badge/{label}-{message.replace(' ', '_').replace(chr(183), dot)}-{colour}"
+        f"?style=flat-square"
+    )
 
 
-def expected_badges(passed: int, _bench: dict[str, Any]) -> list[tuple[str, str]]:
+def expected_badges(passed: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
     """Every badge under the title, as (image URL, source) pairs.
 
-    Each badge is built from the same helper the rest of this file reads that number from, so a
-    badge cannot say something typed in by hand and never checked against the source.
+    Each badge pairs a headline number with the number that makes it look worse, and both halves
+    come from the same place the prose gets them, so a badge that flatters on its own cannot be
+    typed in.
     """
+    worst = bench["worst_first_token"]
+    best_ms = min(float(row["added_ms"]) for row in bench["first_token"])
     return [
-        (badge_url("tests", f"{passed} passed", "brightgreen"), "the passing case count"),
-        (badge_url("python", declared_python_version(), "blue"), ".python-version"),
-        (badge_url("license", license_name(), "lightgrey"), "the first line of LICENSE"),
+        (badge_url("tests", f"{passed} passed · no coverage measured", BADGE_ACCENT), "the passing case count"),
+        (
+            badge_url(
+                "held_at_most",
+                f"{MAX_BUFFERED_CHARS} chars · {bench['straddling_worst_case_held_chars']} seen",
+                BADGE_GREY,
+            ),
+            "MAX_BUFFERED_CHARS and straddling_worst_case_held_chars in reports/bench_report.json",
+        ),
+        (
+            badge_url(
+                "first_token",
+                f"{stated_ms(best_ms)} on prose · {stated_ms(float(worst['added_ms']))} worst",
+                BADGE_GREY,
+            ),
+            "the best and worst first token rows in reports/bench_report.json",
+        ),
+        (
+            badge_url("timeout", f"{DEFAULT_TIMEOUT_MS} ms · raced at {fast_timeout_ms()} ms", BADGE_GREY),
+            "DEFAULT_TIMEOUT_MS in src/task4_model_router/router.py and FAST_TIMEOUT_MS in the router tests",
+        ),
+        (
+            badge_url("limiter", f"{limiter_race_threads()} threads · {processes_raced()} processes", BADGE_GREY),
+            "thread_count in tests/test_task4_rate_limiter.py and a scan of tests/ for process races",
+        ),
+        (badge_url("license", license_name(), BADGE_GREY), "the first line of LICENSE"),
     ]
 
 
@@ -267,18 +303,22 @@ def provider_rate_limit_status() -> str:
 MERMAID_SENTINEL: Final = "%% drawn by tools/draw_figures.py, edit the generator"
 GENERATED_FENCE: Final = re.compile(r"^```mermaid\n" + re.escape(MERMAID_SENTINEL) + r"\n.*?^```\n", re.S | re.M)
 BADGE_LINE: Final = re.compile(r"^(?:!\[[^\]]*\]\(https://img\.shields\.io/[^)]*\) ?)+\n", re.M)
+#: Every HTML image tag with all of its attributes, which is how the badges and the hero are embedded.
+HTML_IMAGE: Final = re.compile(r"<img\b[^>]*>", re.I)
 
 
 def prose(readme: str) -> str:
-    """The README with the generated diagram and the badge line cut out, for the prose checks.
+    """The README with the generated diagram, the badges and the embedded figures cut out.
 
-    Both of those are rebuilt from the sources on every run, so a fresh number in either would
-    satisfy a regex while the sentence that quotes the old number stayed wrong. The prose checks
-    only get to see what a person typed.
+    All three are rebuilt from the sources on every run, so a fresh number in any of them would
+    satisfy a regex while the sentence that quotes the old number stayed wrong. A badge carries its
+    numbers twice, in its URL and in its alt text, and the hero's alt text carries every code and
+    constant the figure draws, so an HTML image tag is cut whole, attributes included. The prose
+    checks only get to see what a person typed.
     """
     if GENERATED_FENCE.search(readme) is None:
         raise SystemExit("README.md has no generated mermaid fence to cut out; run make figures first.")
-    return BADGE_LINE.sub("", GENERATED_FENCE.sub("", readme))
+    return HTML_IMAGE.sub("", BADGE_LINE.sub("", GENERATED_FENCE.sub("", readme)))
 
 
 def readme_claims(passed: int, functions: int, bench: dict[str, Any]) -> list[tuple[str, str]]:
