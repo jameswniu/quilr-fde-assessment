@@ -16,14 +16,11 @@ sits on at the WCAG 4.5 ratio, so a pair that reads fine on a bright monitor and
 one cannot ship either. An overflow is fixed by shortening the string, never by dropping a font
 under the floor, and a contrast failure by darkening the ink, never by enlarging the text.
 
-The palette is Anthropic's, its brand terracotta on a warm near black, and all three figures
-sit on that same dark band, because MCP is Anthropic's protocol and this repo is built on the
-official MCP SDK, so the reference is to the protocol's home. The terracotta is kept for thin
-rules, small labels and the chart bars, never for a fill behind text, which is what keeps the
-page quiet. Quilr's own colours are deliberately not used, since dressing a take-home in the
-hiring company's palette reads as a claim of affiliation. The mermaid flow in the README is
-drawn here too, spliced between two markers, so ``--check`` catches a hand edit to it the
-same way it catches one to an SVG.
+The figure sits on a pale paper with dark ink, thin grey strokes and one slate blue for the
+bars, so it reads like the rest of the page and not like a poster, and the mermaid diagram uses
+mermaid's own neutral theme for the same reason. The diagram is generated here too and spliced
+between the README's mermaid fences, so --check catches a hand edit to it the same way it
+catches one to the SVG.
 """
 
 from __future__ import annotations
@@ -38,50 +35,43 @@ from typing import Any, Final
 ROOT: Final = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-import mcp.types  # noqa: E402
-
 from task2_mcp_gateway import jsonrpc  # noqa: E402
-from task2_mcp_gateway.__main__ import DOWNSTREAM_PORT, GATEWAY_PORT  # noqa: E402
-from task3_stream_guard.__main__ import PORT as GUARD_PORT  # noqa: E402
 from task3_stream_guard.redactor import MAX_BUFFERED_CHARS  # noqa: E402
 from task4_model_router.errors import GatewayErrorCode  # noqa: E402
 from task4_model_router.providers import ProviderRateLimited  # noqa: E402
-from task4_model_router.rate_limiter import DEFAULT_LIMIT_TOKENS, DEFAULT_WINDOW_SECONDS  # noqa: E402
+from task4_model_router.rate_limiter import DEFAULT_WINDOW_SECONDS  # noqa: E402
 from task4_model_router.router import DEFAULT_TIMEOUT_MS  # noqa: E402
 
 ASSETS: Final = ROOT / "assets"
 
-#: Warm near black, the surface behind every figure.
-INK: Final = "#141413"
-#: The card fill, a shade lighter than the band so the cards read as cards.
-CHIP: Final = "#1F1E1D"
-#: The card stroke.
-EDGE_DARK: Final = "#3A3734"
-#: Warm cream, the primary text on the band.
-CREAM: Final = "#F4F1EA"
-#: Anthropic's own brand terracotta, a step more muted than the Claude Code one: kickers, bars and rules.
-ACCENT: Final = "#CC785C"
-#: Secondary text on the band.
-LIGHT: Final = "#B8B0A4"
+#: Pale paper, the surface behind the figure.
+PAPER: Final = "#FAFAF8"
+#: The card fill on paper.
+PANEL: Final = "#FFFFFF"
+#: Near black, every heading and label.
+INK: Final = "#1F1F1F"
+#: Secondary text.
+DIM: Final = "#6B6B66"
+#: Card and rule strokes.
+LINE: Final = "#D0CFCA"
+#: A slate blue, the bars and nothing else.
+ACCENT: Final = "#2F5D8A"
 FONT: Final = "Helvetica Neue,Helvetica,Arial,sans-serif"
 MONO: Final = "SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace"
 
 FONT_FLOOR: Final = 22.0
 WIDTH: Final = 1200
 MARGIN: Final = 48
-#: Every card in the system map is this tall: a title, two detail lines and a mono footnote.
-CARD_HEIGHT: Final = 168
 #: The WCAG ratio for ordinary text, which every text and surface pair below has to clear.
 CONTRAST_FLOOR: Final = 4.5
 
 #: Every text colour with every surface it is drawn on. Checked once per run, before drawing.
 TEXT_ON_SURFACE: Final[tuple[tuple[str, str], ...]] = (
-    (ACCENT, INK),
-    (ACCENT, CHIP),
-    (CREAM, INK),
-    (CREAM, CHIP),
-    (LIGHT, INK),
-    (LIGHT, CHIP),
+    (INK, PAPER),
+    (INK, PANEL),
+    (DIM, PAPER),
+    (DIM, PANEL),
+    (ACCENT, PAPER),
 )
 
 
@@ -172,11 +162,6 @@ def rect(
     return f"<rect {attributes}/>"
 
 
-def card(x: float, y: float, w: float, h: float) -> str:
-    """A chip card on the band with a dark stroke and a terracotta bar down its left edge."""
-    return rect(x, y, w, h, CHIP, rx=10, stroke=EDGE_DARK) + rect(x, y, 6, h, ACCENT, rx=3)
-
-
 def text(x: float, y: float, value: object, size: float, fill: str, weight: str = "400", anchor: str = "start") -> str:
     return (
         f'<text x="{x:.0f}" y="{y:.0f}" font-family="{FONT}" font-size="{size}" font-weight="{weight}" '
@@ -225,202 +210,6 @@ def open_svg(height: float, label: str) -> str:
     )
 
 
-def hero() -> str:
-    """The band above the title: the framing question, and the four tasks as four gates.
-
-    Each card is one gate, the question it answers, and what it says when the answer is no.
-    Every code and constant on a card is imported from ``src/`` at draw time, so the band
-    cannot name a refusal the code does not make, and the footer names the commands that
-    regenerate everything else. It is the one dark surface on the page.
-    """
-    status = rate_limit_status()
-    refusal = GatewayErrorCode.RATE_LIMITED.value
-    gates = [
-        ("01 SCHEMA", ("Do the arguments", "fit the schema?"), str(mcp.types.INVALID_PARAMS), "Invalid params"),
-        ("02 ROLE", ("May this role", "call this tool?"), str(jsonrpc.UNAUTHORIZED_TOOL_CALL), "not forwarded"),
-        ("03 HOLD", ("Can this text", "still change?"), "holds the tail", f"{MAX_BUFFERED_CHARS} char ceiling"),
-        ("04 BUDGET", ("Is there budget,", "is primary up?"), refusal, f"{status} or {DEFAULT_TIMEOUT_MS} ms"),
-    ]
-
-    height = 460.0
-    banner = (
-        "Where does a bad request stop? Four tasks from the FDE brief, each a gate with one refusal to prove. "
-        f"The schema gate asks whether the arguments fit the schema and refuses with {mcp.types.INVALID_PARAMS}. "
-        f"The role gate asks whether this role may call this tool and refuses with {jsonrpc.UNAUTHORIZED_TOOL_CALL} "
-        "before anything is forwarded. The hold gate asks whether this text can still change and holds it, "
-        f"{MAX_BUFFERED_CHARS} characters at most. The budget gate asks whether there is budget and whether the "
-        f"primary is up, refuses with {refusal}, and fails over on a {status} or {DEFAULT_TIMEOUT_MS} ms."
-    )
-    parts = [open_svg(height, banner)]
-    parts.append(rect(0, 0, WIDTH, height, INK))
-    parts.append(rect(0, 0, WIDTH, 4, ACCENT))
-
-    kicker = "FOUR TASKS / FOUR GATES / ONE SUITE, NO NETWORK"
-    fit_mono(kicker, 22, WIDTH - 2 * MARGIN, spacing=3)
-    parts.append(mono(MARGIN, 50, kicker, 22, LIGHT, spacing=3))
-
-    title = "Where does a bad request stop?"
-    fit(title, 44, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
-    parts.append(text(MARGIN, 102, title, 44, CREAM, "700"))
-
-    subtitle = "Four tasks from the FDE brief, each a gate with one refusal to prove."
-    fit(subtitle, 24, WIDTH - 2 * MARGIN, inner_pad=0)
-    parts.append(text(MARGIN, 142, subtitle, 24, LIGHT))
-
-    gap = 16.0
-    card_w = (WIDTH - 2 * MARGIN - 3 * gap) / 4
-    card_y, card_h, pad = 168.0, 232.0, 16.0
-    x = float(MARGIN)
-    for kicker_text, question, answer, footnote in gates:
-        fit_mono(kicker_text, 22, card_w - 2 * pad, spacing=2)
-        for line in question:
-            fit(line, 22, card_w, inner_pad=pad, bold=True)
-        fit_mono("WHEN IT SAYS NO", 22, card_w - 2 * pad, spacing=1.5)
-        fit(answer, 26, card_w, inner_pad=pad, bold=True)
-        fit_mono(footnote, 22, card_w - 2 * pad)
-        parts.append(rect(x, card_y, card_w, card_h, CHIP, rx=10, stroke=EDGE_DARK))
-        parts.append(rect(x, card_y, 6, card_h, ACCENT, rx=3))
-        parts.append(mono(x + pad + 6, card_y + 40, kicker_text, 22, ACCENT, spacing=2, weight="700"))
-        parts.append(text(x + pad + 6, card_y + 82, question[0], 22, CREAM, "700"))
-        parts.append(text(x + pad + 6, card_y + 112, question[1], 22, CREAM, "700"))
-        parts.append(mono(x + pad + 6, card_y + 152, "WHEN IT SAYS NO", 22, LIGHT, spacing=1.5))
-        parts.append(text(x + pad + 6, card_y + 186, answer, 26, CREAM, "700"))
-        parts.append(mono(x + pad + 6, card_y + 216, footnote, 22, LIGHT))
-        x += card_w + gap
-
-    foot = "make bench measures, make figures redraws, make claims rereads the page"
-    fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, 440, foot, 22, LIGHT))
-    parts.append("</svg>")
-    return "\n".join(parts) + "\n"
-
-
-def _map_card(x: float, y: float, w: float, title: str, details: list[str], footnote: str) -> list[str]:
-    """One card in the system map: a bold title, two detail lines, a mono footnote."""
-    fit(title, 26, w, bold=True)
-    parts = [card(x, y, w, CARD_HEIGHT), text(x + 26, y + 44, title, 26, CREAM, "700")]
-    for index, line in enumerate(details):
-        fit(line, 22, w)
-        parts.append(text(x + 26, y + 82 + index * 34, line, 22, CREAM))
-    fit_mono(footnote, 22, w - 52)
-    parts.append(mono(x + 26, y + 150, footnote, 22, LIGHT))
-    return parts
-
-
-def system_map() -> str:
-    """What each task owns, and the one place two of them are not wired to each other.
-
-    The honest line is section 02: task 1 speaks stdio and the gateway proxies HTTP, so the
-    thing behind the gateway in this repo is the mock downstream, not task 1. A map that drew
-    an arrow between them would be the first thing a reviewer caught.
-    """
-    tests = report("test_report.json")
-    full_w = float(WIDTH - 2 * MARGIN)
-
-    sections: list[tuple[str, str, list[tuple[float, float, str, list[str], str]]]] = [
-        (
-            "01  MCP SERVER",
-            "two tools over stdio, one schema each",
-            [
-                (
-                    float(MARGIN),
-                    full_w,
-                    "task1_mcp_server",
-                    [
-                        "get_customer_record and trigger_refund, strict, unknown fields rejected",
-                        f"bad arguments get {jsonrpc.INVALID_PARAMS}, a missing customer gets an isError result",
-                    ],
-                    "make run-task1",
-                )
-            ],
-        ),
-        (
-            "02  GATEWAY",
-            "task 1 speaks stdio, so the downstream here is task 2's mock",
-            [
-                (
-                    float(MARGIN),
-                    full_w,
-                    f"task2_mcp_gateway on {GATEWAY_PORT}, mock downstream on {DOWNSTREAM_PORT}",
-                    [
-                        "the bearer token resolves to admin or viewer before anything is forwarded",
-                        f"a viewer calling an admin_ tool gets {jsonrpc.UNAUTHORIZED_TOOL_CALL}, "
-                        "and the downstream never hears it",
-                    ],
-                    "make run-task2",
-                )
-            ],
-        ),
-        (
-            "03  STREAM GUARD",
-            "the only task with a bench",
-            [
-                (
-                    float(MARGIN),
-                    full_w,
-                    f"task3_stream_guard, POST /v1/generate on {GUARD_PORT}",
-                    [
-                        "emails, US SSNs and Luhn cards become [REDACTED] as the response streams",
-                        f"only text that can no longer change is emitted, at most {MAX_BUFFERED_CHARS} characters held",
-                    ],
-                    "make run-task3, make bench",
-                )
-            ],
-        ),
-        (
-            "04  MODEL ROUTER",
-            "admission first, then failover",
-            [
-                (
-                    float(MARGIN),
-                    full_w,
-                    "task4_model_router, a limiter in front of two providers",
-                    [
-                        f"{DEFAULT_LIMIT_TOKENS:,} tokens a minute per key, one sqlite row per charge",
-                        f"a {rate_limit_status()} or {DEFAULT_TIMEOUT_MS} ms tries the secondary, "
-                        "and a failed call refunds its charge",
-                    ],
-                    "make run-task4",
-                )
-            ],
-        ),
-    ]
-
-    body: list[str] = []
-    cursor = 196.0
-    for label, note, cards in sections:
-        fit_mono(label, 22, 310 - MARGIN, spacing=2)
-        fit_mono(note, 22, WIDTH - MARGIN - 310)
-        body.append(mono(MARGIN, cursor + 8, label, 22, ACCENT, spacing=2, weight="700"))
-        body.append(mono(310, cursor + 8, note, 22, LIGHT))
-        for x, w, title, details, footnote in cards:
-            body.extend(_map_card(x, cursor + 26, w, title, details, footnote))
-        cursor += 26 + CARD_HEIGHT + 44
-
-    height = cursor - 44 + 62
-    label_text = "System map of what each of the four tasks owns, and where two of them are not wired together"
-    out = [open_svg(height, label_text)]
-    out.append(rect(0, 0, WIDTH, height, INK))
-    out.append(rect(0, 0, 8, height, ACCENT))
-    out.append(mono(MARGIN, 56, "SYSTEM MAP", 22, ACCENT, spacing=4, weight="700"))
-    title = "How the four tasks meet"
-    fit(title, 44, 698, inner_pad=0, bold=True)
-    out.append(text(MARGIN, 108, title, 44, CREAM, "700"))
-    subtitle = "What each one owns, and the one place two of them are not wired together."
-    fit(subtitle, 24, WIDTH - 2 * MARGIN, inner_pad=0)
-    out.append(text(MARGIN, 156, subtitle, 24, LIGHT))
-    out.append(rect(746, 40, 430, 96, CHIP, rx=10, stroke=EDGE_DARK))
-    for index, line in enumerate([f"4 tasks / {tests['passed']} tests green", "suite: no network, no key"]):
-        fit_mono(line, 22, 430 - 44)
-        out.append(mono(768, 80 + index * 36, line, 22, CREAM))
-    out.extend(body)
-    foot = "every number here is read from src/ at draw time, make figures-check compares"
-    fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    out.append(mono(MARGIN, height - 30, foot, 22, LIGHT))
-    out.append("</svg>")
-    return "\n".join(out) + "\n"
-
-
 def first_token_panel() -> str:
     """Time to first token by leading content shape, drawn from what make bench measured.
 
@@ -446,38 +235,38 @@ def first_token_panel() -> str:
     largest = max(value for _, value, _ in rows) or 1.0
 
     parts = [open_svg(height, "Time to first token that the guardrail adds, by what the response opens with")]
-    parts.append(rect(0, 0, WIDTH, height, INK))
+    parts.append(rect(0, 0, WIDTH, height, PAPER))
     title = "What the guardrail costs at the first token"
     fit(title, 30, WIDTH - 2 * MARGIN, inner_pad=0, bold=True)
-    parts.append(text(MARGIN, 58, title, 30, CREAM, "700"))
+    parts.append(text(MARGIN, 58, title, 30, INK, "700"))
     subtitle = (
         f"median of {bench['trials_per_shape']} paired trials per opening, upstream sends "
         f"{bench['chunk_size_chars']} char chunks every {float(bench['upstream_delay_ms']):.0f} ms"
     )
     fit(subtitle, 22, WIDTH - 2 * MARGIN, inner_pad=0)
-    parts.append(text(MARGIN, 94, subtitle, 22, LIGHT))
-    parts.append(rect(MARGIN, card_y, WIDTH - 2 * MARGIN, card_h, CHIP, rx=10, stroke=EDGE_DARK))
+    parts.append(text(MARGIN, 94, subtitle, 22, DIM))
+    parts.append(rect(MARGIN, card_y, WIDTH - 2 * MARGIN, card_h, PANEL, rx=10, stroke=LINE))
 
     y = card_y + card_pad + 14
     for label, value, shown in rows:
         fit(label, 22, label_w, inner_pad=16)
         fit(shown, 22, value_w, inner_pad=8)
-        parts.append(text(plot_x - 18, y + 8, label, 22, CREAM, anchor="end"))
+        parts.append(text(plot_x - 18, y + 8, label, 22, INK, anchor="end"))
         bar_w = max(3.0, plot_w * value / largest)
         parts.append(rect(plot_x, y - 10, bar_w, 24, ACCENT, rx=2))
-        parts.append(text(plot_x + bar_w + 14, y + 8, shown, 22, CREAM))
+        parts.append(text(plot_x + bar_w + 14, y + 8, shown, 22, INK))
         y += row_h
 
     foot = "reports/bench_report.json, written by make bench, redrawn by make figures"
     fit_mono(foot, 22, WIDTH - 2 * MARGIN)
-    parts.append(mono(MARGIN, height - 34, foot, 22, LIGHT))
+    parts.append(mono(MARGIN, height - 34, foot, 22, DIM))
     parts.append("</svg>")
     return "\n".join(parts) + "\n"
 
 
 README: Final = ROOT / "README.md"
-MERMAID_START: Final = "<!-- mermaid:start, drawn by tools/draw_figures.py, edit the generator -->"
-MERMAID_END: Final = "<!-- mermaid:end -->"
+#: The first line inside the generated fence, which is how the splicer tells it from a hand written one.
+MERMAID_SENTINEL: Final = "%% drawn by tools/draw_figures.py, edit the generator"
 
 
 def mermaid_flow() -> str:
@@ -495,15 +284,13 @@ def mermaid_flow() -> str:
     spacer node under the bottom row keeps the last lane out from under it.
     """
     init = (
-        '%%{init: {"theme": "base", "themeVariables": {'
-        f'"primaryColor": "{CHIP}", "primaryTextColor": "{CREAM}", "primaryBorderColor": "{EDGE_DARK}", '
-        f'"lineColor": "{LIGHT}", "textColor": "{CREAM}", "clusterBkg": "{INK}", "clusterBorder": "{EDGE_DARK}", '
-        f'"titleColor": "{LIGHT}", "edgeLabelBackground": "{INK}", "fontSize": "16px"}}, '
+        '%%{init: {"theme": "neutral", "themeVariables": {"fontSize": "16px"}, '
         '"flowchart": {"curve": "linear", "nodeSpacing": 14, "rankSpacing": 22, "padding": 6, '
         '"diagramPadding": 8, "subGraphTitleMargin": {"top": 6, "bottom": 14}}}}%%'
     )
     lines = [
         "```mermaid",
+        MERMAID_SENTINEL,
         init,
         "flowchart TB",
         '  subgraph S2["02 role gate, task 2"]',
@@ -533,8 +320,8 @@ def mermaid_flow() -> str:
         '  Z["<br/><br/>"]',
         "  S3 ~~~ Z",
         "  S4 ~~~ Z",
-        f"  classDef stop fill:{CHIP},stroke:{ACCENT},stroke-width:2px,color:{CREAM}",
-        f"  classDef hold fill:{CHIP},stroke:{LIGHT},stroke-width:2px,color:{CREAM}",
+        f"  classDef stop fill:{PANEL},stroke:{ACCENT},stroke-width:2px,color:{INK}",
+        f"  classDef hold fill:{PANEL},stroke:{DIM},stroke-width:2px,color:{INK}",
         "  class A3,B3,D3 stop",
         "  class C3 hold",
         "  classDef spacer fill:none,stroke:none,color:transparent",
@@ -545,20 +332,32 @@ def mermaid_flow() -> str:
 
 
 def spliced_readme(block: str) -> str:
-    """The README with the generated block between its markers, or an error naming the marker."""
-    readme = README.read_text()
-    start = readme.find(MERMAID_START)
-    end = readme.find(MERMAID_END)
-    if start < 0 or end < 0 or end < start:
-        raise SystemExit(f"README.md needs both markers, {MERMAID_START!r} and {MERMAID_END!r}, in that order.")
-    return readme[: start + len(MERMAID_START)] + "\n" + block + readme[end:]
+    """The README with the generated block in place of the mermaid fence that opens with the sentinel.
+
+    Only a fence whose first line is the sentinel is touched, so a diagram someone writes by hand is
+    never overwritten, and a README with no such fence stops both ``--write`` and ``--check`` rather
+    than letting either pick a fence to replace.
+    """
+    lines = README.read_text().split("\n")
+    start = next(
+        (
+            i
+            for i, line in enumerate(lines)
+            if line == "```mermaid" and i + 1 < len(lines) and lines[i + 1] == MERMAID_SENTINEL
+        ),
+        None,
+    )
+    if start is None:
+        raise SystemExit(
+            f"README.md has no mermaid fence opening with {MERMAID_SENTINEL!r}; add one where the diagram goes."
+        )
+    end = next((i for i in range(start + 1, len(lines)) if lines[i] == "```"), None)
+    if end is None:
+        raise SystemExit("README.md's generated mermaid fence never closes.")
+    return "\n".join(lines[:start] + block.rstrip("\n").split("\n") + lines[end + 1 :])
 
 
-FIGURES: Final[dict[str, Any]] = {
-    "hero.svg": hero,
-    "system-map.svg": system_map,
-    "first-token.svg": first_token_panel,
-}
+FIGURES: Final[dict[str, Any]] = {"first-token.svg": first_token_panel}
 
 
 def fonts_under_floor(svg: str) -> list[str]:
