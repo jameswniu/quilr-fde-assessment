@@ -1,4 +1,4 @@
-.PHONY: help install test lint format bench check figures figures-check claims run-task1 run-task2 run-task3 run-task4 run-live
+.PHONY: help install test lint format bench check figures figures-check claims run-task1 run-task2 run-task3 run-task4 run-live run-client
 
 help:
 	@echo "install     install dependencies into .venv"
@@ -15,6 +15,7 @@ help:
 	@echo "run-task3   streaming PII guardrail on 8082"
 	@echo "run-task4   model router demo, prints every routing outcome"
 	@echo "run-live    stream one real completion through the task 3 guardrail, needs LLM_API_KEY"
+	@echo "run-client  the official SDK client against task 1, prints the exchange"
 
 install:
 	uv sync
@@ -59,3 +60,6 @@ run-task4:
 
 run-live:
 	uv run python scripts/live_stream.py
+
+run-client:
+	uv run python scripts/sdk_client.py

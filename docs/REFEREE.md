@@ -34,22 +34,22 @@ Appears at `README.md:130` (the admit row), `docs/TASKS.md:63`, and `assets/syst
 
 Appears at `README.md:14` (the timeout badge, beside the 60 ms the tests race at), `README.md:132`, `README.md:154`, `docs/TASKS.md:65`, `assets/hero.svg` (the 04 BUDGET card, embedded at `README.md:2`), and `assets/system-map.svg` (from `src/task4_model_router/router.py:38` at draw time), which `README.md:139` embeds.
 
-### 263 tests pass
+### 267 tests pass
 
 | Question | Answer |
 | --- | --- |
-| What is claimed | "263 passed", 0 skipped, from `make test`. |
-| What is counted | pytest cases under `tests/`, 155 functions expanded by parametrize into 263 cases, split by task below. |
+| What is claimed | "267 passed", 0 skipped, from `make test`. |
+| What is counted | pytest cases under `tests/`, 159 functions expanded by parametrize into 267 cases, split by task below. |
 | How a match is decided | A case counts when pytest reports it green under `pyproject.toml` (testpaths `tests`, asyncio_mode auto), with skips, xfails and xpasses counted apart. |
 | Where the data came from | Every fixture is inside the repo and the assertions are the labels, so the suite is scored against the code, never an outside corpus. |
 | How to regenerate it | `make test`, then `make claims`, which collects and runs the suite, writes both counts to `reports/test_report.json`, and fails when the README or this heading disagrees. |
-| The number that makes it look worse | 155 by function, and nothing at all as coverage, which is never measured. |
+| The number that makes it look worse | 159 by function, and nothing at all as coverage, which is never measured. |
 | What this sample can and cannot say | A green suite says the written cases hold, nothing about the unwritten ones, and no coverage number bounds the gap. |
-| What moves it | A parametrize tuple moves 263 with nothing new tested, hence the function count, and a skip marker moves it down, hence the skip count. |
+| What moves it | A parametrize tuple moves 267 with nothing new tested, hence the function count, and a skip marker moves it down, hence the skip count. |
 
 | Task | Cases | Functions |
 | --- | --- | --- |
-| Task 1, MCP server | 42 | 18 |
+| Task 1, MCP server | 46 | 22 |
 | Task 2, gateway | 24 | 13 |
 | Task 3, stream guard | 123, being 7 endpoint, 78 redactor and 38 live upstream | 65 |
 | Task 4, model router | 74, being 22 limiter, 26 router and 26 live provider | 59 |
@@ -251,11 +251,11 @@ No `make bench` run was repeated in the live provider pass, so every timing in t
 
 | Surface | Rechecked by |
 | --- | --- |
-| README prose (263, 155 functions, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, four characters a token, twenty threads, 50,000 tokens, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
+| README prose (267, 159 functions, 640, 320, 583, under 1 ms, 53 chunks, 3000, 60, 429, four characters a token, twenty threads, 50,000 tokens, 8080, 8081, 8082, ten paired trials, `-32602`, `-32001`, Python 3.13) | `make claims`, which fails on any missing match |
 | The six badges under the README title, each as its whole image URL, and the seven rows of the first token record table | `make claims`, which builds both from the same sources and fails on a missing string |
 | How `make claims` counts | It collects the suite, then runs it, since collection cannot see a skip, and rereads each constant from `src/` and each measurement from `reports/bench_report.json` |
-| The 263 and 640 headings here, and the chunks held table in `docs/TASKS.md` | `make claims` |
-| The three SVGs under `assets/`, which carry no typed number and read every value from the two reports or a constant in `src/` | `make figures-check`, which redraws and compares, after `make claims` in `make check`, so the 263 in the stat box of `assets/system-map.svg` compares against this run |
+| The 267 and 640 headings here, and the chunks held table in `docs/TASKS.md` | `make claims` |
+| The three SVGs under `assets/`, which carry no typed number and read every value from the two reports or a constant in `src/` | `make figures-check`, which redraws and compares, after `make claims` in `make check`, so the 267 in the stat box of `assets/system-map.svg` compares against this run |
 | The timing rows here, and `docs/TASKS.md` beyond its chunk table | A reader, since no command reads them |
 | The fourteen `make help` lines, the module docstrings, and what `make test`, `make lint`, `make bench`, `make run-task4` and `make run-live` print | A reader running them |
 
@@ -269,8 +269,8 @@ On this branch the README opens with `assets/hero.svg` before the title, then si
 - No recall or precision for the redactor, since there is no labeled PII corpus and no denominator, only examples.
 - The 3000 ms timeout is never raced live, with every timing test at 60 ms and the demo at 300 ms.
 - The sqlite limiter is proven across threads in one process, never across processes or on a network filesystem, where locking differs.
-- Task 1 has met only this repo's own stdio client, never the Inspector or a desktop host, so compliance with a third party is asserted.
-- No coverage measurement exists, so the 263 has no complement.
+- Task 1 has met this repo's own stdio client and the official SDK client in `tests/test_task1_sdk_client.py`, never the Inspector or a desktop host, so compliance with a third party is asserted.
+- No coverage measurement exists, so the 267 has no complement.
 - Nothing is measured on a second machine or in CI, so every timing is one loaded 18 core laptop.
 - A live provider failure cannot change the HTTP status, since `/v1/generate` sends 200 before the first upstream chunk. A 401 or 500 reaches the client as a stream that stops early, and `make run-live` prints the error and exits nonzero.
 - Nothing here has spoken to a production provider, so what is proven is the code that would. `make run-live` is where a reader with a key finds out the rest.

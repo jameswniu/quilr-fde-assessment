@@ -8,7 +8,7 @@
 
 <br/>
 
-<img alt="263 tests passed, no coverage measured" src="https://img.shields.io/badge/tests-263_passed_%C2%B7_no_coverage_measured-CC785C?style=flat-square&labelColor=141413">
+<img alt="267 tests passed, no coverage measured" src="https://img.shields.io/badge/tests-267_passed_%C2%B7_no_coverage_measured-CC785C?style=flat-square&labelColor=141413">
 <img alt="held at most 640 chars, 636 seen" src="https://img.shields.io/badge/held_at_most-640_chars_%C2%B7_636_seen-6B645A?style=flat-square&labelColor=141413">
 <img alt="first token under 1 ms on prose, 583 ms worst" src="https://img.shields.io/badge/first_token-under_1_ms_on_prose_%C2%B7_583_ms_worst-6B645A?style=flat-square&labelColor=141413">
 <img alt="timeout 3000 ms, raced at 60 ms" src="https://img.shields.io/badge/timeout-3000_ms_%C2%B7_raced_at_60_ms-6B645A?style=flat-square&labelColor=141413">
@@ -32,6 +32,7 @@ make test        # the whole suite, all four tasks
 make check       # lint, claim check, figure check, then the suite
 make bench       # what the task 3 guardrail costs
 make run-task1   # MCP server on stdio
+make run-client  # the official SDK client against task 1, prints the exchange
 make run-task2   # security gateway on 8080, mock downstream on 8081
 make run-task3   # streaming PII guardrail on 8082
 make run-task4   # model router demo, prints every routing outcome
@@ -66,6 +67,7 @@ Two tools over stdio, one Pydantic model each as schema and validator.
 
 - The SDK's `call_tool` decorator turns every exception into an `isError` result, bad arguments included. I wanted `-32602`, so both handlers sit on the low level server.
 - A missing customer still gets `isError`, because that is a domain answer.
+- The official SDK client, `ClientSession` over `stdio_client`, completes the handshake, lists both tools with the same schema and gets `-32602` back as an `McpError`, in `tests/test_task1_sdk_client.py`.
 
 | Step | What it has to prove before the next step may start | How it fails |
 |:---|:---|:---|
@@ -185,15 +187,15 @@ flowchart TB
 `make claims` runs the suite, rereads the constants from `src/` and the measurements from `reports/bench_report.json`, and fails when a badge, a record row or a sentence above has drifted.
 
 ```
-claims ok, 263 passed and 0 skipped from 155 functions, 640 chars held at most, worst first token 583 ms, Python 3.13
+claims ok, 267 passed and 0 skipped from 159 functions, 640 chars held at most, worst first token 583 ms, Python 3.13
 ```
 
 ## What I left out, and why
 
-- All 263 tests, cases from 155 functions, run with no network and no key, because the scripted upstream and provider keep them deterministic.
+- All 267 tests, cases from 159 functions, run with no network and no key, because the scripted upstream and provider keep them deterministic.
 - Every timing test runs at 60 ms to stay quick, so the 3000 ms timeout is never raced live, and the real number would need a fake clock.
 - Admission runs before any provider has counted, so the limiter charges four characters a token and nothing reconciles the estimate against the bill.
 - Twenty threads race the limiter and no two processes do, because each thread holds its own connection, so the lock between workers is inferred, not proven.
-- Task 1 has met only this repo's stdio client, which reads raw bytes off stdout the SDK client would parse away.
+- Task 1 has met this repo's raw stdio client, the official SDK client in `tests/test_task1_sdk_client.py`, and no host such as Claude Desktop yet.
 
 More in [docs/REFEREE.md](docs/REFEREE.md).

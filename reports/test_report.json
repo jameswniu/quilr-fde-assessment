@@ -1,8 +1,8 @@
 {
   "source": "uv run pytest -o addopts= -q, counts from --collect-only -q",
-  "cases": 263,
-  "functions": 155,
-  "passed": 263,
+  "cases": 267,
+  "functions": 159,
+  "passed": 267,
   "skipped": 0,
   "xfailed": 0,
   "xpassed": 0,
