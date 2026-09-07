@@ -434,13 +434,13 @@ def main() -> int:
         if "no two processes" in readme:
             failures.append(
                 f"README.md still says no two processes race the limiter, but {processes} test file(s) "
-                "now do; the limiter badge that used to catch this drift is gone, so update the "
+                "now do; the limiter badge would repeat it, so update the "
                 "Limitations claim to the new count"
             )
         elif f"{processes} process" not in readme:
             failures.append(
                 f"{processes} test file(s) now race the limiter across processes, but README.md does not "
-                "name that count anywhere; the limiter badge that used to catch this drift is gone, so "
+                "name that count anywhere; the limiter badge would repeat it, so "
                 "add the claim"
             )
     elif "no two processes" not in readme:
