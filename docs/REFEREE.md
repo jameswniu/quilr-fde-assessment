@@ -295,4 +295,4 @@ The README opens with `assets/hero.svg` before the title, then four shields.io b
 - Nothing is measured on a second machine or in CI, so every timing is one loaded 18 core laptop.
 - A live provider failure cannot change the HTTP status, since `/v1/generate` sends 200 before the first upstream chunk. A 401 or 500 reaches the client as a stream that stops early, and `make run-live` prints the error and exits nonzero.
 - Nothing here has spoken to a production provider, so what is proven is the code that would. `make run-live` is where a reader with a key finds out the rest.
-- `make lint` says 44 files formatted and 41 typed, and both are right. Ruff 0.16 formats Markdown too, so it counts `README.md`, `docs/REFEREE.md` and `docs/TASKS.md` on top of the 41 Python files mypy counts.
+- `make lint` says 46 files formatted and 43 typed, and both are right. Ruff 0.16 formats Markdown too, so it counts `README.md`, `docs/REFEREE.md` and `docs/TASKS.md` on top of the 41 Python files mypy counts.
