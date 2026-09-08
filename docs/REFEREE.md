@@ -12,6 +12,7 @@ Every number on a page here, or in what a command prints, has a card below, take
 | What is counted | Our token estimates for one key digest over the trailing 60 seconds, a charge counting through 59.999 s and gone at 60.0. |
 | How a match is decided | The new charge joins that sum, exactly 50,000 is admitted, one token more is refused. |
 | Where the data came from | The brief's example, "e.g., maximum 50,000 tokens/minute per tenant API key", a default argument callers replace, never a measured capacity. |
+| Chosen before or after the result | Before. `DEFAULT_LIMIT_TOKENS` is the brief's own example written into the code at `src/task4_model_router/rate_limiter.py:31`, a constant with nothing to fit and no result to see first. |
 | How to regenerate it | `make run-task4`, `test_the_brief_default_is_fifty_thousand_tokens_a_minute` for the constant, `test_the_window_boundary_is_exact` for the boundary. |
 | The number that makes it look worse | Twenty threads win exactly ten of ten 5,000 token slots, reading 50,000, and twelve router calls on a 280 token budget serve four, refuse eight. |
 | What this sample can and cannot say | Four characters count as one token, nothing checks that against a provider's bill, and eviction only shows rows leaving. |
@@ -27,6 +28,7 @@ Appears at Decisions worth flagging (the admission sentence), `docs/TASKS.md:63`
 | What is counted | Milliseconds per request, from dispatching the primary call to giving up on it. |
 | How a match is decided | The timeout races the primary, an answer inside the window is used and the secondary never called, and a timed out call is cancelled (`primary.completed_calls==0`). |
 | Where the data came from | The brief's "times out after 3000ms", a default argument, not a latency budget anyone measured. |
+| Chosen before or after the result | Before. `DEFAULT_TIMEOUT_MS` is the brief's own number at `src/task4_model_router/router.py:38`, a constant with nothing to fit, and no run chose it. |
 | How to regenerate it | `make run-task4`, `tests/test_task4_router.py`, and `test_the_brief_default_timeout_is_three_seconds` for the constant. |
 | The number that makes it look worse | Nothing races 3000 ms live, since every timing test uses `FAST_TIMEOUT_MS` 60 and the demo in `__main__.py` uses 300. |
 | What this sample can and cannot say | One test asserts the integer is 3000 and none asserts behaviour at 3000, so only the shape is exercised. |
@@ -42,6 +44,7 @@ Appears at How it is built (the failover sentence), What I left out (beside the 
 | What is counted | pytest cases under `tests/`, 159 functions expanded by parametrize into 267 cases, split by task below. |
 | How a match is decided | A case counts when pytest reports it green under `pyproject.toml` (testpaths `tests`, asyncio_mode auto), with skips, xfails and xpasses counted apart. |
 | Where the data came from | Every fixture is inside the repo and the assertions are the labels, so the suite is scored against the code, never an outside corpus. |
+| Chosen before or after the result | After, in the only sense that counts. The suite is the harness the code was built against, so it cannot be independent of the design. The two outside witnesses are the official SDK client in `tests/test_task1_sdk_client.py` and MCP Inspector, which met the server without knowing the tests and agreed with it. |
 | How to regenerate it | `make test`, then `make claims`, which collects and runs the suite, writes both counts to `reports/test_report.json`, and fails when the README or this heading disagrees. |
 | The number that makes it look worse | 159 by function, and nothing at all as coverage, which is never measured. |
 | What this sample can and cannot say | A green suite says the written cases hold, nothing about the unwritten ones, and no coverage number bounds the gap. |
@@ -64,6 +67,7 @@ Appears at the tests badge under the README title, the `make test` line in the m
 | What is counted | Sockets opened by `make test`, so the number defended is a zero, not a measurement. |
 | How a match is decided | By construction, one row per path below, never by a sandbox that fails the run on a socket. |
 | Where the data came from | The whole suite, minus the live path, `src/task3_stream_guard/http_upstream.py` and `src/task4_model_router/http_provider.py`, reached by `scripts/live_stream.py`. |
+| Chosen before or after the result | Before. It is a property the design enforces path by path, in the table below, not a sample anyone selected, so there was no result to pick it against. |
 | How to regenerate it | `make test` opens nothing, and `make run-live`, the only command that opens a socket, names `LLM_API_KEY` and exits 2 without it. |
 | The number that makes it look worse | 38 cases in `tests/test_task3_http_upstream.py` and 26 in `tests/test_task4_http_provider.py` cover the live path against a stubbed transport, below. |
 | What this sample can and cannot say | No answer, transcript or fixture from a production provider exists, and `make run-live` ran only against a local server, proving wiring and no vendor. |
@@ -88,6 +92,7 @@ Appears at the line under the title, the tests badge, the `make test` line in th
 | What is counted | Wall clock seconds for one full `make test`, warm, collection included, `uv sync` excluded. |
 | How a match is decided | pytest's summary line, cross checked with `/usr/bin/time -p make test`, which adds the uv and interpreter start. |
 | Where the data came from | Five consecutive runs at a load average of 10 to 11 on 18 cores, the same band as the earlier reading, so the two compare. |
+| Chosen before or after the result | After. Five consecutive runs were kept out of roughly twenty because their load average matched the earlier reading, a choice made with the numbers already visible. The load average 120 row below is what the unkept ones looked like, and no page quotes this number. |
 | How to regenerate it | `make test`, and `/usr/bin/time -p make test` for the wall figure. |
 | The number that makes it look worse | Shell wall time for the same five was 3.01 to 3.34 s, so uv and the interpreter start cost roughly half a second on top. |
 | What this sample can and cannot say | Five runs on one loaded laptop, no cold cache, CI or second machine, and load moves it further than code, as the last row shows. |
@@ -111,6 +116,7 @@ Appears at the `make test` summary line only, on no page.
 | What is counted | `peak_buffered_chars`, the most the redactor held back at one moment across one whole response. |
 | How a match is decided | A counter inside the redactor, raised on every emit (`src/task3_stream_guard/redactor.py:111`) and read after the final flush (`_peak_for_length`, `scripts/bench_stream.py:137-152`). |
 | Where the data came from | One 39 character prose chunk repeated, then the same 16 character tail " ada@example.com" at all four sizes. |
+| Chosen before or after the result | Before for the four length rows, whose repeated prose and " ada@example.com" tail were fixed in the script's first cut before any reading. The three shape rows below were added after that flat result, once it was clear the tail and not the length set the number. |
 | How to regenerate it | `make bench`, which runs `uv run python scripts/bench_stream.py`. |
 | The number that makes it look worse | Content shape, below, from 5 for pure prose to 320 for one unbroken 100,000 character token. |
 | What this sample can and cannot say | The flat row is half the claim, and only beside the shape table does it show a property of content, not length. |
@@ -134,6 +140,7 @@ Appears at the `make bench` tables and `reports/bench_report.json` (`held_by_len
 | What is counted | Characters, the most the redactor can ever hold back, for any input at any chunking. |
 | How a match is decided | Derived, not measured, as twice the 320 character longest match, since a match straddling the cut pulls it back another 320. |
 | Where the data came from | The three patterns in `src/task3_stream_guard/patterns.py`, with bounded quantifiers so the worst match is computable, below. |
+| Chosen before or after the result | Before. It is derived from the caps in `patterns.py`, so it was computable before any bench ran. The 636 beside it came after, from an input built on purpose to press the bound. |
 | How to regenerate it | `make bench` prints it, `patterns.py:61` and `redactor.py:22` derive it, and `test_buffer_never_grows_with_response_length`, `test_held_text_is_bounded_even_by_one_enormous_token`, `test_one_enormous_chunk_is_still_scanned_in_bounded_slices` hold it. |
 | The number that makes it look worse | 636 is the closest the bench gets, holding a 320 character address, "_" and 320 token characters in 12 character chunks. |
 | What this sample can and cannot say | An analytic bound never reached exactly, the doubling watched happening and only the last four characters resting on reading the code. |
@@ -155,6 +162,7 @@ Appears at the held_at_most badge under the README title, the gate table and the
 | What is counted | Milliseconds from stream start to the first non-empty chunk, the median of ten back to back raw and guarded pairs per opening, plus chunks held. |
 | How a match is decided | A stopwatch around the first chunk, raw then guarded, back to back (`time.perf_counter` in `_first_token_seconds`, paired by `_paired_trials`, `scripts/bench_stream.py:49-77`), against the scripted upstream below. |
 | Where the data came from | Seven responses differing only in their opening (`_leading_shapes`, `scripts/bench_stream.py:80-108`), ten paired trials each, one prompt, no warm up. |
+| Chosen before or after the result | After. The seven openings were chosen to bracket the bound once exploration had shown where the cost lived, so 583 ms is the worst of a chosen set rather than a survey of traffic. Earlier cuts of `scripts/bench_stream.py` timed safe prose alone, and one held text row turned out to be its fixture rather than a property, before the seven landed with the worst case that is now the headline. |
 | How to regenerate it | `make bench`, then `make figures` to redraw `assets/first-token.svg` from `reports/bench_report.json`, then `make claims` to rebuild the record rows from the same file. |
 | The number that makes it look worse | Best and worst sit four orders of magnitude apart, so quoting only the prose row was wrong, and the straddling note belongs to one run. |
 | What this sample can and cannot say | One chunk size, one cadence, one loaded laptop, no real provider, and the last shape is the worst the design allows, not one from traffic. |
@@ -205,6 +213,7 @@ Appears at the first_token badge under the README title, The guardrail and what 
 | What is counted | Kibibytes of tracemalloc's peak traced allocation while feeding the whole response, Python heap only. |
 | How a match is decided | Start tracemalloc, feed the response, read `get_traced_memory()[1]`, in `_peak_for_length` at `scripts/bench_stream.py:137-152`, dropping the output as a forwarding proxy would. |
 | Where the data came from | The same synthetic response as the 15 character card, at four sizes from 3,900 to 3,900,000 characters. |
+| Chosen before or after the result | Before, and nothing rests on it. The fixture and the four sizes were fixed in the script's first cut, and the 2.0 is whatever the committed run printed, inside the 2.0 to 6.6 KiB spread recorded below. |
 | How to regenerate it | `make bench`, and `test_peak_memory_does_not_track_response_length`, which streams 7.8 million characters and asserts a peak under 64 KiB and under a hundredth of that. |
 | The number that makes it look worse | Across ten runs this row read 2.0 to 6.6 KiB and the 39,000 character row 3.0 to 11.2 KiB, small rows sometimes above large ones. |
 | What this sample can and cannot say | Allocator noise dominates, so it shows the absence of growth and is not a memory figure worth quoting. |
