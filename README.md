@@ -140,7 +140,7 @@ claims ok, 267 passed and 0 skipped from 159 functions, 640 chars held at most, 
 - The 3000 ms timeout is never raced live, since every timing test runs at 60 ms, and proving the real number would need a fake clock.
 - Twenty threads race the limiter and no two processes do, so the lock between separate workers is inferred from sqlite's behaviour rather than proven here.
 - Task 1 has met a raw client, the SDK client and Inspector, and no host such as Claude Desktop yet.
-- The suite is the harness the code was built against and not an independent check, so the only outside witnesses are the official SDK client and MCP Inspector, which met the server without knowing the tests and got the same schema and the same refusal.
-- The seven bench openings were chosen to bracket the worst case after exploring where the cost lived, so 583 ms is the worst of a chosen set and not a survey of real traffic. The number that survives a change of machine is the 53 chunks held.
+- These tests are what I built the code against, so they are not an independent check of it. The two things that never read them are the official SDK client and MCP Inspector, and both got the same schema and the same refusal.
+- I picked the seven bench openings to bracket the worst case, after finding where the cost actually lived, so 583 ms is the worst of a set I chose rather than anything sampled from traffic. What survives a change of machine is the 53 chunks held.
 
 More in [docs/TASKS.md](docs/TASKS.md), and a card for every number above in [docs/REFEREE.md](docs/REFEREE.md).
